@@ -30,7 +30,7 @@ class Window(QMainWindow):
         self.CentralWidget = QWidget(self)
         self.setCentralWidget(self.CentralWidget)
 
-        self.loginID = self.settings.value('loginID', '')
+
 
         self.ButtonCSS = """
                             QPushButton{
@@ -51,7 +51,9 @@ class Window(QMainWindow):
                             }                                    
                         """
 
-        if self.loginID == '':
+        self.email = self.settings.value('email', '')
+
+        if self.email == '':
             self.LoginLayout()
         else:
             self.MainWindow()
@@ -96,15 +98,15 @@ class Window(QMainWindow):
             CentralWidgetLayout.addWidget(LoginTitleLabel)
 
             # Login ID Label
-            LoginIDLabel = QLabel()
-            LoginIDLabel.setText("LoginID")
-            LoginIDLabel.setAlignment(Qt.AlignVCenter)
-            CentralWidgetLayout.addWidget(LoginIDLabel)
+            emailLabel = QLabel()
+            emailLabel.setText("Email")
+            emailLabel.setAlignment(Qt.AlignVCenter)
+            CentralWidgetLayout.addWidget(emailLabel)
 
             # Login ID Line Edit
-            LoginIDLineEdit = QLineEdit()
-            LoginIDLineEdit.setAlignment(Qt.AlignVCenter)
-            LoginIDLineEdit.setStyleSheet(
+            emailLineEdit = QLineEdit()
+            emailLineEdit.setAlignment(Qt.AlignVCenter)
+            emailLineEdit.setStyleSheet(
                 """
                     QLineEdit{
                         padding: 1px;
@@ -114,7 +116,7 @@ class Window(QMainWindow):
                     }
                 """
             )
-            CentralWidgetLayout.addWidget(LoginIDLineEdit)
+            CentralWidgetLayout.addWidget(emailLineEdit)
 
             # Login Password
             LoginPasswordLabel = QLabel()
@@ -145,16 +147,55 @@ class Window(QMainWindow):
             LoginButton = QPushButton()
             LoginButton.setText("Login")
             LoginButton.setStyleSheet(self.ButtonCSS)
+            LoginButton.setDisabled(True)
             ButtonLayout.addWidget(LoginButton)
             CentralWidgetLayout.addWidget(ButtonWidget)
 
+            emailLineEdit.textChanged.connect(lambda: self.LoginButtonToggle(emailLineEdit, LoginPasswordLineEdit, LoginButton))
+            LoginPasswordLineEdit.textChanged.connect(lambda: self.LoginButtonToggle(emailLineEdit, LoginPasswordLineEdit, LoginButton))
+
+            LoginButton.clicked.connect(lambda: self.Login(emailLineEdit.text(), LoginPasswordLineEdit.text()))
 
         except Exception as e:
             print(str(e))
 
+    # Login Button Toggle
+    def LoginButtonToggle(self, Email, Password, LoginButton):
+        # Empty Fields
+        if len(Email.text()) == 0 or len(Password.text()) == 0:
+            Email.setStyleSheet("border: 1px solid black;")
+            Password.setStyleSheet("border: 1px solid black;")
+            LoginButton.setDisabled(True)
+
+        # Email
+        elif not re.search('^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$', Email.text()):
+            Email.setStyleSheet("border: 1px solid red;")
+            LoginButton.setDisabled(True)
+
+        else:
+            Email.setStyleSheet("border: 1px solid black;")
+            Password.setStyleSheet("border: 1px solid black;")
+            LoginButton.setDisabled(False)
+
     # Login
-    def Login(self):
-        pass
+    def Login(self, Email, Password):
+        try:
+
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT * FROM users where email = %s and password = %s", (Email, str(hashlib.md5(Password.encode('utf-8')).digest())))
+
+            myresult = mycursor.fetchall()
+
+            if not len(myresult):
+                QMessageBox.critical(self, 'Login Error',
+                                    'Invalid Credentials', QMessageBox.Ok)
+
+            else:
+                self.settings.setValue('email', myresult[0][1])
+                self.MainWindow()
+
+        except Exception as e:
+            print(str(e))
 
     # Register Layout
     def RegisterLayout(self):
@@ -263,7 +304,7 @@ class Window(QMainWindow):
             # Birth Date Calendar
             BirthDateCalendar = QDateEdit()
             BirthDateCalendar.setCalendarPopup(True)
-            BirthDateCalendar.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
+            BirthDateCalendar.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
             BirthDateCalendar.setMaximumDate(datetime.datetime.now() - datetime.timedelta(days=5840))
             BirthDateCalendar.setMinimumDate(QDate(1903, 2, 2))
             BirthDateCalendar.setDate(datetime.datetime.now() - datetime.timedelta(days=5840))
@@ -358,10 +399,15 @@ class Window(QMainWindow):
 
         try:
             mycursor = mydb.cursor()
-            PasswordHash = hashlib.md5(EnterPassword.encode('utf-8')).digest()
 
             sql = "INSERT INTO users (email, password, first_name, last_name, dob, age, gender) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-            val = (email, PasswordHash, FirstName, LastName, datetime.datetime.strptime(BirthDate, '%m/%d/%Y').date(), Age, Gender)
+            val = (email,
+                   str(hashlib.md5(EnterPassword.encode('utf-8')).digest()),
+                   FirstName,
+                   LastName,
+                   datetime.datetime.strptime(BirthDate, '%m/%d/%Y').date(),
+                   Age,
+                   Gender)
             mycursor.execute(sql, val)
 
             mydb.commit()
@@ -385,7 +431,23 @@ class Window(QMainWindow):
 
     #  Main Window
     def MainWindow(self):
-        pass
+        if self.CentralWidget.layout() is not None:
+            CentralWidgetLayout = self.CentralWidget.layout()
+            for i in reversed(range(CentralWidgetLayout.count())):
+                CentralWidgetLayout.itemAt(i).widget().setParent(None)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.125, self.width * 0.25,
+                                                   self.height * 0.125)
+        else:
+            CentralWidgetLayout = QVBoxLayout(self.CentralWidget)
+            CentralWidgetLayout.setAlignment(Qt.AlignHCenter)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.125, self.width * 0.25,
+                                                   self.height * 0.125)
+            CentralWidgetLayout.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+
+
+        CentralWidgetLayout.addWidget(QLabel("Main Window"))
+
+
 
     # Close Application / Exit
     def closeEvent(self, event):
