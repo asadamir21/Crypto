@@ -1,11 +1,10 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-from PyQt5.QtPrintSupport import *
 
 from PIL import Image
 
-import os, sys, datetime, mysql.connector
+import os, sys, datetime, mysql.connector, re, hashlib
 
 class Window(QMainWindow):
     def __init__(self):
@@ -160,12 +159,6 @@ class Window(QMainWindow):
     # Register Layout
     def RegisterLayout(self):
         try:
-            # self.CentralWidget.setStyleSheet(
-            #     """
-            #         background-color: #288dd1;
-            #     """
-            # )
-
             if self.CentralWidget.layout() is not None:
                 CentralWidgetLayout = self.CentralWidget.layout()
                 for i in reversed(range(CentralWidgetLayout.count())):
@@ -210,16 +203,27 @@ class Window(QMainWindow):
             RegisterTitleLabel.setFont(font);
             CentralWidgetLayout.addWidget(RegisterTitleLabel)
 
-            # Register Name Label
-            NameLabel = QLabel()
-            NameLabel.setText("Name")
-            NameLabel.setAlignment(Qt.AlignVCenter)
-            CentralWidgetLayout.addWidget(NameLabel)
+            # Register First Name Label
+            FirstNameLabel = QLabel()
+            FirstNameLabel.setText("First Name")
+            FirstNameLabel.setAlignment(Qt.AlignVCenter)
+            CentralWidgetLayout.addWidget(FirstNameLabel)
 
-            # Register Name Line Edit
-            NameLineEdit = QLineEdit()
-            NameLineEdit.setAlignment(Qt.AlignVCenter)
-            CentralWidgetLayout.addWidget(NameLineEdit)
+            # Register First Name Line Edit
+            FirstNameLineEdit = QLineEdit()
+            FirstNameLineEdit.setAlignment(Qt.AlignVCenter)
+            CentralWidgetLayout.addWidget(FirstNameLineEdit)
+
+            # Register Last Name Label
+            LastNameLabel = QLabel()
+            LastNameLabel.setText("Last Name")
+            LastNameLabel.setAlignment(Qt.AlignVCenter)
+            CentralWidgetLayout.addWidget(LastNameLabel)
+
+            # Register Last Name Line Edit
+            LastNameLineEdit = QLineEdit()
+            LastNameLineEdit.setAlignment(Qt.AlignVCenter)
+            CentralWidgetLayout.addWidget(LastNameLineEdit)
 
             # Register email Label
             emailLabel = QLabel()
@@ -265,6 +269,18 @@ class Window(QMainWindow):
             BirthDateCalendar.setDate(datetime.datetime.now() - datetime.timedelta(days=5840))
             CentralWidgetLayout.addWidget(BirthDateCalendar)
 
+            # Register Gender Label
+            GenderLabel = QLabel()
+            GenderLabel.setText("Gender")
+            GenderLabel.setAlignment(Qt.AlignVCenter)
+            CentralWidgetLayout.addWidget(GenderLabel)
+
+            # Gender GroupBox
+            GenderGroupBox = QComboBox()
+            GenderGroupBox.addItem("Male")
+            GenderGroupBox.addItem("Female")
+            CentralWidgetLayout.addWidget(GenderGroupBox)
+
             # Enter Password Label
             EnterPasswordLabel = QLabel()
             EnterPasswordLabel.setText("Enter Password")
@@ -292,13 +308,76 @@ class Window(QMainWindow):
             # Register Button
             RegisterButton = QPushButton()
             RegisterButton.setText("Register")
+            RegisterButton.setDisabled(True)
             RegisterButton.setStyleSheet(self.ButtonCSS)
-            RegisterButton.clicked.connect(lambda: self.Register())
-
             CentralWidgetLayout.addWidget(RegisterButton)
+
+            FirstNameLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit,BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+            LastNameLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+            emailLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+            AgeLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+            BirthDateCalendar.dateChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+            EnterPasswordLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+            RetypePasswordLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+
+            RegisterButton.clicked.connect(lambda: self.RegisterValidate(FirstNameLineEdit.text(), LastNameLineEdit.text(), emailLineEdit.text(), AgeLineEdit.text(), BirthDateCalendar.text(), GenderGroupBox.currentText(), EnterPasswordLineEdit.text()))
+
 
         except Exception as e:
             print(str(e))
+
+    # Register Button Toggle
+    def RegisterButtonToggle(self, FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton):
+        # Empty Fields
+        if len(FirstNameLineEdit.text()) == 0 or len(LastNameLineEdit.text()) == 0 or len(emailLineEdit.text()) == 0 or len(AgeLineEdit.text()) == 0 or len(BirthDateCalendar.text()) == 0 or len(EnterPasswordLineEdit.text()) == 0 or len(RetypePasswordLineEdit.text()) == 0:
+            emailLineEdit.setStyleSheet("border: 1px solid black;")
+            EnterPasswordLineEdit.setStyleSheet("border: 1px solid black;")
+            RetypePasswordLineEdit.setStyleSheet("border: 1px solid black;")
+            RegisterButton.setDisabled(True)
+
+        # Email
+        elif not re.search('^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$', emailLineEdit.text()):
+            emailLineEdit.setStyleSheet("border: 1px solid red;")
+            RegisterButton.setDisabled(True)
+
+        # Password Mismatch
+        elif not EnterPasswordLineEdit.text() == RetypePasswordLineEdit.text():
+            EnterPasswordLineEdit.setStyleSheet("border: 1px solid red;")
+            RetypePasswordLineEdit.setStyleSheet("border: 1px solid red;")
+            RegisterButton.setDisabled(True)
+
+        else:
+            emailLineEdit.setStyleSheet("border: 1px solid black;")
+            EnterPasswordLineEdit.setStyleSheet("border: 1px solid black;")
+            RetypePasswordLineEdit.setStyleSheet("border: 1px solid black;")
+            RegisterButton.setDisabled(False)
+
+    # Register Form Validate
+    def RegisterValidate(self, FirstName, LastName, email, Age, BirthDate, Gender, EnterPassword):
+        RegistrationError = False
+
+        try:
+            mycursor = mydb.cursor()
+            PasswordHash = hashlib.md5(EnterPassword.encode('utf-8')).digest()
+
+            sql = "INSERT INTO users (email, password, first_name, last_name, dob, age, gender) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            val = (email, PasswordHash, FirstName, LastName, datetime.datetime.strptime(BirthDate, '%m/%d/%Y').date(), Age, Gender)
+            mycursor.execute(sql, val)
+
+            mydb.commit()
+
+        except Exception as e:
+            RegistrationError = True
+
+        if not RegistrationError:
+            QMessageBox.information(self, "Registration Success",
+                                    "User Registration Successful",
+                                    QMessageBox.Ok)
+            self.LoginLayout()
+        else:
+            QMessageBox.critical(self, "Registration Failed",
+                                    "User Registration Failed",
+                                    QMessageBox.Ok)
 
     # Register
     def Register(self):
@@ -323,12 +402,13 @@ class Window(QMainWindow):
 if __name__ == "__main__":
     App = QApplication(sys.argv)
 
+
     mydb = mysql.connector.connect(
         host="sql12.freemysqlhosting.net",
         user="sql12348621",
-        password="nvcWV8lYIj"
+        password="nvcWV8lYIj",
+        database= "sql12348621"
     )
-
 
     Crypto = Window()
     Crypto.setStyleSheet(
