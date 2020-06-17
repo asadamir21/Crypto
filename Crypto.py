@@ -3,7 +3,6 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from PIL import Image
-
 import os, sys, datetime, mysql.connector, re, hashlib
 
 class Window(QMainWindow):
@@ -180,7 +179,6 @@ class Window(QMainWindow):
     # Login
     def Login(self, Email, Password):
         try:
-
             mycursor = mydb.cursor()
             mycursor.execute("SELECT * FROM users where email = %s and password = %s", (Email, str(hashlib.md5(Password.encode('utf-8')).digest())))
 
@@ -361,7 +359,7 @@ class Window(QMainWindow):
             EnterPasswordLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
             RetypePasswordLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
 
-            RegisterButton.clicked.connect(lambda: self.RegisterValidate(FirstNameLineEdit.text(), LastNameLineEdit.text(), emailLineEdit.text(), AgeLineEdit.text(), BirthDateCalendar.text(), GenderGroupBox.currentText(), EnterPasswordLineEdit.text()))
+            RegisterButton.clicked.connect(lambda: self.Register(FirstNameLineEdit.text(), LastNameLineEdit.text(), emailLineEdit.text(), AgeLineEdit.text(), BirthDateCalendar.text(), GenderGroupBox.currentText(), EnterPasswordLineEdit.text()))
 
 
         except Exception as e:
@@ -393,8 +391,8 @@ class Window(QMainWindow):
             RetypePasswordLineEdit.setStyleSheet("border: 1px solid black;")
             RegisterButton.setDisabled(False)
 
-    # Register Form Validate
-    def RegisterValidate(self, FirstName, LastName, email, Age, BirthDate, Gender, EnterPassword):
+    # Register
+    def Register(self, FirstName, LastName, email, Age, BirthDate, Gender, EnterPassword):
         RegistrationError = False
 
         try:
@@ -425,29 +423,415 @@ class Window(QMainWindow):
                                     "User Registration Failed",
                                     QMessageBox.Ok)
 
-    # Register
-    def Register(self):
-        pass
-
     #  Main Window
     def MainWindow(self):
-        if self.CentralWidget.layout() is not None:
-            CentralWidgetLayout = self.CentralWidget.layout()
-            for i in reversed(range(CentralWidgetLayout.count())):
-                CentralWidgetLayout.itemAt(i).widget().setParent(None)
-            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.125, self.width * 0.25,
-                                                   self.height * 0.125)
+        try:
+            if self.CentralWidget.layout() is not None:
+                CentralWidgetLayout = self.CentralWidget.layout()
+                for i in reversed(range(CentralWidgetLayout.count())):
+                    CentralWidgetLayout.itemAt(i).widget().setParent(None)
+                CentralWidgetLayout.setContentsMargins(0, 0, 0, 0)
+            else:
+                CentralWidgetLayout = QVBoxLayout(self.CentralWidget)
+                CentralWidgetLayout.setContentsMargins(0, 0, 0, 0)
+
+            # ************************************************************************************
+            # ************************************ Top Widget ************************************
+            # ************************************************************************************
+
+            # Top Widget
+            TopWidget = QWidget()
+            TopWidget.setStyleSheet("background-color: white;")
+
+            # Top Widget Layout
+            TopWidgetLayout = QHBoxLayout(TopWidget)
+            TopWidgetLayout.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+
+            # Compose Button
+            ComposeButton = QPushButton()
+            ComposeButton.setText("Compose")
+            ComposeButton.setIcon(QIcon("Images/Compose.png"))
+            ComposeButton.setIconSize(QSize(25, 25))
+            ComposeButton.setStyleSheet(
+                """
+                    QPushButton{
+                        background-color: black;
+                        color: white;
+                        border-width: 1px;
+                        border-color: #1e1e1e;
+                        border-style: solid;
+                        border-radius: 15;
+                        padding: 3px;
+                        font-weight: 900;
+                        font-size: 16px;
+                        padding-left: 5px;
+                        padding-right: 5px;
+                        min-width: 40px;
+                    }
+                    QPushButton:hover{
+                        border: 2px solid QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffffff, stop: 1 #d4e8f2);
+                    }                
+                """
+            )
+            ComposeButton.clicked.connect(lambda: self.ComposeMessageDialog())
+
+            TopWidgetLayout.addWidget(ComposeButton, 15)
+            TopWidgetLayout.addWidget(QWidget(), 70)
+
+            # Setting Button
+            SettingButton = QPushButton();
+            SettingButton.setIcon(QIcon("Images/Setting.png"))
+            SettingButton.setIconSize(QSize(50, 50))
+            SettingButton.setStyleSheet(
+                """
+                    QPushButton{
+                        border: 0px solid;
+                    }    
+                """
+            )
+
+            menu = QMenu("Menu");
+            menu.setLayoutDirection(Qt.RightToLeft)
+
+            AccountButton = QAction('Account', self)
+            AccountButton.setStatusTip('Account')
+            AccountButton.triggered.connect(self.AccountInfo)
+            menu.addAction(AccountButton)
+
+            LogoutButton = QAction('Logout', self)
+            LogoutButton.setStatusTip('Logout')
+            LogoutButton.triggered.connect(self.Logout)
+            menu.addAction(LogoutButton)
+
+            SettingButton.setMenu(menu)
+
+            TopWidgetLayout.addWidget(SettingButton, 15)
+
+            CentralWidgetLayout.addWidget(TopWidget)
+
+            # ************************************************************************************
+            # ********************************** Bottom Widget ***********************************
+            # ************************************************************************************
+
+            BottomWidget = QWidget()
+            #BottomWidget.setStyleSheet("background-color: black;")
+            BottomWidgetLayout = QHBoxLayout(BottomWidget)
+
+            # List Widget
+            a = QListWidget()
+            BottomWidgetLayout.addWidget(a, 25)
+
+            # Table Widget
+            b = QTableWidget()
+            BottomWidgetLayout.addWidget(b, 75)
+
+
+            CentralWidgetLayout.addWidget(BottomWidget, 90)
+
+        except Exception as e:
+            print(str(e))
+
+    # Compose Message
+    def ComposeMessageDialog(self):
+        try:
+            # Compose Message Dialog
+            ComposeMessageDialogBox = QDialog()
+            ComposeMessageDialogBox.setModal(True)
+            ComposeMessageDialogBox.setWindowTitle("Compose Message")
+            ComposeMessageDialogBox.setParent(self)
+            ComposeMessageDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
+            ComposeMessageDialogBox.setFixedWidth(self.width / 2)
+
+            ComposeMessageDailogLayout = QVBoxLayout(ComposeMessageDialogBox)
+            ComposeMessageDailogLayout.setContentsMargins(50, 50, 50, 50)
+
+            # ****************** Choose File ********************
+
+            ImageFileWidget = QWidget()
+            ImageFileLayout = QHBoxLayout(ImageFileWidget)
+            ImageFileLayout.setAlignment(Qt.AlignVCenter)
+
+            # Image File Path LineEdit
+            ImageFilePathLineEdit = QLineEdit()
+            ImageFilePathLineEdit.setReadOnly(True)
+            ImageFileLayout.addWidget(ImageFilePathLineEdit)
+
+            # Image Browse Button
+            ImageBrowseButton = QPushButton()
+            ImageBrowseButton.setText("Choose File")
+            ImageBrowseButton.clicked.connect(lambda: self.ComposeChooseButton(ImageFilePathLineEdit))
+            ImageFileLayout.addWidget(ImageBrowseButton)
+
+            ComposeMessageDailogLayout.addWidget(ImageFileWidget)
+
+            # ********************** To *************************
+            SendToLabel = QLabel()
+            SendToLabel.setText("To")
+            ComposeMessageDailogLayout.addWidget(SendToLabel)
+
+            SendToLineEdit = QLineEdit()
+            ComposeMessageDailogLayout.addWidget(SendToLineEdit)
+
+            # ****************** Text Message ********************
+            MessageLabel = QLabel()
+            MessageLabel.setText("Message")
+            ComposeMessageDailogLayout.addWidget(MessageLabel)
+
+            MessageTextEdit = QTextEdit()
+            ComposeMessageDailogLayout.addWidget(MessageTextEdit)
+
+            # ********************** Key *************************
+            KeyLabel = QLabel()
+            KeyLabel.setText("Key")
+            ComposeMessageDailogLayout.addWidget(KeyLabel)
+
+            KeyLineEdit = QLineEdit()
+            ComposeMessageDailogLayout.addWidget(KeyLineEdit)
+
+            # ******************* Button Box *********************
+            ComposeButtonBox = QDialogButtonBox()
+            ComposeButtonBox.setCenterButtons(True)
+            ComposeButtonBox.setStandardButtons(QDialogButtonBox.Ok)
+            ComposeButtonBox.button(QDialogButtonBox.Ok).setText('Send')
+            ComposeButtonBox.button(QDialogButtonBox.Ok).setIcon(QIcon("Images/Send.png"))
+            ComposeButtonBox.button(QDialogButtonBox.Ok).setLayoutDirection(Qt.RightToLeft)
+            ComposeButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
+                """
+                    background-color: black;
+                    color: white;
+                    border-width: 1px;
+                    border-color: #1e1e1e;
+                    border-style: solid;
+                    border-radius: 10;
+                    padding: 3px;
+                    font-weight: 700;
+                    font-size: 12px;
+                    padding-left: 5px;
+                    padding-right: 5px;
+                    min-width: 40px;
+                """
+            )
+
+            ImageFilePathLineEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox))
+            SendToLineEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox))
+            MessageTextEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox))
+            KeyLineEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox))
+
+            ComposeButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
+            ComposeMessageDailogLayout.addWidget(ComposeButtonBox)
+
+            ComposeButtonBox.accepted.connect(ComposeMessageDialogBox.accept)
+            ComposeButtonBox.rejected.connect(ComposeMessageDialogBox.reject)
+
+            ComposeButtonBox.accepted.connect(lambda: self.SendMessage(ImageFilePathLineEdit.text(),
+                                                                       SendToLineEdit.text(),
+                                                                       MessageTextEdit.toPlainText(),
+                                                                       KeyLineEdit.text()))
+
+            ComposeMessageDialogBox.exec_()
+
+        except Exception as e:
+            print(str(e))
+
+    # Toggle Send Button
+    def ToggleSendButton(self, ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox):
+        if len(ImageFilePathLineEdit.text()) == 0 or len(SendToLineEdit.text()) == 0 or len(MessageTextEdit.toPlainText()) == 0 or len(KeyLineEdit.text()) == 0:
+            ImageFilePathLineEdit.setStyleSheet("border: 1px solid black;")
+            SendToLineEdit.setStyleSheet("border: 1px solid black;")
+            MessageTextEdit.setStyleSheet("border: 1px solid black;")
+            KeyLineEdit.setStyleSheet("border: 1px solid black;")
+            ComposeButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
+
+        # Email
+        elif not re.search('^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$', SendToLineEdit.text()):
+            SendToLineEdit.setStyleSheet("border: 1px solid red;")
+            ComposeButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
+
         else:
-            CentralWidgetLayout = QVBoxLayout(self.CentralWidget)
-            CentralWidgetLayout.setAlignment(Qt.AlignHCenter)
-            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.125, self.width * 0.25,
-                                                   self.height * 0.125)
-            CentralWidgetLayout.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+            ImageFilePathLineEdit.setStyleSheet("border: 1px solid black;")
+            SendToLineEdit.setStyleSheet("border: 1px solid black;")
+            MessageTextEdit.setStyleSheet("border: 1px solid black;")
+            KeyLineEdit.setStyleSheet("border: 1px solid black;")
+            ComposeButtonBox.button(QDialogButtonBox.Ok).setDisabled(False)
+
+    #
+    def SendMessage(self, ImageFilePath, To, Message, Key):
+        try:
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT * FROM users where email = %s", (To,))
+
+            myresult = mycursor.fetchall()
+
+            if len(myresult) > 0:
+
+                sql_insert_query = """ 
+                                        INSERT INTO messages (sender_id, receiver_id, enc_key, img_byte_array, datetime, read_flag)
+                                        VALUES(
+                                            (SELECT id FROM users where email = %s), 
+                                            (SELECT id FROM users where email = %s), 
+                                            %s, %s, SYSDATE(), 0) 
+                                   """
+
+                insert_tuple = (self.email, To, Key, open(ImageFilePath, 'rb').read())
+                result = mycursor.execute(sql_insert_query, insert_tuple)
+
+                mydb.commit()
+
+                QMessageBox.information(self, "Message Send",
+                                        "Message Successfully Send to " + To,
+                                        QMessageBox.Ok)
 
 
-        CentralWidgetLayout.addWidget(QLabel("Main Window"))
+            else:
+                QMessageBox.critical(self, 'Message Error',
+                                     'No Such Email Address Exist', QMessageBox.Ok)
 
 
+        except Exception as e:
+            print(str(e))
+
+
+
+    # Compose FIle Button
+    def ComposeChooseButton(self, ImageFilePathLineEdit):
+        try:
+            path = QFileDialog.getOpenFileName(self, 'Open Image File', "", 'Image files (*.png *.bmp *.jpeg *.jpg *.webp *.tiff *.tif *.pfm *.jp2 *.hdr *.pic *.exr *.ras *.sr *.pbm *.pgm *.ppm *.pxm *.pnm)')
+
+            if all(path):
+                ImageFilePathLineEdit.setText(path[0])
+        except Exception as e:
+            print(str(e))
+
+    # Account Information
+    def AccountInfo(self):
+        try:
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT * FROM users where email = %s",  (self.email,))
+
+            myresult = mycursor.fetchall()
+
+            if len(myresult) > 0:
+                # Edit Row Dialog
+                AccountInfoDialogBox = QDialog()
+                AccountInfoDialogBox.setModal(True)
+                AccountInfoDialogBox.setWindowTitle("Account Information")
+                AccountInfoDialogBox.setParent(self)
+                AccountInfoDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
+                AccountInfoDialogBox.setFixedWidth(self.width / 2)
+
+                AccountInfoDailogLayout = QVBoxLayout(AccountInfoDialogBox)
+                AccountInfoDailogLayout.setContentsMargins(50, 50, 50, 50)
+
+
+                # ****************** Email ********************
+                EmailWidget = QWidget()
+                EmailWidgetLayout = QHBoxLayout(EmailWidget)
+
+                # Email Label
+                EmailLabel = QLabel()
+                EmailLabel.setText("Email:")
+                EmailLabel.setAlignment(Qt.AlignVCenter)
+                EmailWidgetLayout.addWidget(EmailLabel, 25)
+
+                # Email LineEdit
+                EmailLineEdit = QLineEdit()
+                EmailLineEdit.setReadOnly(True)
+                EmailLineEdit.setText(myresult[0][1])
+                EmailLineEdit.setAlignment(Qt.AlignVCenter)
+                EmailWidgetLayout.addWidget(EmailLineEdit, 75)
+
+                AccountInfoDailogLayout.addWidget(EmailWidget)
+
+                # ****************** Name ********************
+                NameWidget = QWidget()
+                NameWidgetLayout = QHBoxLayout(NameWidget)
+
+                # Name Label
+                NameLabel = QLabel()
+                NameLabel.setText("Name:")
+                NameLabel.setAlignment(Qt.AlignVCenter)
+                NameWidgetLayout.addWidget(NameLabel, 25)
+
+                # Name LineEdit
+                NameLineEdit = QLineEdit()
+                NameLineEdit.setReadOnly(True)
+                NameLineEdit.setText(myresult[0][3] + " " + myresult[0][4])
+                NameLineEdit.setAlignment(Qt.AlignVCenter)
+                NameWidgetLayout.addWidget(NameLineEdit, 75)
+
+                AccountInfoDailogLayout.addWidget(NameWidget)
+
+                # ****************** Age ********************
+                AgeWidget = QWidget()
+                AgeWidgetLayout = QHBoxLayout(AgeWidget)
+
+                # Age Label
+                AgeLabel = QLabel()
+                AgeLabel.setText("Age:")
+                AgeLabel.setAlignment(Qt.AlignVCenter)
+                AgeWidgetLayout.addWidget(AgeLabel, 25)
+
+                # Age LineEdit
+                AgeLineEdit = QLineEdit()
+                AgeLineEdit.setReadOnly(True)
+                AgeLineEdit.setText(str(datetime.date.today().year - myresult[0][5].year - ((datetime.date.today().month, datetime.date.today().day) < (myresult[0][5].month, myresult[0][5].day))))
+                AgeLineEdit.setAlignment(Qt.AlignVCenter)
+                AgeWidgetLayout.addWidget(AgeLineEdit, 75)
+
+                AccountInfoDailogLayout.addWidget(AgeWidget)
+
+                # ****************** BirthDate ********************
+                BirthDateWidget = QWidget()
+                BirthDateWidgetLayout = QHBoxLayout(BirthDateWidget)
+
+                # BirthDate Label
+                BirthDateLabel = QLabel()
+                BirthDateLabel.setText("BirthDate:")
+                BirthDateLabel.setAlignment(Qt.AlignVCenter)
+                BirthDateWidgetLayout.addWidget(BirthDateLabel, 25)
+
+                # BirthDate LineEdit
+                BirthDateLineEdit = QLineEdit()
+                BirthDateLineEdit.setReadOnly(True)
+                BirthDateLineEdit.setText(myresult[0][5].strftime("%a %b %d %Y"))
+                BirthDateLineEdit.setAlignment(Qt.AlignVCenter)
+                BirthDateWidgetLayout.addWidget(BirthDateLineEdit, 75)
+
+                AccountInfoDailogLayout.addWidget(BirthDateWidget)
+
+                # ****************** Gender ********************
+                GenderWidget = QWidget()
+                GenderWidgetLayout = QHBoxLayout(GenderWidget)
+
+                # Gender Label
+                GenderLabel = QLabel()
+                GenderLabel.setText("Gender:")
+                GenderLabel.setAlignment(Qt.AlignVCenter)
+                GenderWidgetLayout.addWidget(GenderLabel, 25)
+
+                # Gender LineEdit
+                GenderLineEdit = QLineEdit()
+                GenderLineEdit.setReadOnly(True)
+                GenderLineEdit.setText(myresult[0][7])
+                GenderLineEdit.setAlignment(Qt.AlignVCenter)
+                GenderWidgetLayout.addWidget(GenderLineEdit, 75)
+
+                AccountInfoDailogLayout.addWidget(GenderWidget)
+
+                AccountInfoDialogBox.exec_()
+
+            else:
+                QMessageBox.critical(self, "Error",
+                                     'Unable to connect to Server',
+                                     QMessageBox.Ok)
+
+        except Exception as e:
+            print(str(e))
+
+    # Logout
+    def Logout(self):
+        self.settings.setValue('email', '')
+        self.LoginLayout()
 
     # Close Application / Exit
     def closeEvent(self, event):
@@ -459,7 +843,6 @@ class Window(QMainWindow):
             event.accept()
         else:
             event.ignore()
-
 
 if __name__ == "__main__":
     App = QApplication(sys.argv)
@@ -475,6 +858,14 @@ if __name__ == "__main__":
     Crypto = Window()
     Crypto.setStyleSheet(
         """
+            QPushButton::menu-indicator 
+            {
+                image: url(myindicator.png);
+                subcontrol-position: right center;
+                subcontrol-origin: padding;
+                left: -2px;
+            }
+
             QToolTip
             {
                  border: 1px solid black;
