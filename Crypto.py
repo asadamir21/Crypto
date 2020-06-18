@@ -3,7 +3,53 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 from PIL import Image
-import os, sys, datetime, mysql.connector, re, hashlib
+from Cryptodome import Random
+from Cryptodome.Cipher import AES
+from Cryptodome.Util.Padding import pad, unpad
+from stegano import lsb
+
+import os, sys, datetime, mysql.connector, re, hashlib, io, base64, hashlib
+
+class CryptoSteganography(object):
+    def __init__(self, key):
+        self.block_size = 32
+        self.key = hashlib.sha256(key.encode()).digest()
+
+    def hide(self, input_filename, data):
+        iv = Random.new().read(AES.block_size)
+        encryption_suite = AES.new(self.key, AES.MODE_CBC, iv)
+
+        if isinstance(data, str):
+            data = data.encode()
+
+        cypher_data = encryption_suite.encrypt(iv + pad(data, self.block_size))
+
+        cypher_data = base64.b64encode(cypher_data).decode()
+        secret = lsb.hide(input_filename, cypher_data)
+        return secret
+
+    def retrieve(self, input_image_file):
+        cypher_data = lsb.reveal(input_image_file)
+
+        if not cypher_data:
+            return None
+
+        cypher_data = base64.b64decode(cypher_data)
+        iv = cypher_data[:AES.block_size]
+        cypher_data = cypher_data[AES.block_size:]
+
+        try:
+            decryption_suite = AES.new(self.key, AES.MODE_CBC, iv)
+            decrypted_data = unpad(
+                decryption_suite.decrypt(cypher_data),
+                self.block_size
+            )
+            try:
+                return decrypted_data.decode('utf-8')
+            except UnicodeDecodeError:
+                return decrypted_data
+        except ValueError:
+            return None
 
 class Window(QMainWindow):
     def __init__(self):
@@ -672,16 +718,33 @@ class Window(QMainWindow):
                                             %s, %s, SYSDATE(), 0) 
                                    """
 
-                insert_tuple = (self.email, To, Key, open(ImageFilePath, 'rb').read())
-                result = mycursor.execute(sql_insert_query, insert_tuple)
+                # key inserted here
+                crypto_steganography = CryptoSteganography(Key)
 
-                mydb.commit()
+                # Image Loaded
+                SteganoImage = Image.open(ImageFilePath)
 
-                QMessageBox.information(self, "Message Send",
-                                        "Message Successfully Send to " + To,
-                                        QMessageBox.Ok)
+                if SteganoImage.mode == "RGB":
+                    # Encrypt Data in Image
+                    EncryptedImage = crypto_steganography.hide(SteganoImage, Message)
+
+                    # Converting Encrypted Image to Byte Array
+                    imgByteArr = io.BytesIO()
+                    EncryptedImage.save(imgByteArr, format='PNG')
 
 
+                    insert_tuple = (self.email, To, Key, imgByteArr.getvalue())
+                    result = mycursor.execute(sql_insert_query, insert_tuple)
+
+                    mydb.commit()
+
+                    QMessageBox.information(self, "Message Send",
+                                            "Message Successfully Send to " + To,
+                                            QMessageBox.Ok)
+
+                else:
+                    QMessageBox.critical(self, 'Message Error',
+                                         'Please select and RGB Image', QMessageBox.Ok)
             else:
                 QMessageBox.critical(self, 'Message Error',
                                      'No Such Email Address Exist', QMessageBox.Ok)
@@ -689,8 +752,6 @@ class Window(QMainWindow):
 
         except Exception as e:
             print(str(e))
-
-
 
     # Compose FIle Button
     def ComposeChooseButton(self, ImageFilePathLineEdit):
