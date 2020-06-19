@@ -327,18 +327,6 @@ class Window(QMainWindow):
                                             )
                                       )
 
-            # Age Label
-            AgeLabel = QLabel()
-            AgeLabel.setText("Age:")
-            AgeLabel.setAlignment(Qt.AlignVCenter)
-            CentralWidgetLayout.addWidget(AgeLabel)
-
-            # Register Age Line Edit
-            AgeLineEdit = QLineEdit()
-            AgeLineEdit.setAlignment(Qt.AlignVCenter)
-            AgeLineEdit.setValidator(QIntValidator(0, 10, self))
-            CentralWidgetLayout.addWidget(AgeLineEdit)
-
             # Birth Date Label
             BirthDateLabel = QLabel()
             BirthDateLabel.setText("Birth Date:")
@@ -397,24 +385,23 @@ class Window(QMainWindow):
             RegisterButton.setStyleSheet(self.ButtonCSS)
             CentralWidgetLayout.addWidget(RegisterButton)
 
-            FirstNameLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit,BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
-            LastNameLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
-            emailLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
-            AgeLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
-            BirthDateCalendar.dateChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
-            EnterPasswordLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
-            RetypePasswordLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+            FirstNameLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+            LastNameLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+            emailLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+            BirthDateCalendar.dateChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+            EnterPasswordLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+            RetypePasswordLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
 
-            RegisterButton.clicked.connect(lambda: self.Register(FirstNameLineEdit.text(), LastNameLineEdit.text(), emailLineEdit.text(), AgeLineEdit.text(), BirthDateCalendar.text(), GenderGroupBox.currentText(), EnterPasswordLineEdit.text()))
+            RegisterButton.clicked.connect(lambda: self.Register(FirstNameLineEdit.text(), LastNameLineEdit.text(), emailLineEdit.text(), BirthDateCalendar.text(), GenderGroupBox.currentText(), EnterPasswordLineEdit.text()))
 
 
         except Exception as e:
             print(str(e))
 
     # Register Button Toggle
-    def RegisterButtonToggle(self, FirstNameLineEdit, LastNameLineEdit, emailLineEdit, AgeLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton):
+    def RegisterButtonToggle(self, FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton):
         # Empty Fields
-        if len(FirstNameLineEdit.text()) == 0 or len(LastNameLineEdit.text()) == 0 or len(emailLineEdit.text()) == 0 or len(AgeLineEdit.text()) == 0 or len(BirthDateCalendar.text()) == 0 or len(EnterPasswordLineEdit.text()) == 0 or len(RetypePasswordLineEdit.text()) == 0:
+        if len(FirstNameLineEdit.text()) == 0 or len(LastNameLineEdit.text()) == 0 or len(emailLineEdit.text()) == 0 or len(BirthDateCalendar.text()) == 0 or len(EnterPasswordLineEdit.text()) == 0 or len(RetypePasswordLineEdit.text()) == 0:
             emailLineEdit.setStyleSheet("border: 1px solid black;")
             EnterPasswordLineEdit.setStyleSheet("border: 1px solid black;")
             RetypePasswordLineEdit.setStyleSheet("border: 1px solid black;")
@@ -438,19 +425,18 @@ class Window(QMainWindow):
             RegisterButton.setDisabled(False)
 
     # Register
-    def Register(self, FirstName, LastName, email, Age, BirthDate, Gender, EnterPassword):
+    def Register(self, FirstName, LastName, email, BirthDate, Gender, EnterPassword):
         RegistrationError = False
 
         try:
             mycursor = mydb.cursor()
 
-            sql = "INSERT INTO users (email, password, first_name, last_name, dob, age, gender) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            sql = "INSERT INTO users (email, password, first_name, last_name, dob, gender) VALUES (%s, %s, %s, %s, %s, %s)"
             val = (email,
                    str(hashlib.md5(EnterPassword.encode('utf-8')).digest()),
                    FirstName,
                    LastName,
                    datetime.datetime.strptime(BirthDate, '%m/%d/%Y').date(),
-                   Age,
                    Gender)
             mycursor.execute(sql, val)
 
@@ -560,18 +546,50 @@ class Window(QMainWindow):
             # ************************************************************************************
 
             BottomWidget = QWidget()
-            #BottomWidget.setStyleSheet("background-color: black;")
             BottomWidgetLayout = QHBoxLayout(BottomWidget)
 
             # List Widget
-            a = QListWidget()
-            BottomWidgetLayout.addWidget(a, 25)
+            CategoryList = QListWidget()
+            CategoryList.setStyleSheet(
+                """
+                    QListWidget::item 
+                    {
+                        color: black;
+                        background-color: white;                        
+                    }
+                    
+                    QListWidget::item:selected 
+                    {
+                        color: white;
+                        background-color: black;
+                    }
+                """
+            )
+            BottomWidgetLayout.addWidget(CategoryList, 25)
+
+            # Inbox Category
+            InboxCategory = QListWidgetItem()
+            InboxCategory.setTextAlignment(Qt.AlignHCenter | Qt.AlignHCenter)
+            InboxCategory.setText("Inbox")
+            InboxCategory.setFont(QFont('Ubuntu', 15, QFont.Medium))
+            CategoryList.addItem(InboxCategory)
+
+            # Sent Category
+            SentCategory = QListWidgetItem()
+            SentCategory.setTextAlignment(Qt.AlignHCenter | Qt.AlignHCenter)
+            SentCategory.setText("Sent")
+            SentCategory.setFont(QFont('Ubuntu', 15, QFont.Medium))
+            CategoryList.addItem(SentCategory)
+
+            CategoryList.item(0).setSelected(True)
 
             # Table Widget
-            b = QTableWidget()
-            BottomWidgetLayout.addWidget(b, 75)
+            MessagesTable = QTableWidget()
+            BottomWidgetLayout.addWidget(MessagesTable, 75)
 
+            self.Inbox(MessagesTable)
 
+            CategoryList.currentItemChanged.connect(lambda: self.CategoryListCurrentItemChanged(MessagesTable))
             CentralWidgetLayout.addWidget(BottomWidget, 90)
 
         except Exception as e:
@@ -579,105 +597,102 @@ class Window(QMainWindow):
 
     # Compose Message
     def ComposeMessageDialog(self):
-        try:
-            # Compose Message Dialog
-            ComposeMessageDialogBox = QDialog()
-            ComposeMessageDialogBox.setModal(True)
-            ComposeMessageDialogBox.setWindowTitle("Compose Message")
-            ComposeMessageDialogBox.setParent(self)
-            ComposeMessageDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
-            ComposeMessageDialogBox.setFixedWidth(self.width / 2)
+        # Compose Message Dialog
+        ComposeMessageDialogBox = QDialog()
+        ComposeMessageDialogBox.setModal(True)
+        ComposeMessageDialogBox.setWindowTitle("Compose Message")
+        ComposeMessageDialogBox.setParent(self)
+        ComposeMessageDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
+        ComposeMessageDialogBox.setFixedWidth(self.width / 2)
 
-            ComposeMessageDailogLayout = QVBoxLayout(ComposeMessageDialogBox)
-            ComposeMessageDailogLayout.setContentsMargins(50, 50, 50, 50)
+        ComposeMessageDailogLayout = QVBoxLayout(ComposeMessageDialogBox)
+        ComposeMessageDailogLayout.setContentsMargins(50, 50, 50, 50)
 
-            # ****************** Choose File ********************
+        # ****************** Choose File ********************
 
-            ImageFileWidget = QWidget()
-            ImageFileLayout = QHBoxLayout(ImageFileWidget)
-            ImageFileLayout.setAlignment(Qt.AlignVCenter)
+        ImageFileWidget = QWidget()
+        ImageFileLayout = QHBoxLayout(ImageFileWidget)
+        ImageFileLayout.setAlignment(Qt.AlignVCenter)
 
-            # Image File Path LineEdit
-            ImageFilePathLineEdit = QLineEdit()
-            ImageFilePathLineEdit.setReadOnly(True)
-            ImageFileLayout.addWidget(ImageFilePathLineEdit)
+        # Image File Path LineEdit
+        ImageFilePathLineEdit = QLineEdit()
+        ImageFilePathLineEdit.setReadOnly(True)
+        ImageFileLayout.addWidget(ImageFilePathLineEdit)
 
-            # Image Browse Button
-            ImageBrowseButton = QPushButton()
-            ImageBrowseButton.setText("Choose File")
-            ImageBrowseButton.clicked.connect(lambda: self.ComposeChooseButton(ImageFilePathLineEdit))
-            ImageFileLayout.addWidget(ImageBrowseButton)
+        # Image Browse Button
+        ImageBrowseButton = QPushButton()
+        ImageBrowseButton.setText("Choose File")
+        ImageBrowseButton.clicked.connect(lambda: self.ComposeChooseButton(ImageFilePathLineEdit))
+        ImageFileLayout.addWidget(ImageBrowseButton)
 
-            ComposeMessageDailogLayout.addWidget(ImageFileWidget)
+        ComposeMessageDailogLayout.addWidget(ImageFileWidget)
 
-            # ********************** To *************************
-            SendToLabel = QLabel()
-            SendToLabel.setText("To")
-            ComposeMessageDailogLayout.addWidget(SendToLabel)
+        # ********************** To *************************
+        SendToLabel = QLabel()
+        SendToLabel.setText("To")
+        ComposeMessageDailogLayout.addWidget(SendToLabel)
 
-            SendToLineEdit = QLineEdit()
-            ComposeMessageDailogLayout.addWidget(SendToLineEdit)
+        SendToLineEdit = QLineEdit()
+        ComposeMessageDailogLayout.addWidget(SendToLineEdit)
 
-            # ****************** Text Message ********************
-            MessageLabel = QLabel()
-            MessageLabel.setText("Message")
-            ComposeMessageDailogLayout.addWidget(MessageLabel)
+        # ****************** Text Message ********************
+        MessageLabel = QLabel()
+        MessageLabel.setText("Message")
+        ComposeMessageDailogLayout.addWidget(MessageLabel)
 
-            MessageTextEdit = QTextEdit()
-            ComposeMessageDailogLayout.addWidget(MessageTextEdit)
+        MessageTextEdit = QTextEdit()
+        ComposeMessageDailogLayout.addWidget(MessageTextEdit)
 
-            # ********************** Key *************************
-            KeyLabel = QLabel()
-            KeyLabel.setText("Key")
-            ComposeMessageDailogLayout.addWidget(KeyLabel)
+        # ********************** Key *************************
+        KeyLabel = QLabel()
+        KeyLabel.setText("Key")
+        ComposeMessageDailogLayout.addWidget(KeyLabel)
 
-            KeyLineEdit = QLineEdit()
-            ComposeMessageDailogLayout.addWidget(KeyLineEdit)
+        KeyLineEdit = QLineEdit()
+        KeyLineEdit.setValidator(QIntValidator(0, 10000, self))
+        ComposeMessageDailogLayout.addWidget(KeyLineEdit)
 
-            # ******************* Button Box *********************
-            ComposeButtonBox = QDialogButtonBox()
-            ComposeButtonBox.setCenterButtons(True)
-            ComposeButtonBox.setStandardButtons(QDialogButtonBox.Ok)
-            ComposeButtonBox.button(QDialogButtonBox.Ok).setText('Send')
-            ComposeButtonBox.button(QDialogButtonBox.Ok).setIcon(QIcon("Images/Send.png"))
-            ComposeButtonBox.button(QDialogButtonBox.Ok).setLayoutDirection(Qt.RightToLeft)
-            ComposeButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
-                """
-                    background-color: black;
-                    color: white;
-                    border-width: 1px;
-                    border-color: #1e1e1e;
-                    border-style: solid;
-                    border-radius: 10;
-                    padding: 3px;
-                    font-weight: 700;
-                    font-size: 12px;
-                    padding-left: 5px;
-                    padding-right: 5px;
-                    min-width: 40px;
-                """
-            )
+        # ******************* Button Box *********************
+        ComposeButtonBox = QDialogButtonBox()
+        ComposeButtonBox.setCenterButtons(True)
+        ComposeButtonBox.setStandardButtons(QDialogButtonBox.Ok)
+        ComposeButtonBox.button(QDialogButtonBox.Ok).setText('Send')
+        ComposeButtonBox.button(QDialogButtonBox.Ok).setIcon(QIcon("Images/Send.png"))
+        ComposeButtonBox.button(QDialogButtonBox.Ok).setLayoutDirection(Qt.RightToLeft)
+        ComposeButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
+            """
+                background-color: black;
+                color: white;
+                border-width: 1px;
+                border-color: #1e1e1e;
+                border-style: solid;
+                border-radius: 10;
+                padding: 3px;
+                font-weight: 700;
+                font-size: 12px;
+                padding-left: 5px;
+                padding-right: 5px;
+                min-width: 40px;
+            """
+        )
 
-            ImageFilePathLineEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox))
-            SendToLineEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox))
-            MessageTextEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox))
-            KeyLineEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox))
+        ImageFilePathLineEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox))
+        SendToLineEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox))
+        MessageTextEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox))
+        KeyLineEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox))
 
-            ComposeButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
-            ComposeMessageDailogLayout.addWidget(ComposeButtonBox)
+        ComposeButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
+        ComposeMessageDailogLayout.addWidget(ComposeButtonBox)
 
-            ComposeButtonBox.accepted.connect(ComposeMessageDialogBox.accept)
-            ComposeButtonBox.rejected.connect(ComposeMessageDialogBox.reject)
+        ComposeButtonBox.accepted.connect(ComposeMessageDialogBox.accept)
+        ComposeButtonBox.rejected.connect(ComposeMessageDialogBox.reject)
 
-            ComposeButtonBox.accepted.connect(lambda: self.SendMessage(ImageFilePathLineEdit.text(),
-                                                                       SendToLineEdit.text(),
-                                                                       MessageTextEdit.toPlainText(),
-                                                                       KeyLineEdit.text()))
+        ComposeButtonBox.accepted.connect(lambda: self.SendMessage(ImageFilePathLineEdit.text(),
+                                                                   SendToLineEdit.text(),
+                                                                   MessageTextEdit.toPlainText(),
+                                                                   KeyLineEdit.text()))
 
-            ComposeMessageDialogBox.exec_()
-
-        except Exception as e:
-            print(str(e))
+        ComposeMessageDialogBox.exec_()
 
     # Toggle Send Button
     def ToggleSendButton(self, ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox):
@@ -700,199 +715,525 @@ class Window(QMainWindow):
             KeyLineEdit.setStyleSheet("border: 1px solid black;")
             ComposeButtonBox.button(QDialogButtonBox.Ok).setDisabled(False)
 
-    #
+    # Send Message
     def SendMessage(self, ImageFilePath, To, Message, Key):
-        try:
-            mycursor = mydb.cursor()
-            mycursor.execute("SELECT * FROM users where email = %s", (To,))
+        mycursor = mydb.cursor()
+        mycursor.execute("SELECT * FROM users where email = %s", (To,))
 
-            myresult = mycursor.fetchall()
+        myresult = mycursor.fetchall()
 
-            if len(myresult) > 0:
+        if len(myresult) > 0:
 
-                sql_insert_query = """ 
-                                        INSERT INTO messages (sender_id, receiver_id, enc_key, img_byte_array, datetime, read_flag)
-                                        VALUES(
-                                            (SELECT id FROM users where email = %s), 
-                                            (SELECT id FROM users where email = %s), 
-                                            %s, %s, SYSDATE(), 0) 
-                                   """
+            sql_insert_query = """ 
+                                    INSERT INTO messages (sender_id, receiver_id, enc_key, img_byte_array, datetime, read_flag)
+                                    VALUES(
+                                        (SELECT id FROM users where email = %s), 
+                                        (SELECT id FROM users where email = %s), 
+                                        %s, %s, SYSDATE(), 0) 
+                               """
 
-                # key inserted here
-                crypto_steganography = CryptoSteganography(Key)
+            # key inserted here
+            crypto_steganography = CryptoSteganography(Key)
 
-                # Image Loaded
-                SteganoImage = Image.open(ImageFilePath)
+            # Image Loaded
+            SteganoImage = Image.open(ImageFilePath)
 
-                if SteganoImage.mode == "RGB":
-                    # Encrypt Data in Image
-                    EncryptedImage = crypto_steganography.hide(SteganoImage, Message)
+            if SteganoImage.mode == "RGB":
+                # Encrypt Data in Image
+                EncryptedImage = crypto_steganography.hide(SteganoImage, Message)
 
-                    # Converting Encrypted Image to Byte Array
-                    imgByteArr = io.BytesIO()
-                    EncryptedImage.save(imgByteArr, format='PNG')
+                # Converting Encrypted Image to Byte Array
+                imgByteArr = io.BytesIO()
+                EncryptedImage.save(imgByteArr, format='PNG')
 
 
-                    insert_tuple = (self.email, To, Key, imgByteArr.getvalue())
-                    result = mycursor.execute(sql_insert_query, insert_tuple)
+                insert_tuple = (self.email, To, Key, imgByteArr.getvalue())
+                result = mycursor.execute(sql_insert_query, insert_tuple)
 
-                    mydb.commit()
+                mydb.commit()
 
-                    QMessageBox.information(self, "Message Send",
-                                            "Message Successfully Send to " + To,
-                                            QMessageBox.Ok)
+                QMessageBox.information(self, "Message Send",
+                                        "Message Successfully Send to " + To,
+                                        QMessageBox.Ok)
 
-                else:
-                    QMessageBox.critical(self, 'Message Error',
-                                         'Please select and RGB Image', QMessageBox.Ok)
             else:
                 QMessageBox.critical(self, 'Message Error',
-                                     'No Such Email Address Exist', QMessageBox.Ok)
-
-
-        except Exception as e:
-            print(str(e))
+                                     'Please select and RGB Image', QMessageBox.Ok)
+        else:
+            QMessageBox.critical(self, 'Message Error',
+                                 'No Such Email Address Exist', QMessageBox.Ok)
 
     # Compose FIle Button
     def ComposeChooseButton(self, ImageFilePathLineEdit):
-        try:
-            path = QFileDialog.getOpenFileName(self, 'Open Image File', "", 'Image files (*.png *.bmp *.jpeg *.jpg *.webp *.tiff *.tif *.pfm *.jp2 *.hdr *.pic *.exr *.ras *.sr *.pbm *.pgm *.ppm *.pxm *.pnm)')
+        path = QFileDialog.getOpenFileName(self, 'Open Image File', "", 'Image files (*.png *.bmp *.jpeg *.jpg *.webp *.tiff *.tif *.pfm *.jp2 *.hdr *.pic *.exr *.ras *.sr *.pbm *.pgm *.ppm *.pxm *.pnm)')
 
-            if all(path):
-                ImageFilePathLineEdit.setText(path[0])
-        except Exception as e:
-            print(str(e))
+        if all(path):
+            ImageFilePathLineEdit.setText(path[0])
 
     # Account Information
     def AccountInfo(self):
-        try:
-            mycursor = mydb.cursor()
-            mycursor.execute("SELECT * FROM users where email = %s",  (self.email,))
+        mycursor = mydb.cursor()
+        mycursor.execute("SELECT * FROM users where email = %s",  (self.email,))
 
-            myresult = mycursor.fetchall()
+        myresult = mycursor.fetchall()
 
-            if len(myresult) > 0:
-                # Edit Row Dialog
-                AccountInfoDialogBox = QDialog()
-                AccountInfoDialogBox.setModal(True)
-                AccountInfoDialogBox.setWindowTitle("Account Information")
-                AccountInfoDialogBox.setParent(self)
-                AccountInfoDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
-                AccountInfoDialogBox.setFixedWidth(self.width / 2)
+        if len(myresult) > 0:
+            # Edit Row Dialog
+            AccountInfoDialogBox = QDialog()
+            AccountInfoDialogBox.setModal(True)
+            AccountInfoDialogBox.setWindowTitle("Account Information")
+            AccountInfoDialogBox.setParent(self)
+            AccountInfoDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
+            AccountInfoDialogBox.setFixedWidth(self.width / 2)
 
-                AccountInfoDailogLayout = QVBoxLayout(AccountInfoDialogBox)
-                AccountInfoDailogLayout.setContentsMargins(50, 50, 50, 50)
+            AccountInfoDailogLayout = QVBoxLayout(AccountInfoDialogBox)
+            AccountInfoDailogLayout.setContentsMargins(50, 50, 50, 50)
 
 
-                # ****************** Email ********************
-                EmailWidget = QWidget()
-                EmailWidgetLayout = QHBoxLayout(EmailWidget)
+            # ****************** Email ********************
+            EmailWidget = QWidget()
+            EmailWidgetLayout = QHBoxLayout(EmailWidget)
 
-                # Email Label
-                EmailLabel = QLabel()
-                EmailLabel.setText("Email:")
-                EmailLabel.setAlignment(Qt.AlignVCenter)
-                EmailWidgetLayout.addWidget(EmailLabel, 25)
+            # Email Label
+            EmailLabel = QLabel()
+            EmailLabel.setText("Email:")
+            EmailLabel.setAlignment(Qt.AlignVCenter)
+            EmailWidgetLayout.addWidget(EmailLabel, 25)
 
-                # Email LineEdit
-                EmailLineEdit = QLineEdit()
-                EmailLineEdit.setReadOnly(True)
-                EmailLineEdit.setText(myresult[0][1])
-                EmailLineEdit.setAlignment(Qt.AlignVCenter)
-                EmailWidgetLayout.addWidget(EmailLineEdit, 75)
+            # Email LineEdit
+            EmailLineEdit = QLineEdit()
+            EmailLineEdit.setReadOnly(True)
+            EmailLineEdit.setText(myresult[0][1])
+            EmailLineEdit.setAlignment(Qt.AlignVCenter)
+            EmailWidgetLayout.addWidget(EmailLineEdit, 75)
 
-                AccountInfoDailogLayout.addWidget(EmailWidget)
+            AccountInfoDailogLayout.addWidget(EmailWidget)
 
-                # ****************** Name ********************
-                NameWidget = QWidget()
-                NameWidgetLayout = QHBoxLayout(NameWidget)
+            # ****************** Name ********************
+            NameWidget = QWidget()
+            NameWidgetLayout = QHBoxLayout(NameWidget)
 
-                # Name Label
-                NameLabel = QLabel()
-                NameLabel.setText("Name:")
-                NameLabel.setAlignment(Qt.AlignVCenter)
-                NameWidgetLayout.addWidget(NameLabel, 25)
+            # Name Label
+            NameLabel = QLabel()
+            NameLabel.setText("Name:")
+            NameLabel.setAlignment(Qt.AlignVCenter)
+            NameWidgetLayout.addWidget(NameLabel, 25)
 
-                # Name LineEdit
-                NameLineEdit = QLineEdit()
-                NameLineEdit.setReadOnly(True)
-                NameLineEdit.setText(myresult[0][3] + " " + myresult[0][4])
-                NameLineEdit.setAlignment(Qt.AlignVCenter)
-                NameWidgetLayout.addWidget(NameLineEdit, 75)
+            # Name LineEdit
+            NameLineEdit = QLineEdit()
+            NameLineEdit.setReadOnly(True)
+            NameLineEdit.setText(myresult[0][3] + " " + myresult[0][4])
+            NameLineEdit.setAlignment(Qt.AlignVCenter)
+            NameWidgetLayout.addWidget(NameLineEdit, 75)
 
-                AccountInfoDailogLayout.addWidget(NameWidget)
+            AccountInfoDailogLayout.addWidget(NameWidget)
 
-                # ****************** Age ********************
-                AgeWidget = QWidget()
-                AgeWidgetLayout = QHBoxLayout(AgeWidget)
+            # ****************** Age ********************
+            AgeWidget = QWidget()
+            AgeWidgetLayout = QHBoxLayout(AgeWidget)
 
-                # Age Label
-                AgeLabel = QLabel()
-                AgeLabel.setText("Age:")
-                AgeLabel.setAlignment(Qt.AlignVCenter)
-                AgeWidgetLayout.addWidget(AgeLabel, 25)
+            # Age Label
+            AgeLabel = QLabel()
+            AgeLabel.setText("Age:")
+            AgeLabel.setAlignment(Qt.AlignVCenter)
+            AgeWidgetLayout.addWidget(AgeLabel, 25)
 
-                # Age LineEdit
-                AgeLineEdit = QLineEdit()
-                AgeLineEdit.setReadOnly(True)
-                AgeLineEdit.setText(str(datetime.date.today().year - myresult[0][5].year - ((datetime.date.today().month, datetime.date.today().day) < (myresult[0][5].month, myresult[0][5].day))))
-                AgeLineEdit.setAlignment(Qt.AlignVCenter)
-                AgeWidgetLayout.addWidget(AgeLineEdit, 75)
+            # Age LineEdit
+            AgeLineEdit = QLineEdit()
+            AgeLineEdit.setReadOnly(True)
+            AgeLineEdit.setText(str(datetime.date.today().year - myresult[0][5].year - ((datetime.date.today().month, datetime.date.today().day) < (myresult[0][5].month, myresult[0][5].day))))
+            AgeLineEdit.setAlignment(Qt.AlignVCenter)
+            AgeWidgetLayout.addWidget(AgeLineEdit, 75)
 
-                AccountInfoDailogLayout.addWidget(AgeWidget)
+            AccountInfoDailogLayout.addWidget(AgeWidget)
 
-                # ****************** BirthDate ********************
-                BirthDateWidget = QWidget()
-                BirthDateWidgetLayout = QHBoxLayout(BirthDateWidget)
+            # ****************** BirthDate ********************
+            BirthDateWidget = QWidget()
+            BirthDateWidgetLayout = QHBoxLayout(BirthDateWidget)
 
-                # BirthDate Label
-                BirthDateLabel = QLabel()
-                BirthDateLabel.setText("BirthDate:")
-                BirthDateLabel.setAlignment(Qt.AlignVCenter)
-                BirthDateWidgetLayout.addWidget(BirthDateLabel, 25)
+            # BirthDate Label
+            BirthDateLabel = QLabel()
+            BirthDateLabel.setText("BirthDate:")
+            BirthDateLabel.setAlignment(Qt.AlignVCenter)
+            BirthDateWidgetLayout.addWidget(BirthDateLabel, 25)
 
-                # BirthDate LineEdit
-                BirthDateLineEdit = QLineEdit()
-                BirthDateLineEdit.setReadOnly(True)
-                BirthDateLineEdit.setText(myresult[0][5].strftime("%a %b %d %Y"))
-                BirthDateLineEdit.setAlignment(Qt.AlignVCenter)
-                BirthDateWidgetLayout.addWidget(BirthDateLineEdit, 75)
+            # BirthDate LineEdit
+            BirthDateLineEdit = QLineEdit()
+            BirthDateLineEdit.setReadOnly(True)
+            BirthDateLineEdit.setText(myresult[0][5].strftime("%a %b %d %Y"))
+            BirthDateLineEdit.setAlignment(Qt.AlignVCenter)
+            BirthDateWidgetLayout.addWidget(BirthDateLineEdit, 75)
 
-                AccountInfoDailogLayout.addWidget(BirthDateWidget)
+            AccountInfoDailogLayout.addWidget(BirthDateWidget)
 
-                # ****************** Gender ********************
-                GenderWidget = QWidget()
-                GenderWidgetLayout = QHBoxLayout(GenderWidget)
+            # ****************** Gender ********************
+            GenderWidget = QWidget()
+            GenderWidgetLayout = QHBoxLayout(GenderWidget)
 
-                # Gender Label
-                GenderLabel = QLabel()
-                GenderLabel.setText("Gender:")
-                GenderLabel.setAlignment(Qt.AlignVCenter)
-                GenderWidgetLayout.addWidget(GenderLabel, 25)
+            # Gender Label
+            GenderLabel = QLabel()
+            GenderLabel.setText("Gender:")
+            GenderLabel.setAlignment(Qt.AlignVCenter)
+            GenderWidgetLayout.addWidget(GenderLabel, 25)
 
-                # Gender LineEdit
-                GenderLineEdit = QLineEdit()
-                GenderLineEdit.setReadOnly(True)
-                GenderLineEdit.setText(myresult[0][7])
-                GenderLineEdit.setAlignment(Qt.AlignVCenter)
-                GenderWidgetLayout.addWidget(GenderLineEdit, 75)
+            # Gender LineEdit
+            GenderLineEdit = QLineEdit()
+            GenderLineEdit.setReadOnly(True)
+            GenderLineEdit.setText(myresult[0][6])
+            GenderLineEdit.setAlignment(Qt.AlignVCenter)
+            GenderWidgetLayout.addWidget(GenderLineEdit, 75)
 
-                AccountInfoDailogLayout.addWidget(GenderWidget)
+            AccountInfoDailogLayout.addWidget(GenderWidget)
 
-                AccountInfoDialogBox.exec_()
+            AccountInfoDialogBox.exec_()
 
-            else:
-                QMessageBox.critical(self, "Error",
-                                     'Unable to connect to Server',
-                                     QMessageBox.Ok)
-
-        except Exception as e:
-            print(str(e))
+        else:
+            QMessageBox.critical(self, "Error",
+                                 'Unable to connect to Server',
+                                 QMessageBox.Ok)
 
     # Logout
     def Logout(self):
         self.settings.setValue('email', '')
         self.LoginLayout()
+
+    # Category List Changed
+    def CategoryListCurrentItemChanged(self, MessagesTable):
+        CategoryList = self.sender()
+
+        if CategoryList.currentItem().text() == "Inbox":
+            self.Inbox(MessagesTable)
+        elif CategoryList.currentItem().text() == "Sent":
+            self.Sent(MessagesTable)
+
+    # Inbox
+    def Inbox(self, MessagesTable):
+        try:
+            while MessagesTable.rowCount() > 0:
+                MessagesTable.removeRow(0)
+
+            MessagesTable.setColumnCount(5)
+            MessagesTable.setWindowFlags(MessagesTable.windowFlags() | Qt.MSWindowsFixedSizeDialogHint)
+            MessagesTable.setHorizontalHeaderLabels(["Message ID", "Sender", "Timestramp", "View", "Delete"])
+            MessagesTable.horizontalHeader().setStyleSheet("::section {""background-color: black;  color: white;}")
+
+            for i in range(MessagesTable.columnCount()):
+                MessagesTable.horizontalHeaderItem(i).setFont(QFont("Ariel Black", 11))
+                MessagesTable.horizontalHeaderItem(i).setFont(QFont(MessagesTable.horizontalHeaderItem(i).text(), weight=QFont.Bold))
+
+            mycursor = mydb.cursor()
+
+            sql_insert_query = """
+                                Select msg_id, (SELECT email FROM users where id = sender_id), 
+                                datetime, read_flag
+                                from 
+                                messages
+                                where
+                                receiver_id = (SELECT id FROM users where email = %s)
+                                order by
+                                datetime desc 
+                               """
+
+
+
+            insert_tuple = (self.email,)
+            mycursor.execute(sql_insert_query, insert_tuple)
+            rowList = mycursor.fetchall()
+
+
+            for row in rowList:
+                MessagesTable.insertRow(rowList.index(row))
+
+                if row[3] == 0:
+                    pass
+
+                # Message ID
+                MessageIDItem = QTableWidgetItem()
+                MessageIDItem.setData(Qt.EditRole, QVariant(row[0]))
+                MessagesTable.setItem(rowList.index(row), 0, MessageIDItem)
+                MessagesTable.item(rowList.index(row), 0).setToolTip(str(row[0]))
+                MessagesTable.item(rowList.index(row), 0).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                MessagesTable.item(rowList.index(row), 0).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+
+                # Reciever Email
+                RecieverEmailItem = QTableWidgetItem()
+                RecieverEmailItem.setData(Qt.EditRole, QVariant(row[1]))
+                MessagesTable.setItem(rowList.index(row), 1, RecieverEmailItem)
+                MessagesTable.item(rowList.index(row), 1).setToolTip(row[1])
+                MessagesTable.item(rowList.index(row), 1).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                MessagesTable.item(rowList.index(row), 1).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+
+                # Time Stramp
+                TimestrampItem = QTableWidgetItem()
+                TimestrampItem.setData(Qt.EditRole, QVariant(row[2].strftime("%m/%d/%Y, %H:%M:%S")))
+                MessagesTable.setItem(rowList.index(row), 2, TimestrampItem)
+                MessagesTable.item(rowList.index(row), 2).setToolTip(row[2].strftime("%m/%d/%Y, %H:%M:%S"))
+                MessagesTable.item(rowList.index(row), 2).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                MessagesTable.item(rowList.index(row), 2).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+
+                # View Button
+                viewButton = QPushButton("view")
+                viewButton.clicked.connect(lambda: self.ViewInboxMessages(MessagesTable))
+                MessagesTable.setCellWidget(rowList.index(row), 3, viewButton)
+
+                # delete Button
+                deleteButton = QPushButton("Delete")
+                deleteButton.clicked.connect(lambda: self.DeleteInboxMessages(MessagesTable))
+                MessagesTable.setCellWidget(rowList.index(row), 4, deleteButton)
+
+            MessagesTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
+            MessagesTable.resizeColumnsToContents()
+            MessagesTable.resizeRowsToContents()
+            MessagesTable.setSortingEnabled(True)
+            MessagesTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+
+            for i in range(MessagesTable.columnCount()):
+                MessagesTable.horizontalHeader().setSectionResizeMode(i, QHeaderView.Stretch)
+
+        except Exception as e:
+            print(str(e))
+
+    # View Inbox Messages
+    def ViewInboxMessages(self, MessagesTable):
+        ViewButton = self.sender()
+        if ViewButton:
+            Message_id = MessagesTable.item(MessagesTable.indexAt(ViewButton.pos()).row(), 0).text()
+
+            # Edit Row Dialog
+            ViewDialogBox = QDialog()
+            ViewDialogBox.setModal(True)
+            ViewDialogBox.setWindowTitle("View Message")
+            ViewDialogBox.setParent(self)
+            ViewDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
+            ViewDialogBox.setFixedWidth(self.width / 2)
+
+            ViewDailogLayout = QVBoxLayout(ViewDialogBox)
+            ViewDailogLayout.setContentsMargins(50, 50, 50, 50)
+
+            # ****************** Key ********************
+            KeyWidget = QWidget()
+            KeyWidgetLayout = QHBoxLayout(KeyWidget)
+
+            # Key Label
+            KeyLabel = QLabel()
+            KeyLabel.setText("Key:")
+            KeyLabel.setAlignment(Qt.AlignVCenter)
+            KeyWidgetLayout.addWidget(KeyLabel, 25)
+
+            # Key LineEdit
+            KeyLineEdit = QLineEdit()
+            KeyLineEdit.setAlignment(Qt.AlignVCenter)
+            KeyLineEdit.setValidator(QIntValidator(0, 10000, self))
+            KeyWidgetLayout.addWidget(KeyLineEdit, 75)
+
+            ViewDailogLayout.addWidget(KeyWidget)
+
+            # ******************* Button Box *********************
+            ViewButtonBox = QDialogButtonBox()
+            ViewButtonBox.setCenterButtons(True)
+            ViewButtonBox.setStandardButtons(QDialogButtonBox.Ok)
+            ViewButtonBox.button(QDialogButtonBox.Ok).setText('Decrypt')
+            ViewButtonBox.button(QDialogButtonBox.Ok).setIcon(QIcon("Images/Decrypt.png"))
+            ViewButtonBox.button(QDialogButtonBox.Ok).setLayoutDirection(Qt.RightToLeft)
+            ViewButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
+                """
+                    background-color: black;
+                    color: white;
+                    border-width: 1px;
+                    border-color: #1e1e1e;
+                    border-style: solid;
+                    border-radius: 10;
+                    padding: 3px;
+                    font-weight: 700;
+                    font-size: 12px;
+                    padding-left: 5px;
+                    padding-right: 5px;
+                    min-width: 40px;
+                """
+            )
+            ViewButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
+            ViewDailogLayout.addWidget(ViewButtonBox)
+
+            KeyLineEdit.textChanged.connect(lambda: self.ToggleDecryptButton(KeyLineEdit, ViewButtonBox))
+
+            ViewButtonBox.accepted.connect(ViewDialogBox.accept)
+            ViewButtonBox.rejected.connect(ViewDialogBox.reject)
+
+            ViewButtonBox.accepted.connect(lambda: self.DecryptMessage(Message_id, KeyLineEdit.text()))
+
+            ViewDialogBox.exec_()
+
+    # Toggle Decrypt Button
+    def ToggleDecryptButton(self, KeyLineEdit, ViewButtonBox):
+        # Empty Fields
+        if len(KeyLineEdit.text()) == 0:
+            ViewButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
+        else:
+            ViewButtonBox.button(QDialogButtonBox.Ok).setDisabled(False)
+
+    # Decrypt Message
+    def DecryptMessage(self, Message_id, Key):
+        mycursor = mydb.cursor()
+        mycursor.execute("SELECT img_byte_array FROM messages where msg_id = %s", (Message_id,))
+
+        myresult = mycursor.fetchall()
+
+        crypto_steganography = CryptoSteganography(Key)
+        message = crypto_steganography.retrieve(Image.open(io.BytesIO(myresult[0][0])))
+
+        if message is not None:
+            mycursor.execute("Update messages set read_flag = 1 where msg_id = %s", (Message_id,))
+            myresult = mycursor.fetchall()
+
+            QMessageBox.information(self, "Success", "Decryption Successful", QMessageBox.Ok)
+
+            # Edit Row Dialog
+            DecryptMessageDialogBox = QDialog()
+            DecryptMessageDialogBox.setModal(True)
+            DecryptMessageDialogBox.setWindowTitle("View Message")
+            DecryptMessageDialogBox.setParent(self)
+            DecryptMessageDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
+            DecryptMessageDialogBox.setFixedWidth(self.width / 2)
+
+            DecryptMessageDailogLayout = QVBoxLayout(DecryptMessageDialogBox)
+            DecryptMessageDailogLayout.setContentsMargins(50, 50, 50, 50)
+
+            # Message Label
+            MessageLabel = QLabel()
+            MessageLabel.setText("Message:")
+            MessageLabel.setAlignment(Qt.AlignVCenter)
+            DecryptMessageDailogLayout.addWidget(MessageLabel)
+
+            # Message Text Edit
+            MessageTextEdit = QTextEdit()
+            MessageTextEdit.setReadOnly(True)
+            MessageTextEdit.setText(message)
+            DecryptMessageDailogLayout.addWidget(MessageTextEdit)
+
+            # ******************* Button Box *********************
+            EncryptedImageShow = QPushButton()
+            EncryptedImageShow.setText('View Encrypted Image')
+            EncryptedImageShow.setIcon(QIcon("Images/Decrypt.png"))
+            EncryptedImageShow.setLayoutDirection(Qt.RightToLeft)
+            EncryptedImageShow.setStyleSheet(
+                """
+                    background-color: black;
+                    color: white;
+                    border-width: 1px;
+                    border-color: #1e1e1e;
+                    border-style: solid;
+                    border-radius: 10;
+                    padding: 3px;
+                    font-weight: 700;
+                    font-size: 12px;
+                    padding-left: 5px;
+                    padding-right: 5px;
+                    min-width: 40px;
+                """
+            )
+            EncryptedImageShow.clicked.connect(lambda: Image.open(io.BytesIO(myresult[0][0])).show())
+            DecryptMessageDailogLayout.addWidget(EncryptedImageShow)
+
+            DecryptMessageDialogBox.exec_()
+        else:
+            QMessageBox.critical(self, "Error", "Invalid Key", QMessageBox.Ok)
+
+    # Delete Inbox Messages
+    def DeleteInboxMessages(self, MessagesTable):
+        DeleteButton = self.sender()
+        if DeleteButton:
+            Message_id = MessagesTable.item(MessagesTable.indexAt(DeleteButton.pos()).row(), 0).text()
+
+            DeleteMessageQuestion = QMessageBox.question(self, 'Delete Message',
+                                                         'Are you sure you want to Delete this message?',
+                                                         QMessageBox.Yes | QMessageBox.No)
+
+            if DeleteMessageQuestion == QMessageBox.Yes:
+                pass
+                #self.Inbox(MessagesTable)
+            else:
+                pass
+
+    # Sent
+    def Sent(self, MessagesTable):
+        while MessagesTable.rowCount() > 0:
+            MessagesTable.removeRow(0)
+
+        MessagesTable.setColumnCount(5)
+        MessagesTable.setWindowFlags(MessagesTable.windowFlags() | Qt.MSWindowsFixedSizeDialogHint)
+        MessagesTable.setHorizontalHeaderLabels(["Message ID", "Reciever", "Timestramp", "View", "Delete"])
+        MessagesTable.horizontalHeader().setStyleSheet("::section {""background-color: black;  color: white;}")
+
+        for i in range(MessagesTable.columnCount()):
+            MessagesTable.horizontalHeaderItem(i).setFont(QFont("Ariel Black", 11))
+            MessagesTable.horizontalHeaderItem(i).setFont(
+                QFont(MessagesTable.horizontalHeaderItem(i).text(), weight=QFont.Bold))
+
+        mycursor = mydb.cursor()
+
+        sql_insert_query = """
+                                Select msg_id, (SELECT email FROM users where id = receiver_id), 
+                                datetime, read_flag
+                                from 
+                                messages
+                                where
+                                sender_id = (SELECT id FROM users where email = %s)
+                                order by
+                                datetime desc 
+                               """
+
+        insert_tuple = (self.email,)
+        mycursor.execute(sql_insert_query, insert_tuple)
+        rowList = mycursor.fetchall()
+
+        for row in rowList:
+            MessagesTable.insertRow(rowList.index(row))
+
+            if row[3] == 0:
+                pass
+
+            # Message ID
+            MessageIDItem = QTableWidgetItem()
+            MessageIDItem.setData(Qt.EditRole, QVariant(row[0]))
+            MessagesTable.setItem(rowList.index(row), 0, MessageIDItem)
+            MessagesTable.item(rowList.index(row), 0).setToolTip(str(row[0]))
+            MessagesTable.item(rowList.index(row), 0).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            MessagesTable.item(rowList.index(row), 0).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+
+            # Reciever Email
+            RecieverEmailItem = QTableWidgetItem()
+            RecieverEmailItem.setData(Qt.EditRole, QVariant(row[1]))
+            MessagesTable.setItem(rowList.index(row), 1, RecieverEmailItem)
+            MessagesTable.item(rowList.index(row), 1).setToolTip(row[1])
+            MessagesTable.item(rowList.index(row), 1).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            MessagesTable.item(rowList.index(row), 1).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+
+            # Time Stramp
+            TimestrampItem = QTableWidgetItem()
+            TimestrampItem.setData(Qt.EditRole, QVariant(row[2].strftime("%m/%d/%Y, %H:%M:%S")))
+            MessagesTable.setItem(rowList.index(row), 2, TimestrampItem)
+            MessagesTable.item(rowList.index(row), 2).setToolTip(row[2].strftime("%m/%d/%Y, %H:%M:%S"))
+            MessagesTable.item(rowList.index(row), 2).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            MessagesTable.item(rowList.index(row), 2).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+
+            # View Button
+            viewButton = QPushButton("view")
+            #viewButton.clicked.connect(lambda: self.ViewInboxMessages(MessagesTable))
+            MessagesTable.setCellWidget(rowList.index(row), 3, viewButton)
+
+            # delete Button
+            deleteButton = QPushButton("Delete")
+            #deleteButton.clicked.connect(lambda: self.DeleteInboxMessages(MessagesTable))
+            MessagesTable.setCellWidget(rowList.index(row), 4, deleteButton)
+
+        MessagesTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        MessagesTable.resizeColumnsToContents()
+        MessagesTable.resizeRowsToContents()
+        MessagesTable.setSortingEnabled(True)
+        MessagesTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+
+        for i in range(MessagesTable.columnCount()):
+            MessagesTable.horizontalHeader().setSectionResizeMode(i, QHeaderView.Stretch)
 
     # Close Application / Exit
     def closeEvent(self, event):
