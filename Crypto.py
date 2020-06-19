@@ -60,9 +60,6 @@ class Window(QMainWindow):
         self.height = QDesktopWidget().screenGeometry(0).height()*0.8
 
         self.settings = QSettings('Crypto', 'Crypto')
-        # Comic List for keeping checks on no of comics
-        #self.ComicList = []
-
         self.initWindows()
 
     # Initiate Windows
@@ -107,102 +104,98 @@ class Window(QMainWindow):
 
     # Login Layout
     def LoginLayout(self):
-        try:
-            if self.CentralWidget.layout() is not None:
-                CentralWidgetLayout = self.CentralWidget.layout()
-                for i in reversed(range(CentralWidgetLayout.count())):
-                    CentralWidgetLayout.itemAt(i).widget().setParent(None)
-                CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.25, self.width * 0.25, self.height * 0.25)
-            else:
-                CentralWidgetLayout = QVBoxLayout(self.CentralWidget)
-                CentralWidgetLayout.setAlignment(Qt.AlignHCenter)
-                CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.25, self.width * 0.25,self.height * 0.25)
+        if self.CentralWidget.layout() is not None:
+            CentralWidgetLayout = self.CentralWidget.layout()
+            for i in reversed(range(CentralWidgetLayout.count())):
+                CentralWidgetLayout.itemAt(i).widget().setParent(None)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.25, self.width * 0.25, self.height * 0.25)
+        else:
+            CentralWidgetLayout = QVBoxLayout(self.CentralWidget)
+            CentralWidgetLayout.setAlignment(Qt.AlignHCenter)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.25, self.width * 0.25,self.height * 0.25)
 
-            # Logo Pixmap
-            LogoPixmap = QLabel()
-            LogoPixmap.setPixmap(QPixmap('Images/Logo.png').scaled(self.width/4, self.height, Qt.KeepAspectRatio))
-            LogoPixmap.setAlignment(Qt.AlignHCenter)
-            CentralWidgetLayout.addWidget(LogoPixmap)
+        # Logo Pixmap
+        LogoPixmap = QLabel()
+        LogoPixmap.setPixmap(QPixmap('Images/Logo.png').scaled(self.width/4, self.height, Qt.KeepAspectRatio))
+        LogoPixmap.setAlignment(Qt.AlignHCenter)
+        CentralWidgetLayout.addWidget(LogoPixmap)
 
-            # Login Title
-            LoginTitleLabel = QLabel()
-            LoginTitleLabel.setText("Login")
-            LoginTitleLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
-            font = LoginTitleLabel.font()
-            font.setPointSize(20)
-            font.setBold(True)
-            LoginTitleLabel.setFont(font);
+        # Login Title
+        LoginTitleLabel = QLabel()
+        LoginTitleLabel.setText("Login")
+        LoginTitleLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+        font = LoginTitleLabel.font()
+        font.setPointSize(20)
+        font.setBold(True)
+        LoginTitleLabel.setFont(font);
 
-            LoginTitleLabel.setStyleSheet(
-                """
-                    QLabel{
-                        background-color: rgba(0,0,0,0%);
-                    }      
-                """
-            )
-            CentralWidgetLayout.addWidget(LoginTitleLabel)
+        LoginTitleLabel.setStyleSheet(
+            """
+                QLabel{
+                    background-color: rgba(0,0,0,0%);
+                }      
+            """
+        )
+        CentralWidgetLayout.addWidget(LoginTitleLabel)
 
-            # Login ID Label
-            emailLabel = QLabel()
-            emailLabel.setText("Email")
-            emailLabel.setAlignment(Qt.AlignVCenter)
-            CentralWidgetLayout.addWidget(emailLabel)
+        # Login ID Label
+        emailLabel = QLabel()
+        emailLabel.setText("Email")
+        emailLabel.setAlignment(Qt.AlignVCenter)
+        CentralWidgetLayout.addWidget(emailLabel)
 
-            # Login ID Line Edit
-            emailLineEdit = QLineEdit()
-            emailLineEdit.setAlignment(Qt.AlignVCenter)
-            emailLineEdit.setStyleSheet(
-                """
-                    QLineEdit{
-                        padding: 1px;
-                        border-style: solid;
-                        border: 1px solid  # 1e1e1e;
-                        border-radius: 5;            
-                    }
-                """
-            )
-            CentralWidgetLayout.addWidget(emailLineEdit)
+        # Login ID Line Edit
+        emailLineEdit = QLineEdit()
+        emailLineEdit.setAlignment(Qt.AlignVCenter)
+        emailLineEdit.setStyleSheet(
+            """
+                QLineEdit{
+                    padding: 1px;
+                    border-style: solid;
+                    border: 1px solid  # 1e1e1e;
+                    border-radius: 5;            
+                }
+            """
+        )
+        CentralWidgetLayout.addWidget(emailLineEdit)
 
-            # Login Password
-            LoginPasswordLabel = QLabel()
-            LoginPasswordLabel.setText("Password")
-            LoginPasswordLabel.setAlignment(Qt.AlignVCenter)
-            CentralWidgetLayout.addWidget(LoginPasswordLabel)
+        # Login Password
+        LoginPasswordLabel = QLabel()
+        LoginPasswordLabel.setText("Password")
+        LoginPasswordLabel.setAlignment(Qt.AlignVCenter)
+        CentralWidgetLayout.addWidget(LoginPasswordLabel)
 
-            # Login Password Line Edit
-            LoginPasswordLineEdit = QLineEdit()
-            LoginPasswordLineEdit.setAlignment(Qt.AlignVCenter)
-            LoginPasswordLineEdit.setEchoMode(QLineEdit.Password)
-            CentralWidgetLayout.addWidget(LoginPasswordLineEdit)
+        # Login Password Line Edit
+        LoginPasswordLineEdit = QLineEdit()
+        LoginPasswordLineEdit.setAlignment(Qt.AlignVCenter)
+        LoginPasswordLineEdit.setEchoMode(QLineEdit.Password)
+        CentralWidgetLayout.addWidget(LoginPasswordLineEdit)
 
-            # Button Widget
-            ButtonWidget = QWidget()
+        # Button Widget
+        ButtonWidget = QWidget()
 
-            # Button Layout
-            ButtonLayout = QHBoxLayout(ButtonWidget)
+        # Button Layout
+        ButtonLayout = QHBoxLayout(ButtonWidget)
 
-            # Register Button
-            RegisterButton = QPushButton()
-            RegisterButton.setText("Register")
-            RegisterButton.clicked.connect(lambda: self.RegisterLayout())
-            RegisterButton.setStyleSheet(self.ButtonCSS)
-            ButtonLayout.addWidget(RegisterButton)
+        # Register Button
+        RegisterButton = QPushButton()
+        RegisterButton.setText("Register")
+        RegisterButton.clicked.connect(lambda: self.RegisterLayout())
+        RegisterButton.setStyleSheet(self.ButtonCSS)
+        ButtonLayout.addWidget(RegisterButton)
 
-            # Login Button
-            LoginButton = QPushButton()
-            LoginButton.setText("Login")
-            LoginButton.setStyleSheet(self.ButtonCSS)
-            LoginButton.setDisabled(True)
-            ButtonLayout.addWidget(LoginButton)
-            CentralWidgetLayout.addWidget(ButtonWidget)
+        # Login Button
+        LoginButton = QPushButton()
+        LoginButton.setText("Login")
+        LoginButton.setStyleSheet(self.ButtonCSS)
+        LoginButton.setDisabled(True)
+        ButtonLayout.addWidget(LoginButton)
+        CentralWidgetLayout.addWidget(ButtonWidget)
 
-            emailLineEdit.textChanged.connect(lambda: self.LoginButtonToggle(emailLineEdit, LoginPasswordLineEdit, LoginButton))
-            LoginPasswordLineEdit.textChanged.connect(lambda: self.LoginButtonToggle(emailLineEdit, LoginPasswordLineEdit, LoginButton))
+        emailLineEdit.textChanged.connect(lambda: self.LoginButtonToggle(emailLineEdit, LoginPasswordLineEdit, LoginButton))
+        LoginPasswordLineEdit.textChanged.connect(lambda: self.LoginButtonToggle(emailLineEdit, LoginPasswordLineEdit, LoginButton))
 
-            LoginButton.clicked.connect(lambda: self.Login(emailLineEdit.text(), LoginPasswordLineEdit.text()))
-
-        except Exception as e:
-            print(str(e))
+        LoginButton.clicked.connect(lambda: self.Login(emailLineEdit.text(), LoginPasswordLineEdit.text()))
 
     # Login Button Toggle
     def LoginButtonToggle(self, Email, Password, LoginButton):
@@ -224,179 +217,171 @@ class Window(QMainWindow):
 
     # Login
     def Login(self, Email, Password):
-        try:
-            mycursor = mydb.cursor()
-            mycursor.execute("SELECT * FROM users where email = %s and password = %s", (Email, str(hashlib.md5(Password.encode('utf-8')).digest())))
+        mycursor = mydb.cursor()
+        mycursor.execute("SELECT * FROM users where email = %s and password = %s", (Email, str(hashlib.md5(Password.encode('utf-8')).digest())))
 
-            myresult = mycursor.fetchall()
+        myresult = mycursor.fetchall()
 
-            if not len(myresult):
-                QMessageBox.critical(self, 'Login Error',
-                                    'Invalid Credentials', QMessageBox.Ok)
+        if not len(myresult):
+            QMessageBox.critical(self, 'Login Error',
+                                'Invalid Credentials', QMessageBox.Ok)
 
-            else:
-                self.settings.setValue('email', myresult[0][1])
-                self.MainWindow()
-
-        except Exception as e:
-            print(str(e))
+        else:
+            self.settings.setValue('email', myresult[0][1])
+            self.email = self.settings.value('email', '')
+            self.MainWindow()
 
     # Register Layout
     def RegisterLayout(self):
-        try:
-            if self.CentralWidget.layout() is not None:
-                CentralWidgetLayout = self.CentralWidget.layout()
-                for i in reversed(range(CentralWidgetLayout.count())):
-                    CentralWidgetLayout.itemAt(i).widget().setParent(None)
-                CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.125, self.width * 0.25, self.height * 0.125)
-            else:
-                CentralWidgetLayout = QVBoxLayout(self.CentralWidget)
-                CentralWidgetLayout.setAlignment(Qt.AlignHCenter)
-                CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.125, self.width * 0.25, self.height * 0.125)
-                CentralWidgetLayout.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+        if self.CentralWidget.layout() is not None:
+            CentralWidgetLayout = self.CentralWidget.layout()
+            for i in reversed(range(CentralWidgetLayout.count())):
+                CentralWidgetLayout.itemAt(i).widget().setParent(None)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.125, self.width * 0.25, self.height * 0.125)
+        else:
+            CentralWidgetLayout = QVBoxLayout(self.CentralWidget)
+            CentralWidgetLayout.setAlignment(Qt.AlignHCenter)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.125, self.width * 0.25, self.height * 0.125)
+            CentralWidgetLayout.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
 
-            # Back Button Widget
-            BackButtonWidget = QWidget()
+        # Back Button Widget
+        BackButtonWidget = QWidget()
 
-            # Back Button Layout
-            BackButtonLayout = QHBoxLayout(BackButtonWidget)
-            BackButtonLayout.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        # Back Button Layout
+        BackButtonLayout = QHBoxLayout(BackButtonWidget)
+        BackButtonLayout.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
-            # Back Button
-            BackButton = QPushButton()
-            BackButton.setIcon(QIcon("Images/Back.png"))
-            BackButton.setIconSize(QSize(50,50))
-            BackButton.setStyleSheet("border: 0px")
-            BackButton.clicked.connect(lambda: self.LoginLayout())
-            BackButtonLayout.addWidget(BackButton)
+        # Back Button
+        BackButton = QPushButton()
+        BackButton.setIcon(QIcon("Images/Back.png"))
+        BackButton.setIconSize(QSize(50,50))
+        BackButton.setStyleSheet("border: 0px")
+        BackButton.clicked.connect(lambda: self.LoginLayout())
+        BackButtonLayout.addWidget(BackButton)
 
-            CentralWidgetLayout.addWidget(BackButtonWidget)
+        CentralWidgetLayout.addWidget(BackButtonWidget)
 
-            # Logo Pixmap
-            LogoPixmap = QLabel()
-            LogoPixmap.setPixmap(QPixmap('Images/Logo.png').scaled(self.width / 4, self.height, Qt.KeepAspectRatio))
-            LogoPixmap.setAlignment(Qt.AlignHCenter)
-            CentralWidgetLayout.addWidget(LogoPixmap)
+        # Logo Pixmap
+        LogoPixmap = QLabel()
+        LogoPixmap.setPixmap(QPixmap('Images/Logo.png').scaled(self.width / 4, self.height, Qt.KeepAspectRatio))
+        LogoPixmap.setAlignment(Qt.AlignHCenter)
+        CentralWidgetLayout.addWidget(LogoPixmap)
 
-            # Register Title
-            RegisterTitleLabel = QLabel()
-            RegisterTitleLabel.setText("Register")
-            RegisterTitleLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
-            font = RegisterTitleLabel.font()
-            font.setPointSize(20)
-            font.setBold(True)
-            RegisterTitleLabel.setFont(font);
-            CentralWidgetLayout.addWidget(RegisterTitleLabel)
+        # Register Title
+        RegisterTitleLabel = QLabel()
+        RegisterTitleLabel.setText("Register")
+        RegisterTitleLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+        font = RegisterTitleLabel.font()
+        font.setPointSize(20)
+        font.setBold(True)
+        RegisterTitleLabel.setFont(font);
+        CentralWidgetLayout.addWidget(RegisterTitleLabel)
 
-            # Register First Name Label
-            FirstNameLabel = QLabel()
-            FirstNameLabel.setText("First Name")
-            FirstNameLabel.setAlignment(Qt.AlignVCenter)
-            CentralWidgetLayout.addWidget(FirstNameLabel)
+        # Register First Name Label
+        FirstNameLabel = QLabel()
+        FirstNameLabel.setText("First Name")
+        FirstNameLabel.setAlignment(Qt.AlignVCenter)
+        CentralWidgetLayout.addWidget(FirstNameLabel)
 
-            # Register First Name Line Edit
-            FirstNameLineEdit = QLineEdit()
-            FirstNameLineEdit.setAlignment(Qt.AlignVCenter)
-            CentralWidgetLayout.addWidget(FirstNameLineEdit)
+        # Register First Name Line Edit
+        FirstNameLineEdit = QLineEdit()
+        FirstNameLineEdit.setAlignment(Qt.AlignVCenter)
+        CentralWidgetLayout.addWidget(FirstNameLineEdit)
 
-            # Register Last Name Label
-            LastNameLabel = QLabel()
-            LastNameLabel.setText("Last Name")
-            LastNameLabel.setAlignment(Qt.AlignVCenter)
-            CentralWidgetLayout.addWidget(LastNameLabel)
+        # Register Last Name Label
+        LastNameLabel = QLabel()
+        LastNameLabel.setText("Last Name")
+        LastNameLabel.setAlignment(Qt.AlignVCenter)
+        CentralWidgetLayout.addWidget(LastNameLabel)
 
-            # Register Last Name Line Edit
-            LastNameLineEdit = QLineEdit()
-            LastNameLineEdit.setAlignment(Qt.AlignVCenter)
-            CentralWidgetLayout.addWidget(LastNameLineEdit)
+        # Register Last Name Line Edit
+        LastNameLineEdit = QLineEdit()
+        LastNameLineEdit.setAlignment(Qt.AlignVCenter)
+        CentralWidgetLayout.addWidget(LastNameLineEdit)
 
-            # Register email Label
-            emailLabel = QLabel()
-            emailLabel.setText("E-mail")
-            emailLabel.setAlignment(Qt.AlignVCenter)
-            CentralWidgetLayout.addWidget(emailLabel)
+        # Register email Label
+        emailLabel = QLabel()
+        emailLabel.setText("E-mail")
+        emailLabel.setAlignment(Qt.AlignVCenter)
+        CentralWidgetLayout.addWidget(emailLabel)
 
-            # Register Name Line Edit
-            emailLineEdit = QLineEdit()
-            emailLineEdit.setAlignment(Qt.AlignVCenter)
-            CentralWidgetLayout.addWidget(emailLineEdit)
-            emailLineEdit.setValidator(QRegularExpressionValidator(
-                                            QRegularExpression(
-                                                "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b",
-                                                QRegularExpression.CaseInsensitiveOption), self
-                                            )
-                                      )
+        # Register Name Line Edit
+        emailLineEdit = QLineEdit()
+        emailLineEdit.setAlignment(Qt.AlignVCenter)
+        CentralWidgetLayout.addWidget(emailLineEdit)
+        emailLineEdit.setValidator(QRegularExpressionValidator(
+                                        QRegularExpression(
+                                            "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b",
+                                            QRegularExpression.CaseInsensitiveOption), self
+                                        )
+                                  )
 
-            # Birth Date Label
-            BirthDateLabel = QLabel()
-            BirthDateLabel.setText("Birth Date:")
-            BirthDateLabel.setAlignment(Qt.AlignVCenter)
-            CentralWidgetLayout.addWidget(BirthDateLabel)
+        # Birth Date Label
+        BirthDateLabel = QLabel()
+        BirthDateLabel.setText("Birth Date:")
+        BirthDateLabel.setAlignment(Qt.AlignVCenter)
+        CentralWidgetLayout.addWidget(BirthDateLabel)
 
-            # Birth Date Calendar
-            BirthDateCalendar = QDateEdit()
-            BirthDateCalendar.setCalendarPopup(True)
-            BirthDateCalendar.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
-            BirthDateCalendar.setMaximumDate(datetime.datetime.now() - datetime.timedelta(days=5840))
-            BirthDateCalendar.setMinimumDate(QDate(1903, 2, 2))
-            BirthDateCalendar.setDate(datetime.datetime.now() - datetime.timedelta(days=5840))
-            CentralWidgetLayout.addWidget(BirthDateCalendar)
+        # Birth Date Calendar
+        BirthDateCalendar = QDateEdit()
+        BirthDateCalendar.setCalendarPopup(True)
+        BirthDateCalendar.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        BirthDateCalendar.setMaximumDate(datetime.datetime.now() - datetime.timedelta(days=5840))
+        BirthDateCalendar.setMinimumDate(QDate(1903, 2, 2))
+        BirthDateCalendar.setDate(datetime.datetime.now() - datetime.timedelta(days=5840))
+        CentralWidgetLayout.addWidget(BirthDateCalendar)
 
-            # Register Gender Label
-            GenderLabel = QLabel()
-            GenderLabel.setText("Gender")
-            GenderLabel.setAlignment(Qt.AlignVCenter)
-            CentralWidgetLayout.addWidget(GenderLabel)
+        # Register Gender Label
+        GenderLabel = QLabel()
+        GenderLabel.setText("Gender")
+        GenderLabel.setAlignment(Qt.AlignVCenter)
+        CentralWidgetLayout.addWidget(GenderLabel)
 
-            # Gender GroupBox
-            GenderGroupBox = QComboBox()
-            GenderGroupBox.addItem("Male")
-            GenderGroupBox.addItem("Female")
-            CentralWidgetLayout.addWidget(GenderGroupBox)
+        # Gender GroupBox
+        GenderGroupBox = QComboBox()
+        GenderGroupBox.addItem("Male")
+        GenderGroupBox.addItem("Female")
+        CentralWidgetLayout.addWidget(GenderGroupBox)
 
-            # Enter Password Label
-            EnterPasswordLabel = QLabel()
-            EnterPasswordLabel.setText("Enter Password")
-            EnterPasswordLabel.setAlignment(Qt.AlignVCenter)
-            CentralWidgetLayout.addWidget(EnterPasswordLabel)
+        # Enter Password Label
+        EnterPasswordLabel = QLabel()
+        EnterPasswordLabel.setText("Enter Password")
+        EnterPasswordLabel.setAlignment(Qt.AlignVCenter)
+        CentralWidgetLayout.addWidget(EnterPasswordLabel)
 
-            # Enter Password Line Edit
-            EnterPasswordLineEdit = QLineEdit()
-            EnterPasswordLineEdit.setAlignment(Qt.AlignVCenter)
-            EnterPasswordLineEdit.setEchoMode(QLineEdit.Password)
-            CentralWidgetLayout.addWidget(EnterPasswordLineEdit)
+        # Enter Password Line Edit
+        EnterPasswordLineEdit = QLineEdit()
+        EnterPasswordLineEdit.setAlignment(Qt.AlignVCenter)
+        EnterPasswordLineEdit.setEchoMode(QLineEdit.Password)
+        CentralWidgetLayout.addWidget(EnterPasswordLineEdit)
 
-            # Retype Password Label
-            RetypePasswordLabel = QLabel()
-            RetypePasswordLabel.setText("Re-type Password")
-            RetypePasswordLabel.setAlignment(Qt.AlignVCenter)
-            CentralWidgetLayout.addWidget(RetypePasswordLabel)
+        # Retype Password Label
+        RetypePasswordLabel = QLabel()
+        RetypePasswordLabel.setText("Re-type Password")
+        RetypePasswordLabel.setAlignment(Qt.AlignVCenter)
+        CentralWidgetLayout.addWidget(RetypePasswordLabel)
 
-            # Retype Password Line Edit
-            RetypePasswordLineEdit = QLineEdit()
-            RetypePasswordLineEdit.setAlignment(Qt.AlignVCenter)
-            RetypePasswordLineEdit.setEchoMode(QLineEdit.Password)
-            CentralWidgetLayout.addWidget(RetypePasswordLineEdit)
+        # Retype Password Line Edit
+        RetypePasswordLineEdit = QLineEdit()
+        RetypePasswordLineEdit.setAlignment(Qt.AlignVCenter)
+        RetypePasswordLineEdit.setEchoMode(QLineEdit.Password)
+        CentralWidgetLayout.addWidget(RetypePasswordLineEdit)
 
-            # Register Button
-            RegisterButton = QPushButton()
-            RegisterButton.setText("Register")
-            RegisterButton.setDisabled(True)
-            RegisterButton.setStyleSheet(self.ButtonCSS)
-            CentralWidgetLayout.addWidget(RegisterButton)
+        # Register Button
+        RegisterButton = QPushButton()
+        RegisterButton.setText("Register")
+        RegisterButton.setDisabled(True)
+        RegisterButton.setStyleSheet(self.ButtonCSS)
+        CentralWidgetLayout.addWidget(RegisterButton)
 
-            FirstNameLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
-            LastNameLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
-            emailLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
-            BirthDateCalendar.dateChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
-            EnterPasswordLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
-            RetypePasswordLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+        FirstNameLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+        LastNameLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+        emailLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+        BirthDateCalendar.dateChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+        EnterPasswordLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
+        RetypePasswordLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
 
-            RegisterButton.clicked.connect(lambda: self.Register(FirstNameLineEdit.text(), LastNameLineEdit.text(), emailLineEdit.text(), BirthDateCalendar.text(), GenderGroupBox.currentText(), EnterPasswordLineEdit.text()))
-
-
-        except Exception as e:
-            print(str(e))
+        RegisterButton.clicked.connect(lambda: self.Register(FirstNameLineEdit.text(), LastNameLineEdit.text(), emailLineEdit.text(), BirthDateCalendar.text(), GenderGroupBox.currentText(), EnterPasswordLineEdit.text()))
 
     # Register Button Toggle
     def RegisterButtonToggle(self, FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton):
@@ -457,143 +442,139 @@ class Window(QMainWindow):
 
     #  Main Window
     def MainWindow(self):
-        try:
-            if self.CentralWidget.layout() is not None:
-                CentralWidgetLayout = self.CentralWidget.layout()
-                for i in reversed(range(CentralWidgetLayout.count())):
-                    CentralWidgetLayout.itemAt(i).widget().setParent(None)
-                CentralWidgetLayout.setContentsMargins(0, 0, 0, 0)
-            else:
-                CentralWidgetLayout = QVBoxLayout(self.CentralWidget)
-                CentralWidgetLayout.setContentsMargins(0, 0, 0, 0)
+        if self.CentralWidget.layout() is not None:
+            CentralWidgetLayout = self.CentralWidget.layout()
+            for i in reversed(range(CentralWidgetLayout.count())):
+                CentralWidgetLayout.itemAt(i).widget().setParent(None)
+            CentralWidgetLayout.setContentsMargins(0, 0, 0, 0)
+        else:
+            CentralWidgetLayout = QVBoxLayout(self.CentralWidget)
+            CentralWidgetLayout.setContentsMargins(0, 0, 0, 0)
 
-            # ************************************************************************************
-            # ************************************ Top Widget ************************************
-            # ************************************************************************************
+        # ************************************************************************************
+        # ************************************ Top Widget ************************************
+        # ************************************************************************************
 
-            # Top Widget
-            TopWidget = QWidget()
-            TopWidget.setStyleSheet("background-color: white;")
+        # Top Widget
+        TopWidget = QWidget()
+        TopWidget.setStyleSheet("background-color: white;")
 
-            # Top Widget Layout
-            TopWidgetLayout = QHBoxLayout(TopWidget)
-            TopWidgetLayout.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        # Top Widget Layout
+        TopWidgetLayout = QHBoxLayout(TopWidget)
+        TopWidgetLayout.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
 
-            # Compose Button
-            ComposeButton = QPushButton()
-            ComposeButton.setText("Compose")
-            ComposeButton.setIcon(QIcon("Images/Compose.png"))
-            ComposeButton.setIconSize(QSize(25, 25))
-            ComposeButton.setStyleSheet(
-                """
-                    QPushButton{
-                        background-color: black;
-                        color: white;
-                        border-width: 1px;
-                        border-color: #1e1e1e;
-                        border-style: solid;
-                        border-radius: 15;
-                        padding: 3px;
-                        font-weight: 900;
-                        font-size: 16px;
-                        padding-left: 5px;
-                        padding-right: 5px;
-                        min-width: 40px;
-                    }
-                    QPushButton:hover{
-                        border: 2px solid QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffffff, stop: 1 #d4e8f2);
-                    }                
-                """
-            )
-            ComposeButton.clicked.connect(lambda: self.ComposeMessageDialog())
+        # Compose Button
+        ComposeButton = QPushButton()
+        ComposeButton.setText("Compose")
+        ComposeButton.setIcon(QIcon("Images/Compose.png"))
+        ComposeButton.setIconSize(QSize(25, 25))
+        ComposeButton.setStyleSheet(
+            """
+                QPushButton{
+                    background-color: black;
+                    color: white;
+                    border-width: 1px;
+                    border-color: #1e1e1e;
+                    border-style: solid;
+                    border-radius: 15;
+                    padding: 3px;
+                    font-weight: 900;
+                    font-size: 16px;
+                    padding-left: 5px;
+                    padding-right: 5px;
+                    min-width: 40px;
+                }
+                QPushButton:hover{
+                    border: 2px solid QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffffff, stop: 1 #d4e8f2);
+                }                
+            """
+        )
+        ComposeButton.clicked.connect(lambda: self.ComposeMessageDialog())
 
-            TopWidgetLayout.addWidget(ComposeButton, 15)
-            TopWidgetLayout.addWidget(QWidget(), 70)
+        TopWidgetLayout.addWidget(ComposeButton, 15)
+        TopWidgetLayout.addWidget(QWidget(), 70)
 
-            # Setting Button
-            SettingButton = QPushButton();
-            SettingButton.setIcon(QIcon("Images/Setting.png"))
-            SettingButton.setIconSize(QSize(50, 50))
-            SettingButton.setStyleSheet(
-                """
-                    QPushButton{
-                        border: 0px solid;
-                    }    
-                """
-            )
+        # Setting Button
+        SettingButton = QPushButton();
+        SettingButton.setIcon(QIcon("Images/Setting.png"))
+        SettingButton.setIconSize(QSize(50, 50))
+        SettingButton.setStyleSheet(
+            """
+                QPushButton{
+                    border: 0px solid;
+                }    
+            """
+        )
 
-            menu = QMenu("Menu");
-            menu.setLayoutDirection(Qt.RightToLeft)
+        menu = QMenu("Menu");
+        menu.setLayoutDirection(Qt.RightToLeft)
 
-            AccountButton = QAction('Account', self)
-            AccountButton.setStatusTip('Account')
-            AccountButton.triggered.connect(self.AccountInfo)
-            menu.addAction(AccountButton)
+        AccountButton = QAction('Account', self)
+        AccountButton.setStatusTip('Account')
+        AccountButton.triggered.connect(self.AccountInfo)
+        menu.addAction(AccountButton)
 
-            LogoutButton = QAction('Logout', self)
-            LogoutButton.setStatusTip('Logout')
-            LogoutButton.triggered.connect(self.Logout)
-            menu.addAction(LogoutButton)
+        LogoutButton = QAction('Logout', self)
+        LogoutButton.setStatusTip('Logout')
+        LogoutButton.triggered.connect(self.Logout)
+        menu.addAction(LogoutButton)
 
-            SettingButton.setMenu(menu)
+        SettingButton.setMenu(menu)
 
-            TopWidgetLayout.addWidget(SettingButton, 15)
+        TopWidgetLayout.addWidget(SettingButton, 15)
 
-            CentralWidgetLayout.addWidget(TopWidget)
+        CentralWidgetLayout.addWidget(TopWidget)
 
-            # ************************************************************************************
-            # ********************************** Bottom Widget ***********************************
-            # ************************************************************************************
+        # ************************************************************************************
+        # ********************************** Bottom Widget ***********************************
+        # ************************************************************************************
 
-            BottomWidget = QWidget()
-            BottomWidgetLayout = QHBoxLayout(BottomWidget)
+        BottomWidget = QWidget()
+        BottomWidgetLayout = QHBoxLayout(BottomWidget)
 
-            # List Widget
-            CategoryList = QListWidget()
-            CategoryList.setStyleSheet(
-                """
-                    QListWidget::item 
-                    {
-                        color: black;
-                        background-color: white;                        
-                    }
-                    
-                    QListWidget::item:selected 
-                    {
-                        color: white;
-                        background-color: black;
-                    }
-                """
-            )
-            BottomWidgetLayout.addWidget(CategoryList, 25)
+        # List Widget
+        CategoryList = QListWidget()
+        CategoryList.setStyleSheet(
+            """
+                QListWidget::item 
+                {
+                    color: black;
+                    background-color: white;                        
+                }
+                
+                QListWidget::item:selected 
+                {
+                    color: white;
+                    background-color: black;
+                }
+            """
+        )
+        BottomWidgetLayout.addWidget(CategoryList, 25)
 
-            # Inbox Category
-            InboxCategory = QListWidgetItem()
-            InboxCategory.setTextAlignment(Qt.AlignHCenter | Qt.AlignHCenter)
-            InboxCategory.setText("Inbox")
-            InboxCategory.setFont(QFont('Ubuntu', 15, QFont.Medium))
-            CategoryList.addItem(InboxCategory)
+        # Inbox Category
+        InboxCategory = QListWidgetItem()
+        InboxCategory.setTextAlignment(Qt.AlignHCenter | Qt.AlignHCenter)
+        InboxCategory.setText("Inbox")
+        InboxCategory.setFont(QFont('Ubuntu', 15, QFont.Medium))
+        CategoryList.addItem(InboxCategory)
 
-            # Sent Category
-            SentCategory = QListWidgetItem()
-            SentCategory.setTextAlignment(Qt.AlignHCenter | Qt.AlignHCenter)
-            SentCategory.setText("Sent")
-            SentCategory.setFont(QFont('Ubuntu', 15, QFont.Medium))
-            CategoryList.addItem(SentCategory)
+        # Sent Category
+        SentCategory = QListWidgetItem()
+        SentCategory.setTextAlignment(Qt.AlignHCenter | Qt.AlignHCenter)
+        SentCategory.setText("Sent")
+        SentCategory.setFont(QFont('Ubuntu', 15, QFont.Medium))
+        CategoryList.addItem(SentCategory)
 
-            CategoryList.item(0).setSelected(True)
+        CategoryList.item(0).setSelected(True)
 
-            # Table Widget
-            MessagesTable = QTableWidget()
-            BottomWidgetLayout.addWidget(MessagesTable, 75)
+        # Table Widget
+        MessagesTable = QTableWidget()
+        BottomWidgetLayout.addWidget(MessagesTable, 75)
 
-            self.Inbox(MessagesTable)
+        self.Inbox(MessagesTable)
 
-            CategoryList.currentItemChanged.connect(lambda: self.CategoryListCurrentItemChanged(MessagesTable))
-            CentralWidgetLayout.addWidget(BottomWidget, 90)
-
-        except Exception as e:
-            print(str(e))
+        CategoryList.currentItemChanged.connect(lambda: self.CategoryListCurrentItemChanged(MessagesTable))
+        CentralWidgetLayout.addWidget(BottomWidget, 90)
 
     # Compose Message
     def ComposeMessageDialog(self):
@@ -749,7 +730,6 @@ class Window(QMainWindow):
 
                 insert_tuple = (self.email, To, Key, imgByteArr.getvalue())
                 result = mycursor.execute(sql_insert_query, insert_tuple)
-
                 mydb.commit()
 
                 QMessageBox.information(self, "Message Send",
@@ -908,90 +888,88 @@ class Window(QMainWindow):
 
     # Inbox
     def Inbox(self, MessagesTable):
-        try:
-            while MessagesTable.rowCount() > 0:
-                MessagesTable.removeRow(0)
+        while MessagesTable.rowCount() > 0:
+            MessagesTable.removeRow(0)
 
-            MessagesTable.setColumnCount(5)
-            MessagesTable.setWindowFlags(MessagesTable.windowFlags() | Qt.MSWindowsFixedSizeDialogHint)
-            MessagesTable.setHorizontalHeaderLabels(["Message ID", "Sender", "Timestramp", "View", "Delete"])
-            MessagesTable.horizontalHeader().setStyleSheet("::section {""background-color: black;  color: white;}")
+        MessagesTable.setColumnCount(5)
+        MessagesTable.setWindowFlags(MessagesTable.windowFlags() | Qt.MSWindowsFixedSizeDialogHint)
+        MessagesTable.setHorizontalHeaderLabels(["Message ID", "Sender", "Timestramp", "View", "Delete"])
+        MessagesTable.horizontalHeader().setStyleSheet("::section {""background-color: black;  color: white;}")
 
-            for i in range(MessagesTable.columnCount()):
-                MessagesTable.horizontalHeaderItem(i).setFont(QFont("Ariel Black", 11))
-                MessagesTable.horizontalHeaderItem(i).setFont(QFont(MessagesTable.horizontalHeaderItem(i).text(), weight=QFont.Bold))
+        for i in range(MessagesTable.columnCount()):
+            MessagesTable.horizontalHeaderItem(i).setFont(QFont("Ariel Black", 11))
+            MessagesTable.horizontalHeaderItem(i).setFont(QFont(MessagesTable.horizontalHeaderItem(i).text(), weight=QFont.Bold))
 
-            mycursor = mydb.cursor()
+        mycursor = mydb.cursor()
 
-            sql_insert_query = """
-                                Select msg_id, (SELECT email FROM users where id = sender_id), 
-                                datetime, read_flag
-                                from 
-                                messages
-                                where
-                                receiver_id = (SELECT id FROM users where email = %s)
-                                order by
-                                datetime desc 
-                               """
-
-
-
-            insert_tuple = (self.email,)
-            mycursor.execute(sql_insert_query, insert_tuple)
-            rowList = mycursor.fetchall()
+        sql_insert_query = """
+                            Select msg_id, (SELECT email FROM users where id = sender_id), 
+                            datetime, read_flag
+                            from 
+                            messages
+                            where
+                            receiver_id = (SELECT id FROM users where email = %s)
+                            and 
+                            delete_reciever_flag = 0 
+                            order by
+                            datetime desc 
+                           """
 
 
-            for row in rowList:
-                MessagesTable.insertRow(rowList.index(row))
 
-                if row[3] == 0:
-                    pass
+        insert_tuple = (self.email,)
+        mycursor.execute(sql_insert_query, insert_tuple)
+        rowList = mycursor.fetchall()
 
-                # Message ID
-                MessageIDItem = QTableWidgetItem()
-                MessageIDItem.setData(Qt.EditRole, QVariant(row[0]))
-                MessagesTable.setItem(rowList.index(row), 0, MessageIDItem)
-                MessagesTable.item(rowList.index(row), 0).setToolTip(str(row[0]))
-                MessagesTable.item(rowList.index(row), 0).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-                MessagesTable.item(rowList.index(row), 0).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
-                # Reciever Email
-                RecieverEmailItem = QTableWidgetItem()
-                RecieverEmailItem.setData(Qt.EditRole, QVariant(row[1]))
-                MessagesTable.setItem(rowList.index(row), 1, RecieverEmailItem)
-                MessagesTable.item(rowList.index(row), 1).setToolTip(row[1])
-                MessagesTable.item(rowList.index(row), 1).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-                MessagesTable.item(rowList.index(row), 1).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+        for row in rowList:
+            MessagesTable.insertRow(rowList.index(row))
 
-                # Time Stramp
-                TimestrampItem = QTableWidgetItem()
-                TimestrampItem.setData(Qt.EditRole, QVariant(row[2].strftime("%m/%d/%Y, %H:%M:%S")))
-                MessagesTable.setItem(rowList.index(row), 2, TimestrampItem)
-                MessagesTable.item(rowList.index(row), 2).setToolTip(row[2].strftime("%m/%d/%Y, %H:%M:%S"))
-                MessagesTable.item(rowList.index(row), 2).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-                MessagesTable.item(rowList.index(row), 2).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+            if row[3] == 0:
+                pass
 
-                # View Button
-                viewButton = QPushButton("view")
-                viewButton.clicked.connect(lambda: self.ViewInboxMessages(MessagesTable))
-                MessagesTable.setCellWidget(rowList.index(row), 3, viewButton)
+            # Message ID
+            MessageIDItem = QTableWidgetItem()
+            MessageIDItem.setData(Qt.EditRole, QVariant(row[0]))
+            MessagesTable.setItem(rowList.index(row), 0, MessageIDItem)
+            MessagesTable.item(rowList.index(row), 0).setToolTip(str(row[0]))
+            MessagesTable.item(rowList.index(row), 0).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            MessagesTable.item(rowList.index(row), 0).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
-                # delete Button
-                deleteButton = QPushButton("Delete")
-                deleteButton.clicked.connect(lambda: self.DeleteInboxMessages(MessagesTable))
-                MessagesTable.setCellWidget(rowList.index(row), 4, deleteButton)
+            # Reciever Email
+            RecieverEmailItem = QTableWidgetItem()
+            RecieverEmailItem.setData(Qt.EditRole, QVariant(row[1]))
+            MessagesTable.setItem(rowList.index(row), 1, RecieverEmailItem)
+            MessagesTable.item(rowList.index(row), 1).setToolTip(row[1])
+            MessagesTable.item(rowList.index(row), 1).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            MessagesTable.item(rowList.index(row), 1).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
-            MessagesTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
-            MessagesTable.resizeColumnsToContents()
-            MessagesTable.resizeRowsToContents()
-            MessagesTable.setSortingEnabled(True)
-            MessagesTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+            # Time Stramp
+            TimestrampItem = QTableWidgetItem()
+            TimestrampItem.setData(Qt.EditRole, QVariant(row[2].strftime("%m/%d/%Y, %H:%M:%S")))
+            MessagesTable.setItem(rowList.index(row), 2, TimestrampItem)
+            MessagesTable.item(rowList.index(row), 2).setToolTip(row[2].strftime("%m/%d/%Y, %H:%M:%S"))
+            MessagesTable.item(rowList.index(row), 2).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            MessagesTable.item(rowList.index(row), 2).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
-            for i in range(MessagesTable.columnCount()):
-                MessagesTable.horizontalHeader().setSectionResizeMode(i, QHeaderView.Stretch)
+            # View Button
+            viewButton = QPushButton("view")
+            viewButton.clicked.connect(lambda: self.ViewInboxMessages(MessagesTable))
+            MessagesTable.setCellWidget(rowList.index(row), 3, viewButton)
 
-        except Exception as e:
-            print(str(e))
+            # delete Button
+            deleteButton = QPushButton("Delete")
+            deleteButton.clicked.connect(lambda: self.DeleteInboxMessages(MessagesTable))
+            MessagesTable.setCellWidget(rowList.index(row), 4, deleteButton)
+
+        MessagesTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        MessagesTable.resizeColumnsToContents()
+        MessagesTable.resizeRowsToContents()
+        MessagesTable.setSortingEnabled(True)
+        MessagesTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+
+        for i in range(MessagesTable.columnCount()):
+            MessagesTable.horizontalHeader().setSectionResizeMode(i, QHeaderView.Stretch)
 
     # View Inbox Messages
     def ViewInboxMessages(self, MessagesTable):
@@ -1083,7 +1061,7 @@ class Window(QMainWindow):
 
         if message is not None:
             mycursor.execute("Update messages set read_flag = 1 where msg_id = %s", (Message_id,))
-            myresult = mycursor.fetchall()
+            mydb.commit()
 
             QMessageBox.information(self, "Success", "Decryption Successful", QMessageBox.Ok)
 
@@ -1149,8 +1127,10 @@ class Window(QMainWindow):
                                                          QMessageBox.Yes | QMessageBox.No)
 
             if DeleteMessageQuestion == QMessageBox.Yes:
-                pass
-                #self.Inbox(MessagesTable)
+                mycursor = mydb.cursor()
+                mycursor.execute("Update messages set delete_reciever_flag = 1 where msg_id = %s", (Message_id,))
+                mydb.commit()
+                self.Inbox(MessagesTable)
             else:
                 pass
 
@@ -1172,15 +1152,16 @@ class Window(QMainWindow):
         mycursor = mydb.cursor()
 
         sql_insert_query = """
-                                Select msg_id, (SELECT email FROM users where id = receiver_id), 
-                                datetime, read_flag
+                                Select msg_id, (SELECT email FROM users where id = receiver_id), datetime
                                 from 
                                 messages
                                 where
                                 sender_id = (SELECT id FROM users where email = %s)
+                                and 
+                                delete_sender_flag = 0                                
                                 order by
                                 datetime desc 
-                               """
+                          """
 
         insert_tuple = (self.email,)
         mycursor.execute(sql_insert_query, insert_tuple)
@@ -1188,9 +1169,6 @@ class Window(QMainWindow):
 
         for row in rowList:
             MessagesTable.insertRow(rowList.index(row))
-
-            if row[3] == 0:
-                pass
 
             # Message ID
             MessageIDItem = QTableWidgetItem()
@@ -1218,12 +1196,12 @@ class Window(QMainWindow):
 
             # View Button
             viewButton = QPushButton("view")
-            #viewButton.clicked.connect(lambda: self.ViewInboxMessages(MessagesTable))
+            viewButton.clicked.connect(lambda: self.ViewSentMessages(MessagesTable))
             MessagesTable.setCellWidget(rowList.index(row), 3, viewButton)
 
             # delete Button
             deleteButton = QPushButton("Delete")
-            #deleteButton.clicked.connect(lambda: self.DeleteInboxMessages(MessagesTable))
+            deleteButton.clicked.connect(lambda: self.DeleteSentMessages(MessagesTable))
             MessagesTable.setCellWidget(rowList.index(row), 4, deleteButton)
 
         MessagesTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -1234,6 +1212,144 @@ class Window(QMainWindow):
 
         for i in range(MessagesTable.columnCount()):
             MessagesTable.horizontalHeader().setSectionResizeMode(i, QHeaderView.Stretch)
+
+    # View Send Messages
+    def ViewSentMessages(self, MessagesTable):
+        ViewButton = self.sender()
+        if ViewButton:
+            Message_id = MessagesTable.item(MessagesTable.indexAt(ViewButton.pos()).row(), 0).text()
+
+            mycursor = mydb.cursor()
+
+            sql_insert_query = """
+                                    Select (SELECT email FROM users where id = receiver_id), datetime, enc_key, img_byte_array 
+                                    from 
+                                    messages
+                                    where
+                                    msg_id = %s                                         
+                              """
+
+            insert_tuple = (Message_id,)
+            mycursor.execute(sql_insert_query, insert_tuple)
+            rowList = mycursor.fetchall()
+
+            # Edit Row Dialog
+            ViewDialogBox = QDialog()
+            ViewDialogBox.setModal(True)
+            ViewDialogBox.setWindowTitle("View Message")
+            ViewDialogBox.setParent(self)
+            ViewDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
+            ViewDialogBox.setFixedWidth(self.width / 2)
+
+            ViewDailogLayout = QVBoxLayout(ViewDialogBox)
+            ViewDailogLayout.setContentsMargins(50, 50, 50, 50)
+
+            # ****************** To ********************
+            # To Label
+            ToLabel = QLabel()
+            ToLabel.setText("To:")
+            ToLabel.setAlignment(Qt.AlignVCenter)
+            ViewDailogLayout.addWidget(ToLabel)
+
+            # To LineEdit
+            ToLineEdit = QLineEdit()
+            ToLineEdit.setAlignment(Qt.AlignVCenter)
+            ToLineEdit.setText(rowList[0][0])
+            ToLineEdit.setReadOnly(True)
+            ToLineEdit.setValidator(QIntValidator(0, 10000, self))
+            ViewDailogLayout.addWidget(ToLineEdit)
+
+            # ****************** TimeStramp ********************
+            # TimeStramp Label
+            TimeStrampLabel = QLabel()
+            TimeStrampLabel.setText("TimeStramp:")
+            TimeStrampLabel.setAlignment(Qt.AlignVCenter)
+            ViewDailogLayout.addWidget(TimeStrampLabel)
+
+            # TimeStramp LineEdit
+            TimeStrampLineEdit = QLineEdit()
+            TimeStrampLineEdit.setAlignment(Qt.AlignVCenter)
+            TimeStrampLineEdit.setText(rowList[0][1].strftime("%m/%d/%Y, %H:%M:%S"))
+            TimeStrampLineEdit.setReadOnly(True)
+            ViewDailogLayout.addWidget(TimeStrampLineEdit)
+
+            # ****************** Key ********************
+            # To Label
+            KeyLabel = QLabel()
+            KeyLabel.setText("Key:")
+            KeyLabel.setAlignment(Qt.AlignVCenter)
+            ViewDailogLayout.addWidget(KeyLabel)
+
+            # Key LineEdit
+            KeyLineEdit = QLineEdit()
+            KeyLineEdit.setAlignment(Qt.AlignVCenter)
+            KeyLineEdit.setText(rowList[0][2])
+            KeyLineEdit.setReadOnly(True)
+            ViewDailogLayout.addWidget(KeyLineEdit)
+
+            # ****************** Message ********************
+            # Message Label
+            MessageLabel = QLabel()
+            MessageLabel.setText("Message:")
+            MessageLabel.setAlignment(Qt.AlignVCenter)
+            ViewDailogLayout.addWidget(MessageLabel)
+
+            # Message LineEdit
+            MessageTextEdit = QTextEdit()
+            MessageTextEdit.setAlignment(Qt.AlignVCenter)
+            crypto_steganography = CryptoSteganography(rowList[0][2])
+            MessageTextEdit.setText(crypto_steganography.retrieve(Image.open(io.BytesIO(rowList[0][3]))))
+            MessageTextEdit.setReadOnly(True)
+            ViewDailogLayout.addWidget(MessageTextEdit)
+
+            # ******************* Button Box *********************
+            ViewButtonBox = QDialogButtonBox()
+            ViewButtonBox.setCenterButtons(True)
+            ViewButtonBox.setStandardButtons(QDialogButtonBox.Ok)
+            ViewButtonBox.button(QDialogButtonBox.Ok).setText('View Encrypted Image')
+            ViewButtonBox.button(QDialogButtonBox.Ok).setLayoutDirection(Qt.RightToLeft)
+            ViewButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
+                """
+                    background-color: black;
+                    color: white;
+                    border-width: 1px;
+                    border-color: #1e1e1e;
+                    border-style: solid;
+                    border-radius: 10;
+                    padding: 3px;
+                    font-weight: 700;
+                    font-size: 12px;
+                    padding-left: 5px;
+                    padding-right: 5px;
+                    min-width: 40px;
+                """
+            )
+            ViewDailogLayout.addWidget(ViewButtonBox)
+
+            ViewButtonBox.accepted.connect(ViewDialogBox.accept)
+            ViewButtonBox.rejected.connect(ViewDialogBox.reject)
+            ViewButtonBox.accepted.connect(lambda: Image.open(io.BytesIO(rowList[0][3])).show())
+
+            ViewDialogBox.exec_()
+
+    # Delete Send Messages
+    def DeleteSentMessages(self, MessagesTable):
+        DeleteButton = self.sender()
+        if DeleteButton:
+            Message_id = MessagesTable.item(MessagesTable.indexAt(DeleteButton.pos()).row(), 0).text()
+
+            DeleteMessageQuestion = QMessageBox.question(self, 'Delete Message',
+                                                         'Are you sure you want to Delete this message?',
+                                                         QMessageBox.Yes | QMessageBox.No)
+
+            if DeleteMessageQuestion == QMessageBox.Yes:
+                mycursor = mydb.cursor()
+                mycursor.execute("Update messages set delete_sender_flag = 1 where msg_id = %s", (Message_id,))
+                mydb.commit()
+                self.Sent(MessagesTable)
+
+            else:
+                pass
 
     # Close Application / Exit
     def closeEvent(self, event):
