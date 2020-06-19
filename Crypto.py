@@ -461,7 +461,13 @@ class Window(QMainWindow):
 
         # Top Widget Layout
         TopWidgetLayout = QHBoxLayout(TopWidget)
-        TopWidgetLayout.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        TopWidgetLayout.setAlignment(Qt.AlignVCenter)
+
+        # *************** Compose Button ***************
+
+        ComposeButtonWidget = QWidget()
+        ComposeButtonWidgetLayout = QHBoxLayout(ComposeButtonWidget)
+        ComposeButtonWidgetLayout.setAlignment(Qt.AlignLeft)
 
         # Compose Button
         ComposeButton = QPushButton()
@@ -491,8 +497,14 @@ class Window(QMainWindow):
         )
         ComposeButton.clicked.connect(lambda: self.ComposeMessageDialog())
 
-        TopWidgetLayout.addWidget(ComposeButton, 15)
-        TopWidgetLayout.addWidget(QWidget(), 70)
+        ComposeButtonWidgetLayout.addWidget(ComposeButton)
+        TopWidgetLayout.addWidget(ComposeButtonWidget)
+
+        # *************** Setting Button ***************
+
+        SettingButtonWidget = QWidget()
+        SettingButtonWidgetLayout = QHBoxLayout(SettingButtonWidget)
+        SettingButtonWidgetLayout.setAlignment(Qt.AlignRight)
 
         # Setting Button
         SettingButton = QPushButton();
@@ -516,12 +528,14 @@ class Window(QMainWindow):
 
         LogoutButton = QAction('Logout', self)
         LogoutButton.setStatusTip('Logout')
-        LogoutButton.triggered.connect(self.Logout)
+        LogoutButton.triggered.connect(self.LogoutDialog)
         menu.addAction(LogoutButton)
 
         SettingButton.setMenu(menu)
 
-        TopWidgetLayout.addWidget(SettingButton, 15)
+        SettingButtonWidgetLayout.addWidget(SettingButton)
+
+        TopWidgetLayout.addWidget(SettingButtonWidget)
 
         CentralWidgetLayout.addWidget(TopWidget)
 
@@ -703,7 +717,7 @@ class Window(QMainWindow):
 
         myresult = mycursor.fetchall()
 
-        if len(myresult) > 0:
+        if len(myresult) > 0 and not To == self.email:
 
             sql_insert_query = """ 
                                     INSERT INTO messages (sender_id, receiver_id, enc_key, img_byte_array, datetime, read_flag)
@@ -720,28 +734,31 @@ class Window(QMainWindow):
             SteganoImage = Image.open(ImageFilePath)
 
             if SteganoImage.mode == "RGB":
-                # Encrypt Data in Image
-                EncryptedImage = crypto_steganography.hide(SteganoImage, Message)
+                SteganoImage = SteganoImage.convert('RGB')
 
-                # Converting Encrypted Image to Byte Array
-                imgByteArr = io.BytesIO()
-                EncryptedImage.save(imgByteArr, format='PNG')
+            # Encrypt Data in Image
+            EncryptedImage = crypto_steganography.hide(SteganoImage, Message)
+
+            # Converting Encrypted Image to Byte Array
+            imgByteArr = io.BytesIO()
+            EncryptedImage.save(imgByteArr, format='PNG')
 
 
-                insert_tuple = (self.email, To, Key, imgByteArr.getvalue())
-                result = mycursor.execute(sql_insert_query, insert_tuple)
-                mydb.commit()
+            insert_tuple = (self.email, To, Key, imgByteArr.getvalue())
+            result = mycursor.execute(sql_insert_query, insert_tuple)
+            mydb.commit()
 
-                QMessageBox.information(self, "Message Send",
-                                        "Message Successfully Send to " + To,
-                                        QMessageBox.Ok)
+            QMessageBox.information(self, "Message Send",
+                                    "Message Successfully Send to " + To,
+                                    QMessageBox.Ok)
 
-            else:
-                QMessageBox.critical(self, 'Message Error',
-                                     'Please select and RGB Image', QMessageBox.Ok)
-        else:
+        elif len(myresult) == 0:
             QMessageBox.critical(self, 'Message Error',
                                  'No Such Email Address Exist', QMessageBox.Ok)
+
+        elif To == self.email:
+            QMessageBox.critical(self, 'Message Error',
+                                 'Cannot send a Message to yourself', QMessageBox.Ok)
 
     # Compose FIle Button
     def ComposeChooseButton(self, ImageFilePathLineEdit):
@@ -777,14 +794,14 @@ class Window(QMainWindow):
             # Email Label
             EmailLabel = QLabel()
             EmailLabel.setText("Email:")
-            EmailLabel.setAlignment(Qt.AlignVCenter)
+            EmailLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             EmailWidgetLayout.addWidget(EmailLabel, 25)
 
             # Email LineEdit
             EmailLineEdit = QLineEdit()
             EmailLineEdit.setReadOnly(True)
+            EmailLineEdit.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             EmailLineEdit.setText(myresult[0][1])
-            EmailLineEdit.setAlignment(Qt.AlignVCenter)
             EmailWidgetLayout.addWidget(EmailLineEdit, 75)
 
             AccountInfoDailogLayout.addWidget(EmailWidget)
@@ -796,14 +813,14 @@ class Window(QMainWindow):
             # Name Label
             NameLabel = QLabel()
             NameLabel.setText("Name:")
-            NameLabel.setAlignment(Qt.AlignVCenter)
+            NameLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             NameWidgetLayout.addWidget(NameLabel, 25)
 
             # Name LineEdit
             NameLineEdit = QLineEdit()
             NameLineEdit.setReadOnly(True)
+            NameLineEdit.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             NameLineEdit.setText(myresult[0][3] + " " + myresult[0][4])
-            NameLineEdit.setAlignment(Qt.AlignVCenter)
             NameWidgetLayout.addWidget(NameLineEdit, 75)
 
             AccountInfoDailogLayout.addWidget(NameWidget)
@@ -815,14 +832,14 @@ class Window(QMainWindow):
             # Age Label
             AgeLabel = QLabel()
             AgeLabel.setText("Age:")
-            AgeLabel.setAlignment(Qt.AlignVCenter)
+            AgeLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             AgeWidgetLayout.addWidget(AgeLabel, 25)
 
             # Age LineEdit
             AgeLineEdit = QLineEdit()
             AgeLineEdit.setReadOnly(True)
+            AgeLineEdit.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             AgeLineEdit.setText(str(datetime.date.today().year - myresult[0][5].year - ((datetime.date.today().month, datetime.date.today().day) < (myresult[0][5].month, myresult[0][5].day))))
-            AgeLineEdit.setAlignment(Qt.AlignVCenter)
             AgeWidgetLayout.addWidget(AgeLineEdit, 75)
 
             AccountInfoDailogLayout.addWidget(AgeWidget)
@@ -834,14 +851,14 @@ class Window(QMainWindow):
             # BirthDate Label
             BirthDateLabel = QLabel()
             BirthDateLabel.setText("BirthDate:")
-            BirthDateLabel.setAlignment(Qt.AlignVCenter)
+            BirthDateLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             BirthDateWidgetLayout.addWidget(BirthDateLabel, 25)
 
             # BirthDate LineEdit
             BirthDateLineEdit = QLineEdit()
             BirthDateLineEdit.setReadOnly(True)
+            BirthDateLineEdit.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             BirthDateLineEdit.setText(myresult[0][5].strftime("%a %b %d %Y"))
-            BirthDateLineEdit.setAlignment(Qt.AlignVCenter)
             BirthDateWidgetLayout.addWidget(BirthDateLineEdit, 75)
 
             AccountInfoDailogLayout.addWidget(BirthDateWidget)
@@ -853,14 +870,14 @@ class Window(QMainWindow):
             # Gender Label
             GenderLabel = QLabel()
             GenderLabel.setText("Gender:")
-            GenderLabel.setAlignment(Qt.AlignVCenter)
+            GenderLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             GenderWidgetLayout.addWidget(GenderLabel, 25)
 
             # Gender LineEdit
             GenderLineEdit = QLineEdit()
             GenderLineEdit.setReadOnly(True)
             GenderLineEdit.setText(myresult[0][6])
-            GenderLineEdit.setAlignment(Qt.AlignVCenter)
+            GenderLineEdit.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             GenderWidgetLayout.addWidget(GenderLineEdit, 75)
 
             AccountInfoDailogLayout.addWidget(GenderWidget)
@@ -871,6 +888,17 @@ class Window(QMainWindow):
             QMessageBox.critical(self, "Error",
                                  'Unable to connect to Server',
                                  QMessageBox.Ok)
+
+    # Logout Dialog
+    def LogoutDialog(self):
+        LogoutQuestion = QMessageBox.question(self, 'Logout',
+                                              'Are you sure you want to Logout?',
+                                              QMessageBox.Yes | QMessageBox.No)
+
+        if LogoutQuestion == QMessageBox.Yes:
+            self.Logout()
+        else:
+            pass
 
     # Logout
     def Logout(self):
@@ -893,7 +921,7 @@ class Window(QMainWindow):
 
         MessagesTable.setColumnCount(5)
         MessagesTable.setWindowFlags(MessagesTable.windowFlags() | Qt.MSWindowsFixedSizeDialogHint)
-        MessagesTable.setHorizontalHeaderLabels(["Message ID", "Sender", "Timestramp", "View", "Delete"])
+        MessagesTable.setHorizontalHeaderLabels(["Message ID", "From", "Timestramp", "View", "Delete"])
         MessagesTable.horizontalHeader().setStyleSheet("::section {""background-color: black;  color: white;}")
 
         for i in range(MessagesTable.columnCount()):
@@ -946,9 +974,9 @@ class Window(QMainWindow):
 
             # Time Stramp
             TimestrampItem = QTableWidgetItem()
-            TimestrampItem.setData(Qt.EditRole, QVariant(row[2].strftime("%m/%d/%Y, %H:%M:%S")))
+            TimestrampItem.setData(Qt.EditRole, QVariant(row[2].strftime("%a %b %d %Y %H:%M:%S")))
             MessagesTable.setItem(rowList.index(row), 2, TimestrampItem)
-            MessagesTable.item(rowList.index(row), 2).setToolTip(row[2].strftime("%m/%d/%Y, %H:%M:%S"))
+            MessagesTable.item(rowList.index(row), 2).setToolTip(row[2].strftime("%a %b %d %Y %H:%M:%S"))
             MessagesTable.item(rowList.index(row), 2).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             MessagesTable.item(rowList.index(row), 2).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
@@ -1141,7 +1169,7 @@ class Window(QMainWindow):
 
         MessagesTable.setColumnCount(5)
         MessagesTable.setWindowFlags(MessagesTable.windowFlags() | Qt.MSWindowsFixedSizeDialogHint)
-        MessagesTable.setHorizontalHeaderLabels(["Message ID", "Reciever", "Timestramp", "View", "Delete"])
+        MessagesTable.setHorizontalHeaderLabels(["Message ID", "To", "Timestramp", "View", "Delete"])
         MessagesTable.horizontalHeader().setStyleSheet("::section {""background-color: black;  color: white;}")
 
         for i in range(MessagesTable.columnCount()):
@@ -1188,9 +1216,9 @@ class Window(QMainWindow):
 
             # Time Stramp
             TimestrampItem = QTableWidgetItem()
-            TimestrampItem.setData(Qt.EditRole, QVariant(row[2].strftime("%m/%d/%Y, %H:%M:%S")))
+            TimestrampItem.setData(Qt.EditRole, QVariant(row[2].strftime("%a %b %d %Y %H:%M:%S")))
             MessagesTable.setItem(rowList.index(row), 2, TimestrampItem)
-            MessagesTable.item(rowList.index(row), 2).setToolTip(row[2].strftime("%m/%d/%Y, %H:%M:%S"))
+            MessagesTable.item(rowList.index(row), 2).setToolTip(row[2].strftime("%a %b %d %Y %H:%M:%S"))
             MessagesTable.item(rowList.index(row), 2).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             MessagesTable.item(rowList.index(row), 2).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
@@ -1269,7 +1297,7 @@ class Window(QMainWindow):
             # TimeStramp LineEdit
             TimeStrampLineEdit = QLineEdit()
             TimeStrampLineEdit.setAlignment(Qt.AlignVCenter)
-            TimeStrampLineEdit.setText(rowList[0][1].strftime("%m/%d/%Y, %H:%M:%S"))
+            TimeStrampLineEdit.setText(rowList[0][1].strftime("%a %b %d %Y %H:%M:%S"))
             TimeStrampLineEdit.setReadOnly(True)
             ViewDailogLayout.addWidget(TimeStrampLineEdit)
 
