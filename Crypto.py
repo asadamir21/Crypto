@@ -217,14 +217,18 @@ class Window(QMainWindow):
 
     # Login
     def Login(self, Email, Password):
-        mycursor = mydb.cursor()
-        mycursor.execute("SELECT * FROM users where email = %s and password = %s", (Email, str(hashlib.md5(Password.encode('utf-8')).digest())))
+        try:
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT * FROM users where email = %s and password = %s", (Email, str(hashlib.md5(Password.encode('utf-8')).digest())))
 
-        myresult = mycursor.fetchall()
+            myresult = mycursor.fetchall()
 
-        if not len(myresult):
-            QMessageBox.critical(self, 'Login Error',
-                                'Invalid Credentials', QMessageBox.Ok)
+            if not len(myresult):
+                QMessageBox.critical(self, 'Login Error',
+                                    'Invalid Credentials', QMessageBox.Ok)
+        except mysql.connector.Error as error:
+                QMessageBox.critical(self, 'Database Error',
+                                    'Connection to database failed', QMessageBox.Ok)
 
         else:
             self.settings.setValue('email', myresult[0][1])
@@ -426,6 +430,10 @@ class Window(QMainWindow):
             mycursor.execute(sql, val)
 
             mydb.commit()
+
+        except mysql.connector.Error as error:
+            QMessageBox.critical(self, 'Database Error',
+                                'Connection to database failed', QMessageBox.Ok)
 
         except Exception as e:
             RegistrationError = True
@@ -712,21 +720,27 @@ class Window(QMainWindow):
 
     # Send Message
     def SendMessage(self, ImageFilePath, To, Message, Key):
-        mycursor = mydb.cursor()
-        mycursor.execute("SELECT * FROM users where email = %s", (To,))
 
-        myresult = mycursor.fetchall()
+        try :
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT * FROM users where email = %s", (To,))
+
+            myresult = mycursor.fetchall()
+        
+        except mysql.connector.Error as error:
+            QMessageBox.critical(self, 'Database Error',
+                            'Connection to database failed', QMessageBox.Ok)
 
         if len(myresult) > 0 and not To == self.email:
 
             sql_insert_query = """ 
-                                    INSERT INTO messages (sender_id, receiver_id, enc_key, img_byte_array, datetime, read_flag)
-                                    VALUES(
-                                        (SELECT id FROM users where email = %s), 
-                                        (SELECT id FROM users where email = %s), 
-                                        %s, %s, SYSDATE(), 0) 
-                               """
-
+                                        INSERT INTO messages (sender_id, receiver_id, enc_key, img_byte_array, datetime, read_flag)
+                                        VALUES(
+                                            (SELECT id FROM users where email = %s), 
+                                            (SELECT id FROM users where email = %s), 
+                                            %s, %s, SYSDATE(), 0) 
+                                """
+        
             # key inserted here
             crypto_steganography = CryptoSteganography(Key)
 
@@ -928,34 +942,36 @@ class Window(QMainWindow):
             MessagesTable.horizontalHeaderItem(i).setFont(QFont("Ariel Black", 11))
             MessagesTable.horizontalHeaderItem(i).setFont(QFont(MessagesTable.horizontalHeaderItem(i).text(), weight=QFont.Bold))
 
-        mycursor = mydb.cursor()
+        try:
+            
+            mycursor = mydb.cursor()
 
-        sql_insert_query = """
-                            Select msg_id, (SELECT email FROM users where id = sender_id), 
-                            datetime, read_flag
-                            from 
-                            messages
-                            where
-                            receiver_id = (SELECT id FROM users where email = %s)
-                            and 
-                            delete_reciever_flag = 0 
-                            order by
-                            datetime desc 
-                           """
-
-
-
-        insert_tuple = (self.email,)
-        mycursor.execute(sql_insert_query, insert_tuple)
-        rowList = mycursor.fetchall()
+            sql_insert_query = """
+                                Select msg_id, (SELECT email FROM users where id = sender_id), 
+                                datetime, read_flag
+                                from 
+                                messages
+                                where
+                                receiver_id = (SELECT id FROM users where email = %s)
+                                and 
+                                delete_reciever_flag = 0 
+                                order by
+                                datetime desc 
+                            """
 
 
-        for row in rowList:
-            MessagesTable.insertRow(rowList.index(row))
 
-            if row[3] == 0:
-                pass
+            insert_tuple = (self.email,)
+            mycursor.execute(sql_insert_query, insert_tuple)
+            rowList = mycursor.fetchall()
 
+
+            for row in rowList:
+                MessagesTable.insertRow(rowList.index(row))
+
+                if row[3] == 0:
+                    pass
+        
             # Message ID
             MessageIDItem = QTableWidgetItem()
             MessageIDItem.setData(Qt.EditRole, QVariant(row[0]))
@@ -989,6 +1005,10 @@ class Window(QMainWindow):
             deleteButton = QPushButton("Delete")
             deleteButton.clicked.connect(lambda: self.DeleteInboxMessages(MessagesTable))
             MessagesTable.setCellWidget(rowList.index(row), 4, deleteButton)
+        
+        except mysql.connector.Error as error:
+                QMessageBox.critical(self, 'Database Error',
+                                    'Connection to database failed', QMessageBox.Ok)
 
         MessagesTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
         MessagesTable.resizeColumnsToContents()
@@ -1079,19 +1099,26 @@ class Window(QMainWindow):
 
     # Decrypt Message
     def DecryptMessage(self, Message_id, Key):
-        mycursor = mydb.cursor()
-        mycursor.execute("SELECT img_byte_array FROM messages where msg_id = %s", (Message_id,))
+        
+        try:
+        
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT img_byte_array FROM messages where msg_id = %s", (Message_id,))
 
-        myresult = mycursor.fetchall()
+            myresult = mycursor.fetchall()
 
-        crypto_steganography = CryptoSteganography(Key)
-        message = crypto_steganography.retrieve(Image.open(io.BytesIO(myresult[0][0])))
+        except mysql.connector.Error as error:
+            QMessageBox.critical(self, 'Database Error',
+                        'Connection to database failed', QMessageBox.Ok)
 
-        if message is not None:
-            mycursor.execute("Update messages set read_flag = 1 where msg_id = %s", (Message_id,))
-            mydb.commit()
+            crypto_steganography = CryptoSteganography(Key)
+            message = crypto_steganography.retrieve(Image.open(io.BytesIO(myresult[0][0])))
 
-            QMessageBox.information(self, "Success", "Decryption Successful", QMessageBox.Ok)
+            if message is not None:
+                mycursor.execute("Update messages set read_flag = 1 where msg_id = %s", (Message_id,))
+                mydb.commit()
+
+                QMessageBox.information(self, "Success", "Decryption Successful", QMessageBox.Ok)
 
             # Edit Row Dialog
             DecryptMessageDialogBox = QDialog()
@@ -1155,9 +1182,13 @@ class Window(QMainWindow):
                                                          QMessageBox.Yes | QMessageBox.No)
 
             if DeleteMessageQuestion == QMessageBox.Yes:
-                mycursor = mydb.cursor()
-                mycursor.execute("Update messages set delete_reciever_flag = 1 where msg_id = %s", (Message_id,))
-                mydb.commit()
+                try:
+                    mycursor = mydb.cursor()
+                    mycursor.execute("Update messages set delete_reciever_flag = 1 where msg_id = %s", (Message_id,))
+                    mydb.commit()
+                except mysql.connector.Error as error:
+                    QMessageBox.critical(self, 'Database Error',
+                                    'Connection to database failed', QMessageBox.Ok)
                 self.Inbox(MessagesTable)
             else:
                 pass
@@ -1177,24 +1208,29 @@ class Window(QMainWindow):
             MessagesTable.horizontalHeaderItem(i).setFont(
                 QFont(MessagesTable.horizontalHeaderItem(i).text(), weight=QFont.Bold))
 
-        mycursor = mydb.cursor()
+        try:
 
-        sql_insert_query = """
-                                Select msg_id, (SELECT email FROM users where id = receiver_id), datetime
-                                from 
-                                messages
-                                where
-                                sender_id = (SELECT id FROM users where email = %s)
-                                and 
-                                delete_sender_flag = 0                                
-                                order by
-                                datetime desc 
-                          """
+            mycursor = mydb.cursor()
 
-        insert_tuple = (self.email,)
-        mycursor.execute(sql_insert_query, insert_tuple)
-        rowList = mycursor.fetchall()
+            sql_insert_query = """
+                                    Select msg_id, (SELECT email FROM users where id = receiver_id), datetime
+                                    from 
+                                    messages
+                                    where
+                                    sender_id = (SELECT id FROM users where email = %s)
+                                    and 
+                                    delete_sender_flag = 0                                
+                                    order by
+                                    datetime desc 
+                            """
 
+            insert_tuple = (self.email,)
+            mycursor.execute(sql_insert_query, insert_tuple)
+            rowList = mycursor.fetchall()
+
+        except mysql.connector.Error as error:
+                QMessageBox.critical(self, 'Database Error',
+                                    'Connection to database failed', QMessageBox.Ok)
         for row in rowList:
             MessagesTable.insertRow(rowList.index(row))
 
@@ -1247,20 +1283,24 @@ class Window(QMainWindow):
         if ViewButton:
             Message_id = MessagesTable.item(MessagesTable.indexAt(ViewButton.pos()).row(), 0).text()
 
-            mycursor = mydb.cursor()
+            try: 
+                mycursor = mydb.cursor()
 
-            sql_insert_query = """
-                                    Select (SELECT email FROM users where id = receiver_id), datetime, enc_key, img_byte_array 
-                                    from 
-                                    messages
-                                    where
-                                    msg_id = %s                                         
-                              """
+                sql_insert_query = """
+                                        Select (SELECT email FROM users where id = receiver_id), datetime, enc_key, img_byte_array 
+                                        from 
+                                        messages
+                                        where
+                                        msg_id = %s                                         
+                                """
 
-            insert_tuple = (Message_id,)
-            mycursor.execute(sql_insert_query, insert_tuple)
-            rowList = mycursor.fetchall()
-
+                insert_tuple = (Message_id,)
+                mycursor.execute(sql_insert_query, insert_tuple)
+                rowList = mycursor.fetchall()
+         
+            except mysql.connector.Error as error:
+                QMessageBox.critical(self, 'Database Error',
+                                    'Connection to database failed', QMessageBox.Ok)
             # Edit Row Dialog
             ViewDialogBox = QDialog()
             ViewDialogBox.setModal(True)
