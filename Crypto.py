@@ -1395,10 +1395,10 @@ if __name__ == "__main__":
 
 
     mydb = mysql.connector.connect(
-        host="sql12.freemysqlhosting.net",
-        user="sql12348621",
-        password="nvcWV8lYIj",
-        database= "sql12348621"
+        host="localhost",
+        user="root",
+        password="",
+        database= "crypto"
     )
 
     Crypto = Window()
