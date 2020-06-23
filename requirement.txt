@@ -1,0 +1,5 @@
+Pyqt5
+Pillow
+pycryptodome
+stegano
+mysql.connector
