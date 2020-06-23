@@ -226,26 +226,24 @@ class Window(QMainWindow):
     # Login
     def Login(self, Email, Password):
         try:
-            try:
-                mycursor = mydb.cursor()
-                mycursor.execute("SELECT * FROM users where email = %s and password = %s", (Email, str(hashlib.md5(Password.encode('utf-8')).digest())))
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT * FROM users where email = %s and password = %s", (Email, str(hashlib.md5(Password.encode('utf-8')).digest())))
 
-                myresult = mycursor.fetchall()
+            myresult = mycursor.fetchall()
 
-                if not len(myresult):
-                    QMessageBox.critical(self, 'Login Error',
-                                        'Invalid Credentials', QMessageBox.Ok)
-            except mysql.connector.Error as error:
-                    QMessageBox.critical(self, 'Database Error',
-                                        'Connection to database failed', QMessageBox.Ok)
+            if not len(myresult):
+                QMessageBox.critical(self, 'Login Error',
+                                    'Invalid Credentials', QMessageBox.Ok)
+
 
             else:
                 self.settings.setValue('email', myresult[0][1])
                 self.email = self.settings.value('email', '')
                 self.MainWindow()
 
-        except Exception as e:
-            print(str(e))
+        except mysql.connector.Error as error:
+            QMessageBox.critical(self, 'Database Error',
+                                'Connection to database failed', QMessageBox.Ok)
 
     # Register Layout
     def RegisterLayout(self):
@@ -480,6 +478,7 @@ class Window(QMainWindow):
             mydb.commit()
 
         except mysql.connector.Error as error:
+            RegistrationError = True
             QMessageBox.critical(self, 'Database Error',
                                 'Connection to database failed', QMessageBox.Ok)
 
@@ -547,8 +546,8 @@ class Window(QMainWindow):
                     min-width: 40px;
                 }
                 QPushButton:hover{
-                    border: 2px solid QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffffff, stop: 1 #d4e8f2);
-                }                
+                    border: 2px solid QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #005b82, stop: 1 #d4e8f2);
+                }                     
             """
         )
         ComposeButton.clicked.connect(lambda: self.ComposeMessageDialog())
@@ -655,6 +654,7 @@ class Window(QMainWindow):
         ComposeMessageDialogBox.setParent(self)
         ComposeMessageDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
         ComposeMessageDialogBox.setFixedWidth(self.width / 2)
+        ComposeMessageDialogBox.setStyleSheet('background-color: #ffc937')
 
         ComposeMessageDailogLayout = QVBoxLayout(ComposeMessageDialogBox)
         ComposeMessageDailogLayout.setContentsMargins(50, 50, 50, 50)
@@ -674,6 +674,22 @@ class Window(QMainWindow):
         ImageBrowseButton = QPushButton()
         ImageBrowseButton.setText("Choose File")
         ImageBrowseButton.clicked.connect(lambda: self.ComposeChooseButton(ImageFilePathLineEdit))
+        ImageBrowseButton.setStyleSheet(
+            """
+                background-color: #005072;
+                color: #ffc937;
+                border-width: 1px;
+                border-color: #1e1e1e;
+                border-style: solid;
+                border-radius: 10;
+                padding: 3px;
+                font-weight: 700;
+                font-size: 12px;
+                padding-left: 5px;
+                padding-right: 5px;
+                min-width: 40px;
+            """
+        )
         ImageFileLayout.addWidget(ImageBrowseButton)
 
         ComposeMessageDailogLayout.addWidget(ImageFileWidget)
@@ -681,6 +697,7 @@ class Window(QMainWindow):
         # ********************** To *************************
         SendToLabel = QLabel()
         SendToLabel.setText("To")
+        SendToLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         ComposeMessageDailogLayout.addWidget(SendToLabel)
 
         SendToLineEdit = QLineEdit()
@@ -712,8 +729,8 @@ class Window(QMainWindow):
         ComposeButtonBox.button(QDialogButtonBox.Ok).setLayoutDirection(Qt.RightToLeft)
         ComposeButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
             """
-                background-color: black;
-                color: white;
+                background-color: #005072;
+                color: #ffc937;
                 border-width: 1px;
                 border-color: #1e1e1e;
                 border-style: solid;
@@ -849,6 +866,10 @@ class Window(QMainWindow):
             AccountInfoDailogLayout = QVBoxLayout(AccountInfoDialogBox)
             AccountInfoDailogLayout.setContentsMargins(50, 50, 50, 50)
 
+            font = QFont()
+            font.setBold(True)
+            font.setPointSize(10)
+            font.setFamily('Ubuntu')
 
             # ****************** Email ********************
             EmailWidget = QWidget()
@@ -859,6 +880,7 @@ class Window(QMainWindow):
             EmailLabel.setText("Email:")
             EmailLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             EmailLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+            EmailLabel.setFont(font)
             EmailWidgetLayout.addWidget(EmailLabel, 25)
 
             # Email LineEdit
@@ -878,6 +900,7 @@ class Window(QMainWindow):
             NameLabel = QLabel()
             NameLabel.setText("Name:")
             NameLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+            NameLabel.setFont(font)
             NameLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
             NameWidgetLayout.addWidget(NameLabel, 25)
 
@@ -898,6 +921,7 @@ class Window(QMainWindow):
             AgeLabel = QLabel()
             AgeLabel.setText("Age:")
             AgeLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+            AgeLabel.setFont(font)
             AgeLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
             AgeWidgetLayout.addWidget(AgeLabel, 25)
 
@@ -918,6 +942,7 @@ class Window(QMainWindow):
             BirthDateLabel = QLabel()
             BirthDateLabel.setText("BirthDate:")
             BirthDateLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+            BirthDateLabel.setFont(font)
             BirthDateLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
             BirthDateWidgetLayout.addWidget(BirthDateLabel, 25)
 
@@ -938,6 +963,7 @@ class Window(QMainWindow):
             GenderLabel = QLabel()
             GenderLabel.setText("Gender:")
             GenderLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+            GenderLabel.setFont(font)
             GenderLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
             GenderWidgetLayout.addWidget(GenderLabel, 25)
 
@@ -970,11 +996,8 @@ class Window(QMainWindow):
 
     # Logout
     def Logout(self):
-        try:
-            self.settings.setValue('email', '')
-            self.LoginLayout()
-        except Exception as e:
-            print(str(e))
+        self.settings.setValue('email', '')
+        self.LoginLayout()
 
     # Category List Changed
     def CategoryListCurrentItemChanged(self, MessagesTable):
@@ -1060,19 +1083,19 @@ class Window(QMainWindow):
                 deleteButton = QPushButton("Delete")
                 deleteButton.clicked.connect(lambda: self.DeleteInboxMessages(MessagesTable))
                 MessagesTable.setCellWidget(rowList.index(row), 4, deleteButton)
+
+            MessagesTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
+            MessagesTable.resizeColumnsToContents()
+            MessagesTable.resizeRowsToContents()
+            MessagesTable.setSortingEnabled(True)
+            MessagesTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+
+            for i in range(MessagesTable.columnCount()):
+                MessagesTable.horizontalHeader().setSectionResizeMode(i, QHeaderView.Stretch)
         
         except mysql.connector.Error as error:
                 QMessageBox.critical(self, 'Database Error',
                                     'Connection to database failed', QMessageBox.Ok)
-
-        MessagesTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        MessagesTable.resizeColumnsToContents()
-        MessagesTable.resizeRowsToContents()
-        MessagesTable.setSortingEnabled(True)
-        MessagesTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
-
-        for i in range(MessagesTable.columnCount()):
-            MessagesTable.horizontalHeader().setSectionResizeMode(i, QHeaderView.Stretch)
 
     # View Inbox Messages
     def ViewInboxMessages(self, MessagesTable):
@@ -1087,9 +1110,15 @@ class Window(QMainWindow):
             ViewDialogBox.setParent(self)
             ViewDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
             ViewDialogBox.setFixedWidth(self.width / 2)
+            ViewDialogBox.setStyleSheet('background-color: #ffc937')
 
             ViewDailogLayout = QVBoxLayout(ViewDialogBox)
             ViewDailogLayout.setContentsMargins(50, 50, 50, 50)
+
+            font = QFont()
+            font.setBold(True)
+            font.setPointSize(9)
+            font.setFamily('Ubuntu')
 
             # ****************** Key ********************
             KeyWidget = QWidget()
@@ -1099,6 +1128,8 @@ class Window(QMainWindow):
             KeyLabel = QLabel()
             KeyLabel.setText("Key:")
             KeyLabel.setAlignment(Qt.AlignVCenter)
+            KeyLabel.setFont(font)
+            KeyLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
             KeyWidgetLayout.addWidget(KeyLabel, 25)
 
             # Key LineEdit
@@ -1118,8 +1149,8 @@ class Window(QMainWindow):
             ViewButtonBox.button(QDialogButtonBox.Ok).setLayoutDirection(Qt.RightToLeft)
             ViewButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
                 """
-                    background-color: black;
-                    color: white;
+                    background-color: #005072;
+                    color: #ffc937;
                     border-width: 1px;
                     border-color: #1e1e1e;
                     border-style: solid;
@@ -1154,17 +1185,11 @@ class Window(QMainWindow):
 
     # Decrypt Message
     def DecryptMessage(self, Message_id, Key):
-        
         try:
-        
             mycursor = mydb.cursor()
             mycursor.execute("SELECT img_byte_array FROM messages where msg_id = %s", (Message_id,))
 
             myresult = mycursor.fetchall()
-
-        except mysql.connector.Error as error:
-            QMessageBox.critical(self, 'Database Error',
-                        'Connection to database failed', QMessageBox.Ok)
 
             crypto_steganography = CryptoSteganography(Key)
             message = crypto_steganography.retrieve(Image.open(io.BytesIO(myresult[0][0])))
@@ -1175,56 +1200,69 @@ class Window(QMainWindow):
 
                 QMessageBox.information(self, "Success", "Decryption Successful", QMessageBox.Ok)
 
-            # Edit Row Dialog
-            DecryptMessageDialogBox = QDialog()
-            DecryptMessageDialogBox.setModal(True)
-            DecryptMessageDialogBox.setWindowTitle("View Message")
-            DecryptMessageDialogBox.setParent(self)
-            DecryptMessageDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
-            DecryptMessageDialogBox.setFixedWidth(self.width / 2)
+                # Edit Row Dialog
+                DecryptMessageDialogBox = QDialog()
+                DecryptMessageDialogBox.setModal(True)
+                DecryptMessageDialogBox.setWindowTitle("View Message")
+                DecryptMessageDialogBox.setParent(self)
+                DecryptMessageDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
+                DecryptMessageDialogBox.setFixedWidth(self.width / 2)
+                DecryptMessageDialogBox.setStyleSheet('background-color: #ffc937')
 
-            DecryptMessageDailogLayout = QVBoxLayout(DecryptMessageDialogBox)
-            DecryptMessageDailogLayout.setContentsMargins(50, 50, 50, 50)
+                DecryptMessageDailogLayout = QVBoxLayout(DecryptMessageDialogBox)
+                DecryptMessageDailogLayout.setContentsMargins(50, 50, 50, 50)
 
-            # Message Label
-            MessageLabel = QLabel()
-            MessageLabel.setText("Message:")
-            MessageLabel.setAlignment(Qt.AlignVCenter)
-            DecryptMessageDailogLayout.addWidget(MessageLabel)
+                font = QFont()
+                font.setBold(True)
+                font.setPointSize(9)
+                font.setFamily('Ubuntu')
 
-            # Message Text Edit
-            MessageTextEdit = QTextEdit()
-            MessageTextEdit.setReadOnly(True)
-            MessageTextEdit.setText(message)
-            DecryptMessageDailogLayout.addWidget(MessageTextEdit)
+                # Message Label
+                MessageLabel = QLabel()
+                MessageLabel.setText("Message:")
+                MessageLabel.setAlignment(Qt.AlignVCenter)
+                MessageLabel.setFont(font)
+                MessageLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+                DecryptMessageDailogLayout.addWidget(MessageLabel)
 
-            # ******************* Button Box *********************
-            EncryptedImageShow = QPushButton()
-            EncryptedImageShow.setText('View Encrypted Image')
-            EncryptedImageShow.setIcon(QIcon("Images/Decrypt.png"))
-            EncryptedImageShow.setLayoutDirection(Qt.RightToLeft)
-            EncryptedImageShow.setStyleSheet(
-                """
-                    background-color: black;
-                    color: white;
-                    border-width: 1px;
-                    border-color: #1e1e1e;
-                    border-style: solid;
-                    border-radius: 10;
-                    padding: 3px;
-                    font-weight: 700;
-                    font-size: 12px;
-                    padding-left: 5px;
-                    padding-right: 5px;
-                    min-width: 40px;
-                """
-            )
-            EncryptedImageShow.clicked.connect(lambda: Image.open(io.BytesIO(myresult[0][0])).show())
-            DecryptMessageDailogLayout.addWidget(EncryptedImageShow)
+                # Message Text Edit
+                MessageTextEdit = QTextEdit()
+                MessageTextEdit.setReadOnly(True)
+                MessageTextEdit.setText(message)
+                DecryptMessageDailogLayout.addWidget(MessageTextEdit)
 
-            DecryptMessageDialogBox.exec_()
-        else:
-            QMessageBox.critical(self, "Error", "Invalid Key", QMessageBox.Ok)
+                # ******************* Button Box *********************
+                EncryptedImageShow = QPushButton()
+                EncryptedImageShow.setText('View Encrypted Image')
+                EncryptedImageShow.setIcon(QIcon("Images/Decrypt.png"))
+                EncryptedImageShow.setLayoutDirection(Qt.RightToLeft)
+                EncryptedImageShow.setStyleSheet(
+                    """
+                        background-color: #005072;
+                        color: #ffc937;
+                        border-width: 1px;
+                        border-color: #1e1e1e;
+                        border-style: solid;
+                        border-radius: 10;
+                        padding: 3px;
+                        font-weight: 700;
+                        font-size: 12px;
+                        padding-left: 5px;
+                        padding-right: 5px;
+                        min-width: 40px;
+                    """
+                )
+                EncryptedImageShow.clicked.connect(lambda: Image.open(io.BytesIO(myresult[0][0])).show())
+                DecryptMessageDailogLayout.addWidget(EncryptedImageShow)
+
+                DecryptMessageDialogBox.exec_()
+
+            else:
+                QMessageBox.critical(self, "Error", "Invalid Key", QMessageBox.Ok)
+
+        except mysql.connector.Error as error:
+            QMessageBox.critical(self, 'Database Error',
+                        'Connection to database failed', QMessageBox.Ok)
 
     # Delete Inbox Messages
     def DeleteInboxMessages(self, MessagesTable):
@@ -1241,10 +1279,11 @@ class Window(QMainWindow):
                     mycursor = mydb.cursor()
                     mycursor.execute("Update messages set delete_reciever_flag = 1 where msg_id = %s", (Message_id,))
                     mydb.commit()
+                    self.Inbox(MessagesTable)
+
                 except mysql.connector.Error as error:
                     QMessageBox.critical(self, 'Database Error',
                                     'Connection to database failed', QMessageBox.Ok)
-                self.Inbox(MessagesTable)
             else:
                 pass
 
@@ -1260,8 +1299,7 @@ class Window(QMainWindow):
 
         for i in range(MessagesTable.columnCount()):
             MessagesTable.horizontalHeaderItem(i).setFont(QFont("Ariel Black", 11))
-            MessagesTable.horizontalHeaderItem(i).setFont(
-                QFont(MessagesTable.horizontalHeaderItem(i).text(), weight=QFont.Bold))
+            MessagesTable.horizontalHeaderItem(i).setFont(QFont(MessagesTable.horizontalHeaderItem(i).text(), weight=QFont.Bold))
 
         try:
 
@@ -1283,54 +1321,55 @@ class Window(QMainWindow):
             mycursor.execute(sql_insert_query, insert_tuple)
             rowList = mycursor.fetchall()
 
+            for row in rowList:
+                MessagesTable.insertRow(rowList.index(row))
+
+                # Message ID
+                MessageIDItem = QTableWidgetItem()
+                MessageIDItem.setData(Qt.EditRole, QVariant(row[0]))
+                MessagesTable.setItem(rowList.index(row), 0, MessageIDItem)
+                MessagesTable.item(rowList.index(row), 0).setToolTip(str(row[0]))
+                MessagesTable.item(rowList.index(row), 0).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                MessagesTable.item(rowList.index(row), 0).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+
+                # Reciever Email
+                RecieverEmailItem = QTableWidgetItem()
+                RecieverEmailItem.setData(Qt.EditRole, QVariant(row[1]))
+                MessagesTable.setItem(rowList.index(row), 1, RecieverEmailItem)
+                MessagesTable.item(rowList.index(row), 1).setToolTip(row[1])
+                MessagesTable.item(rowList.index(row), 1).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                MessagesTable.item(rowList.index(row), 1).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+
+                # Time Stramp
+                TimestrampItem = QTableWidgetItem()
+                TimestrampItem.setData(Qt.EditRole, QVariant(row[2].strftime("%a %b %d %Y %H:%M:%S")))
+                MessagesTable.setItem(rowList.index(row), 2, TimestrampItem)
+                MessagesTable.item(rowList.index(row), 2).setToolTip(row[2].strftime("%a %b %d %Y %H:%M:%S"))
+                MessagesTable.item(rowList.index(row), 2).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                MessagesTable.item(rowList.index(row), 2).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+
+                # View Button
+                viewButton = QPushButton("view")
+                viewButton.clicked.connect(lambda: self.ViewSentMessages(MessagesTable))
+                MessagesTable.setCellWidget(rowList.index(row), 3, viewButton)
+
+                # delete Button
+                deleteButton = QPushButton("Delete")
+                deleteButton.clicked.connect(lambda: self.DeleteSentMessages(MessagesTable))
+                MessagesTable.setCellWidget(rowList.index(row), 4, deleteButton)
+
+            MessagesTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
+            MessagesTable.resizeColumnsToContents()
+            MessagesTable.resizeRowsToContents()
+            MessagesTable.setSortingEnabled(True)
+            MessagesTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+
+            for i in range(MessagesTable.columnCount()):
+                MessagesTable.horizontalHeader().setSectionResizeMode(i, QHeaderView.Stretch)
+
         except mysql.connector.Error as error:
                 QMessageBox.critical(self, 'Database Error',
                                     'Connection to database failed', QMessageBox.Ok)
-        for row in rowList:
-            MessagesTable.insertRow(rowList.index(row))
-
-            # Message ID
-            MessageIDItem = QTableWidgetItem()
-            MessageIDItem.setData(Qt.EditRole, QVariant(row[0]))
-            MessagesTable.setItem(rowList.index(row), 0, MessageIDItem)
-            MessagesTable.item(rowList.index(row), 0).setToolTip(str(row[0]))
-            MessagesTable.item(rowList.index(row), 0).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            MessagesTable.item(rowList.index(row), 0).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
-
-            # Reciever Email
-            RecieverEmailItem = QTableWidgetItem()
-            RecieverEmailItem.setData(Qt.EditRole, QVariant(row[1]))
-            MessagesTable.setItem(rowList.index(row), 1, RecieverEmailItem)
-            MessagesTable.item(rowList.index(row), 1).setToolTip(row[1])
-            MessagesTable.item(rowList.index(row), 1).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            MessagesTable.item(rowList.index(row), 1).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
-
-            # Time Stramp
-            TimestrampItem = QTableWidgetItem()
-            TimestrampItem.setData(Qt.EditRole, QVariant(row[2].strftime("%a %b %d %Y %H:%M:%S")))
-            MessagesTable.setItem(rowList.index(row), 2, TimestrampItem)
-            MessagesTable.item(rowList.index(row), 2).setToolTip(row[2].strftime("%a %b %d %Y %H:%M:%S"))
-            MessagesTable.item(rowList.index(row), 2).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            MessagesTable.item(rowList.index(row), 2).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
-
-            # View Button
-            viewButton = QPushButton("view")
-            viewButton.clicked.connect(lambda: self.ViewSentMessages(MessagesTable))
-            MessagesTable.setCellWidget(rowList.index(row), 3, viewButton)
-
-            # delete Button
-            deleteButton = QPushButton("Delete")
-            deleteButton.clicked.connect(lambda: self.DeleteSentMessages(MessagesTable))
-            MessagesTable.setCellWidget(rowList.index(row), 4, deleteButton)
-
-        MessagesTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        MessagesTable.resizeColumnsToContents()
-        MessagesTable.resizeRowsToContents()
-        MessagesTable.setSortingEnabled(True)
-        MessagesTable.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
-
-        for i in range(MessagesTable.columnCount()):
-            MessagesTable.horizontalHeader().setSectionResizeMode(i, QHeaderView.Stretch)
 
     # View Send Messages
     def ViewSentMessages(self, MessagesTable):
@@ -1352,108 +1391,123 @@ class Window(QMainWindow):
                 insert_tuple = (Message_id,)
                 mycursor.execute(sql_insert_query, insert_tuple)
                 rowList = mycursor.fetchall()
-         
+
+                # Edit Row Dialog
+                ViewDialogBox = QDialog()
+                ViewDialogBox.setModal(True)
+                ViewDialogBox.setWindowTitle("View Message")
+                ViewDialogBox.setParent(self)
+                ViewDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
+                ViewDialogBox.setFixedWidth(self.width / 2)
+                ViewDialogBox.setStyleSheet('background-color: #ffc937')
+
+                ViewDailogLayout = QVBoxLayout(ViewDialogBox)
+                ViewDailogLayout.setContentsMargins(50, 50, 50, 50)
+
+                font = QFont()
+                font.setBold(True)
+                font.setPointSize(9)
+                font.setFamily('Ubuntu')
+
+                # ****************** To ********************
+                # To Label
+                ToLabel = QLabel()
+                ToLabel.setText("To:")
+                ToLabel.setAlignment(Qt.AlignVCenter)
+                ToLabel.setFont(font)
+                ToLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+                ViewDailogLayout.addWidget(ToLabel)
+
+                # To LineEdit
+                ToLineEdit = QLineEdit()
+                ToLineEdit.setAlignment(Qt.AlignVCenter)
+                ToLineEdit.setText(rowList[0][0])
+                ToLineEdit.setReadOnly(True)
+                ToLineEdit.setValidator(QIntValidator(0, 10000, self))
+                ViewDailogLayout.addWidget(ToLineEdit)
+
+                # ****************** TimeStramp ********************
+                # TimeStramp Label
+                TimeStrampLabel = QLabel()
+                TimeStrampLabel.setText("TimeStramp:")
+                TimeStrampLabel.setAlignment(Qt.AlignVCenter)
+                TimeStrampLabel.setFont(font)
+                TimeStrampLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+                ViewDailogLayout.addWidget(TimeStrampLabel)
+
+                # TimeStramp LineEdit
+                TimeStrampLineEdit = QLineEdit()
+                TimeStrampLineEdit.setAlignment(Qt.AlignVCenter)
+                TimeStrampLineEdit.setText(rowList[0][1].strftime("%a %b %d %Y %H:%M:%S"))
+                TimeStrampLineEdit.setReadOnly(True)
+                ViewDailogLayout.addWidget(TimeStrampLineEdit)
+
+                # ****************** Key ********************
+                # To Label
+                KeyLabel = QLabel()
+                KeyLabel.setText("Key:")
+                KeyLabel.setAlignment(Qt.AlignVCenter)
+                KeyLabel.setFont(font)
+                KeyLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+                ViewDailogLayout.addWidget(KeyLabel)
+
+                # Key LineEdit
+                KeyLineEdit = QLineEdit()
+                KeyLineEdit.setAlignment(Qt.AlignVCenter)
+                KeyLineEdit.setText(rowList[0][2])
+                KeyLineEdit.setReadOnly(True)
+                ViewDailogLayout.addWidget(KeyLineEdit)
+
+                # ****************** Message ********************
+                # Message Label
+                MessageLabel = QLabel()
+                MessageLabel.setText("Message:")
+                MessageLabel.setAlignment(Qt.AlignVCenter)
+                MessageLabel.setFont(font)
+                MessageLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+                ViewDailogLayout.addWidget(MessageLabel)
+
+                # Message LineEdit
+                MessageTextEdit = QTextEdit()
+                MessageTextEdit.setAlignment(Qt.AlignVCenter)
+                crypto_steganography = CryptoSteganography(rowList[0][2])
+                MessageTextEdit.setText(crypto_steganography.retrieve(Image.open(io.BytesIO(rowList[0][3]))))
+                MessageTextEdit.setReadOnly(True)
+                ViewDailogLayout.addWidget(MessageTextEdit)
+
+                # ******************* Button Box *********************
+                ViewButtonBox = QDialogButtonBox()
+                ViewButtonBox.setCenterButtons(True)
+                ViewButtonBox.setStandardButtons(QDialogButtonBox.Ok)
+                ViewButtonBox.button(QDialogButtonBox.Ok).setText('View Encrypted Image')
+                ViewButtonBox.button(QDialogButtonBox.Ok).setLayoutDirection(Qt.RightToLeft)
+                ViewButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
+                    """
+                        background-color: #005072;
+                        color: #ffc937;
+                        border-width: 1px;
+                        border-color: #1e1e1e;
+                        border-style: solid;
+                        border-radius: 10;
+                        padding: 3px;
+                        font-weight: 700;
+                        font-size: 12px;
+                        padding-left: 5px;
+                        padding-right: 5px;
+                        min-width: 40px;
+                    """
+                )
+                ViewDailogLayout.addWidget(ViewButtonBox)
+
+                ViewButtonBox.accepted.connect(ViewDialogBox.accept)
+                ViewButtonBox.rejected.connect(ViewDialogBox.reject)
+                ViewButtonBox.accepted.connect(lambda: Image.open(io.BytesIO(rowList[0][3])).show())
+
+                ViewDialogBox.exec_()
+
             except mysql.connector.Error as error:
                 QMessageBox.critical(self, 'Database Error',
                                     'Connection to database failed', QMessageBox.Ok)
-            # Edit Row Dialog
-            ViewDialogBox = QDialog()
-            ViewDialogBox.setModal(True)
-            ViewDialogBox.setWindowTitle("View Message")
-            ViewDialogBox.setParent(self)
-            ViewDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
-            ViewDialogBox.setFixedWidth(self.width / 2)
-
-            ViewDailogLayout = QVBoxLayout(ViewDialogBox)
-            ViewDailogLayout.setContentsMargins(50, 50, 50, 50)
-
-            # ****************** To ********************
-            # To Label
-            ToLabel = QLabel()
-            ToLabel.setText("To:")
-            ToLabel.setAlignment(Qt.AlignVCenter)
-            ViewDailogLayout.addWidget(ToLabel)
-
-            # To LineEdit
-            ToLineEdit = QLineEdit()
-            ToLineEdit.setAlignment(Qt.AlignVCenter)
-            ToLineEdit.setText(rowList[0][0])
-            ToLineEdit.setReadOnly(True)
-            ToLineEdit.setValidator(QIntValidator(0, 10000, self))
-            ViewDailogLayout.addWidget(ToLineEdit)
-
-            # ****************** TimeStramp ********************
-            # TimeStramp Label
-            TimeStrampLabel = QLabel()
-            TimeStrampLabel.setText("TimeStramp:")
-            TimeStrampLabel.setAlignment(Qt.AlignVCenter)
-            ViewDailogLayout.addWidget(TimeStrampLabel)
-
-            # TimeStramp LineEdit
-            TimeStrampLineEdit = QLineEdit()
-            TimeStrampLineEdit.setAlignment(Qt.AlignVCenter)
-            TimeStrampLineEdit.setText(rowList[0][1].strftime("%a %b %d %Y %H:%M:%S"))
-            TimeStrampLineEdit.setReadOnly(True)
-            ViewDailogLayout.addWidget(TimeStrampLineEdit)
-
-            # ****************** Key ********************
-            # To Label
-            KeyLabel = QLabel()
-            KeyLabel.setText("Key:")
-            KeyLabel.setAlignment(Qt.AlignVCenter)
-            ViewDailogLayout.addWidget(KeyLabel)
-
-            # Key LineEdit
-            KeyLineEdit = QLineEdit()
-            KeyLineEdit.setAlignment(Qt.AlignVCenter)
-            KeyLineEdit.setText(rowList[0][2])
-            KeyLineEdit.setReadOnly(True)
-            ViewDailogLayout.addWidget(KeyLineEdit)
-
-            # ****************** Message ********************
-            # Message Label
-            MessageLabel = QLabel()
-            MessageLabel.setText("Message:")
-            MessageLabel.setAlignment(Qt.AlignVCenter)
-            ViewDailogLayout.addWidget(MessageLabel)
-
-            # Message LineEdit
-            MessageTextEdit = QTextEdit()
-            MessageTextEdit.setAlignment(Qt.AlignVCenter)
-            crypto_steganography = CryptoSteganography(rowList[0][2])
-            MessageTextEdit.setText(crypto_steganography.retrieve(Image.open(io.BytesIO(rowList[0][3]))))
-            MessageTextEdit.setReadOnly(True)
-            ViewDailogLayout.addWidget(MessageTextEdit)
-
-            # ******************* Button Box *********************
-            ViewButtonBox = QDialogButtonBox()
-            ViewButtonBox.setCenterButtons(True)
-            ViewButtonBox.setStandardButtons(QDialogButtonBox.Ok)
-            ViewButtonBox.button(QDialogButtonBox.Ok).setText('View Encrypted Image')
-            ViewButtonBox.button(QDialogButtonBox.Ok).setLayoutDirection(Qt.RightToLeft)
-            ViewButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
-                """
-                    background-color: black;
-                    color: white;
-                    border-width: 1px;
-                    border-color: #1e1e1e;
-                    border-style: solid;
-                    border-radius: 10;
-                    padding: 3px;
-                    font-weight: 700;
-                    font-size: 12px;
-                    padding-left: 5px;
-                    padding-right: 5px;
-                    min-width: 40px;
-                """
-            )
-            ViewDailogLayout.addWidget(ViewButtonBox)
-
-            ViewButtonBox.accepted.connect(ViewDialogBox.accept)
-            ViewButtonBox.rejected.connect(ViewDialogBox.reject)
-            ViewButtonBox.accepted.connect(lambda: Image.open(io.BytesIO(rowList[0][3])).show())
-
-            ViewDialogBox.exec_()
 
     # Delete Send Messages
     def DeleteSentMessages(self, MessagesTable):
@@ -1650,7 +1704,11 @@ if __name__ == "__main__":
             {
                 border: 1px solid darkgray;
             }
-            
+            QTextEdit
+            {
+                color: #005072;
+                border: 1px solid #005072;
+            }            
             QTextEdit:focus
             {
                 border: 1px solid darkgray;
