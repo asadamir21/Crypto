@@ -54,12 +54,12 @@ class CryptoSteganography(object):
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.title = "Crypto"
+        self.title = "STD"
 
         self.width = QDesktopWidget().screenGeometry(0).width()/2
         self.height = QDesktopWidget().screenGeometry(0).height()*0.8
 
-        self.settings = QSettings('Crypto', 'Crypto')
+        self.settings = QSettings('STD', 'STD')
         self.initWindows()
 
     # Initiate Windows
@@ -105,8 +105,13 @@ class Window(QMainWindow):
         if self.CentralWidget.layout() is not None:
             CentralWidgetLayout = self.CentralWidget.layout()
             for i in reversed(range(CentralWidgetLayout.count())):
-                CentralWidgetLayout.itemAt(i).widget().setParent(None)
+                try:
+                    print(CentralWidgetLayout.itemAt(i).widget().text())
+                    CentralWidgetLayout.itemAt(i).widget().setParent(None)
+                except:
+                    pass
             CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.25, self.width * 0.25, self.height * 0.25)
+
         else:
             CentralWidgetLayout = QVBoxLayout(self.CentralWidget)
             CentralWidgetLayout.setAlignment(Qt.AlignHCenter)
@@ -293,7 +298,6 @@ class Window(QMainWindow):
         RegisterTitleLabel.setFont(font);
         CentralWidgetLayout.addWidget(RegisterTitleLabel)
 
-
         # Font
         font = QFont()
         font.setPointSize(12)
@@ -403,6 +407,13 @@ class Window(QMainWindow):
         EnterPasswordLineEdit.setEchoMode(QLineEdit.Password)
         CentralWidgetLayout.addWidget(EnterPasswordLineEdit)
 
+        # # Min Character
+        # MinCharLabel = QLabel()
+        # MinCharLabel.setText('Minimum 8 characters')
+        # MinCharLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+        # MinCharLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+        # CentralWidgetLayout.addWidget(MinCharLabel)
+
         # Retype Password Label
         RetypePasswordLabel = QLabel()
         RetypePasswordLabel.setText("Re-type Password")
@@ -416,6 +427,8 @@ class Window(QMainWindow):
         RetypePasswordLineEdit.setAlignment(Qt.AlignVCenter)
         RetypePasswordLineEdit.setEchoMode(QLineEdit.Password)
         CentralWidgetLayout.addWidget(RetypePasswordLineEdit)
+
+        #CentralWidgetLayout.addSpacing(self.height/20)
 
         # Register Button
         RegisterButton = QPushButton()
@@ -448,11 +461,15 @@ class Window(QMainWindow):
             RegisterButton.setDisabled(True)
 
         # Password Mismatch
-        elif not EnterPasswordLineEdit.text() == RetypePasswordLineEdit.text():
-            EnterPasswordLineEdit.setStyleSheet("border: 1px solid red;")
-            RetypePasswordLineEdit.setStyleSheet("border: 1px solid red;")
-            RegisterButton.setDisabled(True)
-
+        elif not EnterPasswordLineEdit.text() == RetypePasswordLineEdit.text() or not re.match(r'[A-Za-z0-9@#$%^&+=]{8,}', EnterPasswordLineEdit.text()):
+            if not EnterPasswordLineEdit.text() == RetypePasswordLineEdit.text():
+                EnterPasswordLineEdit.setStyleSheet("border: 1px solid red;")
+                RetypePasswordLineEdit.setStyleSheet("border: 1px solid red;")
+                RegisterButton.setDisabled(True)
+            else:
+                EnterPasswordLineEdit.setStyleSheet("border: 1px solid red;")
+                RetypePasswordLineEdit.setStyleSheet("border: 1px solid black;")
+                RegisterButton.setDisabled(True)
         else:
             emailLineEdit.setStyleSheet("border: 1px solid black;")
             EnterPasswordLineEdit.setStyleSheet("border: 1px solid black;")
@@ -1015,7 +1032,7 @@ class Window(QMainWindow):
 
         MessagesTable.setColumnCount(5)
         MessagesTable.setWindowFlags(MessagesTable.windowFlags() | Qt.MSWindowsFixedSizeDialogHint)
-        MessagesTable.setHorizontalHeaderLabels(["Message ID", "From", "Timestramp", "View", "Delete"])
+        MessagesTable.setHorizontalHeaderLabels(["Message ID", "From", "Timestamp", "View", "Delete"])
         MessagesTable.horizontalHeader().setStyleSheet("::section {""background-color: #005072;  color: #ffc937;}")
 
         for i in range(MessagesTable.columnCount()):
@@ -1067,9 +1084,9 @@ class Window(QMainWindow):
                 MessagesTable.item(rowList.index(row), 1).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
                 # Time Stramp
-                TimestrampItem = QTableWidgetItem()
-                TimestrampItem.setData(Qt.EditRole, QVariant(row[2].strftime("%a %b %d %Y %H:%M:%S")))
-                MessagesTable.setItem(rowList.index(row), 2, TimestrampItem)
+                TimestampItem = QTableWidgetItem()
+                TimestampItem.setData(Qt.EditRole, QVariant(row[2].strftime("%a %b %d %Y %H:%M:%S")))
+                MessagesTable.setItem(rowList.index(row), 2, TimestampItem)
                 MessagesTable.item(rowList.index(row), 2).setToolTip(row[2].strftime("%a %b %d %Y %H:%M:%S"))
                 MessagesTable.item(rowList.index(row), 2).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
                 MessagesTable.item(rowList.index(row), 2).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
@@ -1294,7 +1311,7 @@ class Window(QMainWindow):
 
         MessagesTable.setColumnCount(5)
         MessagesTable.setWindowFlags(MessagesTable.windowFlags() | Qt.MSWindowsFixedSizeDialogHint)
-        MessagesTable.setHorizontalHeaderLabels(["Message ID", "To", "Timestramp", "View", "Delete"])
+        MessagesTable.setHorizontalHeaderLabels(["Message ID", "To", "Timestamp", "View", "Delete"])
         MessagesTable.horizontalHeader().setStyleSheet("::section {""background-color: #005072;  color: #ffc937;}")
 
         for i in range(MessagesTable.columnCount()):
@@ -1341,9 +1358,9 @@ class Window(QMainWindow):
                 MessagesTable.item(rowList.index(row), 1).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
                 # Time Stramp
-                TimestrampItem = QTableWidgetItem()
-                TimestrampItem.setData(Qt.EditRole, QVariant(row[2].strftime("%a %b %d %Y %H:%M:%S")))
-                MessagesTable.setItem(rowList.index(row), 2, TimestrampItem)
+                TimestampItem = QTableWidgetItem()
+                TimestampItem.setData(Qt.EditRole, QVariant(row[2].strftime("%a %b %d %Y %H:%M:%S")))
+                MessagesTable.setItem(rowList.index(row), 2, TimestampItem)
                 MessagesTable.item(rowList.index(row), 2).setToolTip(row[2].strftime("%a %b %d %Y %H:%M:%S"))
                 MessagesTable.item(rowList.index(row), 2).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
                 MessagesTable.item(rowList.index(row), 2).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
@@ -1426,21 +1443,21 @@ class Window(QMainWindow):
                 ToLineEdit.setValidator(QIntValidator(0, 10000, self))
                 ViewDailogLayout.addWidget(ToLineEdit)
 
-                # ****************** TimeStramp ********************
-                # TimeStramp Label
-                TimeStrampLabel = QLabel()
-                TimeStrampLabel.setText("TimeStramp:")
-                TimeStrampLabel.setAlignment(Qt.AlignVCenter)
-                TimeStrampLabel.setFont(font)
-                TimeStrampLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
-                ViewDailogLayout.addWidget(TimeStrampLabel)
+                # ****************** TimeStamp ********************
+                # TimeStamp Label
+                TimeStampLabel = QLabel()
+                TimeStampLabel.setText("TimeStamp:")
+                TimeStampLabel.setAlignment(Qt.AlignVCenter)
+                TimeStampLabel.setFont(font)
+                TimeStampLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+                ViewDailogLayout.addWidget(TimeStampLabel)
 
-                # TimeStramp LineEdit
-                TimeStrampLineEdit = QLineEdit()
-                TimeStrampLineEdit.setAlignment(Qt.AlignVCenter)
-                TimeStrampLineEdit.setText(rowList[0][1].strftime("%a %b %d %Y %H:%M:%S"))
-                TimeStrampLineEdit.setReadOnly(True)
-                ViewDailogLayout.addWidget(TimeStrampLineEdit)
+                # TimeStamp LineEdit
+                TimeStampLineEdit = QLineEdit()
+                TimeStampLineEdit.setAlignment(Qt.AlignVCenter)
+                TimeStampLineEdit.setText(rowList[0][1].strftime("%a %b %d %Y %H:%M:%S"))
+                TimeStampLineEdit.setReadOnly(True)
+                ViewDailogLayout.addWidget(TimeStampLineEdit)
 
                 # ****************** Key ********************
                 # To Label
@@ -1549,8 +1566,8 @@ if __name__ == "__main__":
         database="crypto"
     )
 
-    Crypto = Window()
-    Crypto.setStyleSheet(
+    STD = Window()
+    STD.setStyleSheet(
         """
             QPushButton::menu-indicator 
             {
@@ -2000,6 +2017,6 @@ if __name__ == "__main__":
             
         """
     )
-    Crypto.show()
+    STD.show()
 
     sys.exit(App.exec())
