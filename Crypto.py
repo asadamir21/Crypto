@@ -104,12 +104,12 @@ class Window(QMainWindow):
     def LoginLayout(self):
         if self.CentralWidget.layout() is not None:
             CentralWidgetLayout = self.CentralWidget.layout()
-            for i in reversed(range(CentralWidgetLayout.count())):
+            while CentralWidgetLayout.layout().count() > 0:
                 try:
-                    print(CentralWidgetLayout.itemAt(i).widget().text())
-                    CentralWidgetLayout.itemAt(i).widget().setParent(None)
+                    CentralWidgetLayout.itemAt(0).widget().setParent(None)
                 except:
-                    pass
+                    CentralWidgetLayout.removeItem(CentralWidgetLayout.itemAt(0))
+
             CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.25, self.width * 0.25, self.height * 0.25)
 
         else:
@@ -655,6 +655,7 @@ class Window(QMainWindow):
 
         # Table Widget
         MessagesTable = QTableWidget()
+        MessagesTable.verticalHeader().setVisible(False)
         BottomWidgetLayout.addWidget(MessagesTable, 75)
 
         self.Inbox(MessagesTable)
