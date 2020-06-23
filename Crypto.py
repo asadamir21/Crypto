@@ -8,7 +8,7 @@ from Cryptodome.Cipher import AES
 from Cryptodome.Util.Padding import pad, unpad
 from stegano import lsb
 
-import os, sys, datetime, mysql.connector, re, hashlib, io, base64, hashlib
+import os, sys, datetime, mysql.connector, re, hashlib, io, base64
 
 class CryptoSteganography(object):
     def __init__(self, key):
@@ -70,13 +70,13 @@ class Window(QMainWindow):
         self.setFixedWidth(self.width)
 
         self.CentralWidget = QWidget(self)
+        self.CentralWidget.setStyleSheet('background-color: #ffc937')
         self.setCentralWidget(self.CentralWidget)
-
-
 
         self.ButtonCSS = """
                             QPushButton{
-                                background-color: white;
+                                background-color: #005072;
+                                color: #ffc937;
                                 border-width: 1px;
                                 border-color: #1e1e1e;
                                 border-style: solid;
@@ -89,7 +89,7 @@ class Window(QMainWindow):
                                 min-width: 40px;
                             }
                             QPushButton:hover{
-                                border: 2px solid QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #32CD32, stop: 1 #d4e8f2);
+                                border: 2px solid QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #005b82, stop: 1 #d4e8f2);
                             }                                    
                         """
 
@@ -99,8 +99,6 @@ class Window(QMainWindow):
             self.LoginLayout()
         else:
             self.MainWindow()
-
-        #self.MainWindow()
 
     # Login Layout
     def LoginLayout(self):
@@ -124,24 +122,26 @@ class Window(QMainWindow):
         LoginTitleLabel = QLabel()
         LoginTitleLabel.setText("Login")
         LoginTitleLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+
         font = LoginTitleLabel.font()
         font.setPointSize(20)
         font.setBold(True)
         LoginTitleLabel.setFont(font);
 
-        LoginTitleLabel.setStyleSheet(
-            """
-                QLabel{
-                    background-color: rgba(0,0,0,0%);
-                }      
-            """
-        )
+        LoginTitleLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         CentralWidgetLayout.addWidget(LoginTitleLabel)
 
         # Login ID Label
         emailLabel = QLabel()
         emailLabel.setText("Email")
+
+        font = emailLabel.font()
+        font.setPointSize(12)
+        font.setBold(True)
+        emailLabel.setFont(font);
+
         emailLabel.setAlignment(Qt.AlignVCenter)
+        emailLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         CentralWidgetLayout.addWidget(emailLabel)
 
         # Login ID Line Edit
@@ -153,7 +153,8 @@ class Window(QMainWindow):
                     padding: 1px;
                     border-style: solid;
                     border: 1px solid  # 1e1e1e;
-                    border-radius: 5;            
+                    border-radius: 5;
+                    color: #005072;            
                 }
             """
         )
@@ -163,6 +164,13 @@ class Window(QMainWindow):
         LoginPasswordLabel = QLabel()
         LoginPasswordLabel.setText("Password")
         LoginPasswordLabel.setAlignment(Qt.AlignVCenter)
+
+        font = LoginPasswordLabel.font()
+        font.setPointSize(12)
+        font.setBold(True)
+        LoginPasswordLabel.setFont(font);
+
+        LoginPasswordLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         CentralWidgetLayout.addWidget(LoginPasswordLabel)
 
         # Login Password Line Edit
@@ -218,22 +226,26 @@ class Window(QMainWindow):
     # Login
     def Login(self, Email, Password):
         try:
-            mycursor = mydb.cursor()
-            mycursor.execute("SELECT * FROM users where email = %s and password = %s", (Email, str(hashlib.md5(Password.encode('utf-8')).digest())))
+            try:
+                mycursor = mydb.cursor()
+                mycursor.execute("SELECT * FROM users where email = %s and password = %s", (Email, str(hashlib.md5(Password.encode('utf-8')).digest())))
 
-            myresult = mycursor.fetchall()
+                myresult = mycursor.fetchall()
 
-            if not len(myresult):
-                QMessageBox.critical(self, 'Login Error',
-                                    'Invalid Credentials', QMessageBox.Ok)
-        except mysql.connector.Error as error:
-                QMessageBox.critical(self, 'Database Error',
-                                    'Connection to database failed', QMessageBox.Ok)
+                if not len(myresult):
+                    QMessageBox.critical(self, 'Login Error',
+                                        'Invalid Credentials', QMessageBox.Ok)
+            except mysql.connector.Error as error:
+                    QMessageBox.critical(self, 'Database Error',
+                                        'Connection to database failed', QMessageBox.Ok)
 
-        else:
-            self.settings.setValue('email', myresult[0][1])
-            self.email = self.settings.value('email', '')
-            self.MainWindow()
+            else:
+                self.settings.setValue('email', myresult[0][1])
+                self.email = self.settings.value('email', '')
+                self.MainWindow()
+
+        except Exception as e:
+            print(str(e))
 
     # Register Layout
     def RegisterLayout(self):
@@ -275,16 +287,27 @@ class Window(QMainWindow):
         RegisterTitleLabel = QLabel()
         RegisterTitleLabel.setText("Register")
         RegisterTitleLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+        RegisterTitleLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+
         font = RegisterTitleLabel.font()
         font.setPointSize(20)
         font.setBold(True)
         RegisterTitleLabel.setFont(font);
         CentralWidgetLayout.addWidget(RegisterTitleLabel)
 
+
+        # Font
+        font = QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+
         # Register First Name Label
         FirstNameLabel = QLabel()
         FirstNameLabel.setText("First Name")
         FirstNameLabel.setAlignment(Qt.AlignVCenter)
+        FirstNameLabel.setFont(font);
+
+        FirstNameLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         CentralWidgetLayout.addWidget(FirstNameLabel)
 
         # Register First Name Line Edit
@@ -296,6 +319,10 @@ class Window(QMainWindow):
         LastNameLabel = QLabel()
         LastNameLabel.setText("Last Name")
         LastNameLabel.setAlignment(Qt.AlignVCenter)
+
+        LastNameLabel.setFont(font);
+
+        LastNameLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         CentralWidgetLayout.addWidget(LastNameLabel)
 
         # Register Last Name Line Edit
@@ -307,6 +334,8 @@ class Window(QMainWindow):
         emailLabel = QLabel()
         emailLabel.setText("E-mail")
         emailLabel.setAlignment(Qt.AlignVCenter)
+        emailLabel.setFont(font);
+        emailLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         CentralWidgetLayout.addWidget(emailLabel)
 
         # Register Name Line Edit
@@ -324,11 +353,24 @@ class Window(QMainWindow):
         BirthDateLabel = QLabel()
         BirthDateLabel.setText("Birth Date:")
         BirthDateLabel.setAlignment(Qt.AlignVCenter)
+        BirthDateLabel.setFont(font);
+        BirthDateLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         CentralWidgetLayout.addWidget(BirthDateLabel)
 
         # Birth Date Calendar
         BirthDateCalendar = QDateEdit()
         BirthDateCalendar.setCalendarPopup(True)
+        BirthDateCalendar.setStyleSheet(
+            """
+                background-color: #ffc937;
+                color: #005072;
+                border-width: 1px;
+                border-color: #005072;
+                border-style: solid;
+                border-radius: 10;                
+            """
+
+        )
         BirthDateCalendar.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
         BirthDateCalendar.setMaximumDate(datetime.datetime.now() - datetime.timedelta(days=5840))
         BirthDateCalendar.setMinimumDate(QDate(1903, 2, 2))
@@ -339,6 +381,8 @@ class Window(QMainWindow):
         GenderLabel = QLabel()
         GenderLabel.setText("Gender")
         GenderLabel.setAlignment(Qt.AlignVCenter)
+        GenderLabel.setFont(font);
+        GenderLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         CentralWidgetLayout.addWidget(GenderLabel)
 
         # Gender GroupBox
@@ -351,6 +395,8 @@ class Window(QMainWindow):
         EnterPasswordLabel = QLabel()
         EnterPasswordLabel.setText("Enter Password")
         EnterPasswordLabel.setAlignment(Qt.AlignVCenter)
+        EnterPasswordLabel.setFont(font);
+        EnterPasswordLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         CentralWidgetLayout.addWidget(EnterPasswordLabel)
 
         # Enter Password Line Edit
@@ -363,6 +409,8 @@ class Window(QMainWindow):
         RetypePasswordLabel = QLabel()
         RetypePasswordLabel.setText("Re-type Password")
         RetypePasswordLabel.setAlignment(Qt.AlignVCenter)
+        RetypePasswordLabel.setFont(font);
+        RetypePasswordLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         CentralWidgetLayout.addWidget(RetypePasswordLabel)
 
         # Retype Password Line Edit
@@ -465,7 +513,7 @@ class Window(QMainWindow):
 
         # Top Widget
         TopWidget = QWidget()
-        TopWidget.setStyleSheet("background-color: white;")
+        TopWidget.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
 
         # Top Widget Layout
         TopWidgetLayout = QHBoxLayout(TopWidget)
@@ -485,8 +533,8 @@ class Window(QMainWindow):
         ComposeButton.setStyleSheet(
             """
                 QPushButton{
-                    background-color: black;
-                    color: white;
+                    background-color: #005072;
+                    color: #ffc937;
                     border-width: 1px;
                     border-color: #1e1e1e;
                     border-style: solid;
@@ -560,14 +608,14 @@ class Window(QMainWindow):
             """
                 QListWidget::item 
                 {
-                    color: black;
-                    background-color: white;                        
+                    color: #005072;
+                    background-color: #ffc937;                                                                  
                 }
                 
                 QListWidget::item:selected 
                 {
-                    color: white;
-                    background-color: black;
+                    color: #ffc937;
+                    background-color: #005072;                      
                 }
             """
         )
@@ -729,7 +777,7 @@ class Window(QMainWindow):
         
         except mysql.connector.Error as error:
             QMessageBox.critical(self, 'Database Error',
-                            'Connection to database failed', QMessageBox.Ok)
+                                'Connection to database failed', QMessageBox.Ok)
 
         if len(myresult) > 0 and not To == self.email:
 
@@ -796,6 +844,7 @@ class Window(QMainWindow):
             AccountInfoDialogBox.setParent(self)
             AccountInfoDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
             AccountInfoDialogBox.setFixedWidth(self.width / 2)
+            AccountInfoDialogBox.setStyleSheet('background-color: #ffc937')
 
             AccountInfoDailogLayout = QVBoxLayout(AccountInfoDialogBox)
             AccountInfoDailogLayout.setContentsMargins(50, 50, 50, 50)
@@ -809,6 +858,7 @@ class Window(QMainWindow):
             EmailLabel = QLabel()
             EmailLabel.setText("Email:")
             EmailLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+            EmailLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
             EmailWidgetLayout.addWidget(EmailLabel, 25)
 
             # Email LineEdit
@@ -828,6 +878,7 @@ class Window(QMainWindow):
             NameLabel = QLabel()
             NameLabel.setText("Name:")
             NameLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+            NameLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
             NameWidgetLayout.addWidget(NameLabel, 25)
 
             # Name LineEdit
@@ -847,6 +898,7 @@ class Window(QMainWindow):
             AgeLabel = QLabel()
             AgeLabel.setText("Age:")
             AgeLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+            AgeLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
             AgeWidgetLayout.addWidget(AgeLabel, 25)
 
             # Age LineEdit
@@ -866,6 +918,7 @@ class Window(QMainWindow):
             BirthDateLabel = QLabel()
             BirthDateLabel.setText("BirthDate:")
             BirthDateLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+            BirthDateLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
             BirthDateWidgetLayout.addWidget(BirthDateLabel, 25)
 
             # BirthDate LineEdit
@@ -885,6 +938,7 @@ class Window(QMainWindow):
             GenderLabel = QLabel()
             GenderLabel.setText("Gender:")
             GenderLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+            GenderLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
             GenderWidgetLayout.addWidget(GenderLabel, 25)
 
             # Gender LineEdit
@@ -916,8 +970,11 @@ class Window(QMainWindow):
 
     # Logout
     def Logout(self):
-        self.settings.setValue('email', '')
-        self.LoginLayout()
+        try:
+            self.settings.setValue('email', '')
+            self.LoginLayout()
+        except Exception as e:
+            print(str(e))
 
     # Category List Changed
     def CategoryListCurrentItemChanged(self, MessagesTable):
@@ -936,14 +993,13 @@ class Window(QMainWindow):
         MessagesTable.setColumnCount(5)
         MessagesTable.setWindowFlags(MessagesTable.windowFlags() | Qt.MSWindowsFixedSizeDialogHint)
         MessagesTable.setHorizontalHeaderLabels(["Message ID", "From", "Timestramp", "View", "Delete"])
-        MessagesTable.horizontalHeader().setStyleSheet("::section {""background-color: black;  color: white;}")
+        MessagesTable.horizontalHeader().setStyleSheet("::section {""background-color: #005072;  color: #ffc937;}")
 
         for i in range(MessagesTable.columnCount()):
             MessagesTable.horizontalHeaderItem(i).setFont(QFont("Ariel Black", 11))
             MessagesTable.horizontalHeaderItem(i).setFont(QFont(MessagesTable.horizontalHeaderItem(i).text(), weight=QFont.Bold))
 
         try:
-            
             mycursor = mydb.cursor()
 
             sql_insert_query = """
@@ -960,7 +1016,6 @@ class Window(QMainWindow):
                             """
 
 
-
             insert_tuple = (self.email,)
             mycursor.execute(sql_insert_query, insert_tuple)
             rowList = mycursor.fetchall()
@@ -972,39 +1027,39 @@ class Window(QMainWindow):
                 if row[3] == 0:
                     pass
         
-            # Message ID
-            MessageIDItem = QTableWidgetItem()
-            MessageIDItem.setData(Qt.EditRole, QVariant(row[0]))
-            MessagesTable.setItem(rowList.index(row), 0, MessageIDItem)
-            MessagesTable.item(rowList.index(row), 0).setToolTip(str(row[0]))
-            MessagesTable.item(rowList.index(row), 0).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            MessagesTable.item(rowList.index(row), 0).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+                # Message ID
+                MessageIDItem = QTableWidgetItem()
+                MessageIDItem.setData(Qt.EditRole, QVariant(row[0]))
+                MessagesTable.setItem(rowList.index(row), 0, MessageIDItem)
+                MessagesTable.item(rowList.index(row), 0).setToolTip(str(row[0]))
+                MessagesTable.item(rowList.index(row), 0).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                MessagesTable.item(rowList.index(row), 0).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
-            # Reciever Email
-            RecieverEmailItem = QTableWidgetItem()
-            RecieverEmailItem.setData(Qt.EditRole, QVariant(row[1]))
-            MessagesTable.setItem(rowList.index(row), 1, RecieverEmailItem)
-            MessagesTable.item(rowList.index(row), 1).setToolTip(row[1])
-            MessagesTable.item(rowList.index(row), 1).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            MessagesTable.item(rowList.index(row), 1).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+                # Reciever Email
+                RecieverEmailItem = QTableWidgetItem()
+                RecieverEmailItem.setData(Qt.EditRole, QVariant(row[1]))
+                MessagesTable.setItem(rowList.index(row), 1, RecieverEmailItem)
+                MessagesTable.item(rowList.index(row), 1).setToolTip(row[1])
+                MessagesTable.item(rowList.index(row), 1).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                MessagesTable.item(rowList.index(row), 1).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
-            # Time Stramp
-            TimestrampItem = QTableWidgetItem()
-            TimestrampItem.setData(Qt.EditRole, QVariant(row[2].strftime("%a %b %d %Y %H:%M:%S")))
-            MessagesTable.setItem(rowList.index(row), 2, TimestrampItem)
-            MessagesTable.item(rowList.index(row), 2).setToolTip(row[2].strftime("%a %b %d %Y %H:%M:%S"))
-            MessagesTable.item(rowList.index(row), 2).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            MessagesTable.item(rowList.index(row), 2).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+                # Time Stramp
+                TimestrampItem = QTableWidgetItem()
+                TimestrampItem.setData(Qt.EditRole, QVariant(row[2].strftime("%a %b %d %Y %H:%M:%S")))
+                MessagesTable.setItem(rowList.index(row), 2, TimestrampItem)
+                MessagesTable.item(rowList.index(row), 2).setToolTip(row[2].strftime("%a %b %d %Y %H:%M:%S"))
+                MessagesTable.item(rowList.index(row), 2).setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                MessagesTable.item(rowList.index(row), 2).setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
-            # View Button
-            viewButton = QPushButton("view")
-            viewButton.clicked.connect(lambda: self.ViewInboxMessages(MessagesTable))
-            MessagesTable.setCellWidget(rowList.index(row), 3, viewButton)
+                # View Button
+                viewButton = QPushButton("view")
+                viewButton.clicked.connect(lambda: self.ViewInboxMessages(MessagesTable))
+                MessagesTable.setCellWidget(rowList.index(row), 3, viewButton)
 
-            # delete Button
-            deleteButton = QPushButton("Delete")
-            deleteButton.clicked.connect(lambda: self.DeleteInboxMessages(MessagesTable))
-            MessagesTable.setCellWidget(rowList.index(row), 4, deleteButton)
+                # delete Button
+                deleteButton = QPushButton("Delete")
+                deleteButton.clicked.connect(lambda: self.DeleteInboxMessages(MessagesTable))
+                MessagesTable.setCellWidget(rowList.index(row), 4, deleteButton)
         
         except mysql.connector.Error as error:
                 QMessageBox.critical(self, 'Database Error',
@@ -1201,7 +1256,7 @@ class Window(QMainWindow):
         MessagesTable.setColumnCount(5)
         MessagesTable.setWindowFlags(MessagesTable.windowFlags() | Qt.MSWindowsFixedSizeDialogHint)
         MessagesTable.setHorizontalHeaderLabels(["Message ID", "To", "Timestramp", "View", "Delete"])
-        MessagesTable.horizontalHeader().setStyleSheet("::section {""background-color: black;  color: white;}")
+        MessagesTable.horizontalHeader().setStyleSheet("::section {""background-color: #005072;  color: #ffc937;}")
 
         for i in range(MessagesTable.columnCount()):
             MessagesTable.horizontalHeaderItem(i).setFont(QFont("Ariel Black", 11))
@@ -1433,12 +1488,11 @@ class Window(QMainWindow):
 if __name__ == "__main__":
     App = QApplication(sys.argv)
 
-
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
         password="",
-        database= "crypto"
+        database="crypto"
     )
 
     Crypto = Window()
@@ -1509,6 +1563,11 @@ if __name__ == "__main__":
                 color: #000000;
             }
             
+            QMessageBox
+            {
+                background-color: #ffc937;
+                color: #005072;
+            }
             
             QWidget:focus, QMessageBox:focus
             {
@@ -1519,7 +1578,8 @@ if __name__ == "__main__":
             {
                 padding: 1px;
                 border-style: solid;
-                border: 1px solid #1e1e1e;
+                color: #005072;
+                border: 1px solid #005072;
                 border-radius: 5;
             }
             
@@ -1540,13 +1600,14 @@ if __name__ == "__main__":
             QComboBox
             {
                 border-style: solid;
-                border: 1px solid #1e1e1e;
+                border: 1px solid #005072;
                 border-radius: 5;
+                color: #005072;                
             }
             
             QComboBox:hover,QPushButton:hover
             {
-                border: 2px solid QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #86beda, stop: 1 #d4e8f2);
+                border: 2px solid QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #005b82, stop: 1 #d4e8f2);
             }
             
             
