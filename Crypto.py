@@ -117,34 +117,40 @@ class Window(QMainWindow):
             CentralWidgetLayout.setAlignment(Qt.AlignHCenter)
             CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.25, self.width * 0.25,self.height * 0.25)
 
+        font = QFont()
+        font.setBold(True)
+        font.setFamily('Ubuntu')
+
         # Logo Pixmap
         LogoPixmap = QLabel()
         LogoPixmap.setPixmap(QPixmap('Images/Logo.png').scaled(self.width/4, self.height, Qt.KeepAspectRatio))
         LogoPixmap.setAlignment(Qt.AlignHCenter)
         CentralWidgetLayout.addWidget(LogoPixmap)
 
+        # Application Title
+        ApplicationTitleLabel = QLabel()
+        ApplicationTitleLabel.setText("STD")
+        ApplicationTitleLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+        ApplicationTitleLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+        font.setPointSize(20)
+        ApplicationTitleLabel.setFont(font);
+        CentralWidgetLayout.addWidget(ApplicationTitleLabel)
+
         # Login Title
         LoginTitleLabel = QLabel()
         LoginTitleLabel.setText("Login")
         LoginTitleLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
-
-        font = LoginTitleLabel.font()
-        font.setPointSize(20)
-        font.setBold(True)
-        LoginTitleLabel.setFont(font);
-
+        font.setPointSize(12)
+        LoginTitleLabel.setFont(font)
         LoginTitleLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         CentralWidgetLayout.addWidget(LoginTitleLabel)
+
+        font.setPointSize(8)
 
         # Login ID Label
         emailLabel = QLabel()
         emailLabel.setText("Email")
-
-        font = emailLabel.font()
-        font.setPointSize(12)
-        font.setBold(True)
         emailLabel.setFont(font);
-
         emailLabel.setAlignment(Qt.AlignVCenter)
         emailLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         CentralWidgetLayout.addWidget(emailLabel)
@@ -169,12 +175,7 @@ class Window(QMainWindow):
         LoginPasswordLabel = QLabel()
         LoginPasswordLabel.setText("Password")
         LoginPasswordLabel.setAlignment(Qt.AlignVCenter)
-
-        font = LoginPasswordLabel.font()
-        font.setPointSize(12)
-        font.setBold(True)
         LoginPasswordLabel.setFont(font);
-
         LoginPasswordLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         CentralWidgetLayout.addWidget(LoginPasswordLabel)
 
@@ -263,22 +264,10 @@ class Window(QMainWindow):
             CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.125, self.width * 0.25, self.height * 0.125)
             CentralWidgetLayout.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
 
-        # Back Button Widget
-        BackButtonWidget = QWidget()
-
-        # Back Button Layout
-        BackButtonLayout = QHBoxLayout(BackButtonWidget)
-        BackButtonLayout.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-
-        # Back Button
-        BackButton = QPushButton()
-        BackButton.setIcon(QIcon("Images/Back.png"))
-        BackButton.setIconSize(QSize(50,50))
-        BackButton.setStyleSheet("border: 0px")
-        BackButton.clicked.connect(lambda: self.LoginLayout())
-        BackButtonLayout.addWidget(BackButton)
-
-        CentralWidgetLayout.addWidget(BackButtonWidget)
+        # Font
+        font = QFont()
+        font.setBold(True)
+        font.setFamily('Ubuntu')
 
         # Logo Pixmap
         LogoPixmap = QLabel()
@@ -286,22 +275,25 @@ class Window(QMainWindow):
         LogoPixmap.setAlignment(Qt.AlignHCenter)
         CentralWidgetLayout.addWidget(LogoPixmap)
 
+        # Application Title
+        ApplicationTitleLabel = QLabel()
+        ApplicationTitleLabel.setText("STD")
+        ApplicationTitleLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+        ApplicationTitleLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+        font.setPointSize(20)
+        ApplicationTitleLabel.setFont(font);
+        CentralWidgetLayout.addWidget(ApplicationTitleLabel)
+
         # Register Title
         RegisterTitleLabel = QLabel()
         RegisterTitleLabel.setText("Register")
         RegisterTitleLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
         RegisterTitleLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
-
-        font = RegisterTitleLabel.font()
-        font.setPointSize(20)
-        font.setBold(True)
+        font.setPointSize(12)
         RegisterTitleLabel.setFont(font);
         CentralWidgetLayout.addWidget(RegisterTitleLabel)
 
-        # Font
-        font = QFont()
-        font.setPointSize(12)
-        font.setBold(True)
+        font.setPointSize(8)
 
         # Register First Name Label
         FirstNameLabel = QLabel()
@@ -321,9 +313,7 @@ class Window(QMainWindow):
         LastNameLabel = QLabel()
         LastNameLabel.setText("Last Name")
         LastNameLabel.setAlignment(Qt.AlignVCenter)
-
         LastNameLabel.setFont(font);
-
         LastNameLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         CentralWidgetLayout.addWidget(LastNameLabel)
 
@@ -407,12 +397,12 @@ class Window(QMainWindow):
         EnterPasswordLineEdit.setEchoMode(QLineEdit.Password)
         CentralWidgetLayout.addWidget(EnterPasswordLineEdit)
 
-        # # Min Character
-        # MinCharLabel = QLabel()
-        # MinCharLabel.setText('Minimum 8 characters')
-        # MinCharLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
-        # MinCharLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
-        # CentralWidgetLayout.addWidget(MinCharLabel)
+        # Min Character
+        MinCharLabel = QLabel()
+        MinCharLabel.setText('Minimum 8 characters')
+        MinCharLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+        MinCharLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+        CentralWidgetLayout.addWidget(MinCharLabel)
 
         # Retype Password Label
         RetypePasswordLabel = QLabel()
@@ -428,14 +418,26 @@ class Window(QMainWindow):
         RetypePasswordLineEdit.setEchoMode(QLineEdit.Password)
         CentralWidgetLayout.addWidget(RetypePasswordLineEdit)
 
-        #CentralWidgetLayout.addSpacing(self.height/20)
+        CentralWidgetLayout.addSpacing(self.height/20)
+
+        # ButtonWidget
+        ButtonWidget = QWidget()
+        ButtonWidgetLayout = QHBoxLayout(ButtonWidget)
+
+        # Back Button
+        BackButton = QPushButton()
+        BackButton.setText("Back To Login")
+        BackButton.setStyleSheet(self.ButtonCSS)
+        ButtonWidgetLayout.addWidget(BackButton)
 
         # Register Button
         RegisterButton = QPushButton()
         RegisterButton.setText("Register")
         RegisterButton.setDisabled(True)
         RegisterButton.setStyleSheet(self.ButtonCSS)
-        CentralWidgetLayout.addWidget(RegisterButton)
+        ButtonWidgetLayout.addWidget(RegisterButton)
+
+        CentralWidgetLayout.addWidget(ButtonWidget)
 
         FirstNameLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
         LastNameLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
@@ -444,6 +446,7 @@ class Window(QMainWindow):
         EnterPasswordLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
         RetypePasswordLineEdit.textChanged.connect(lambda: self.RegisterButtonToggle(FirstNameLineEdit, LastNameLineEdit, emailLineEdit, BirthDateCalendar, EnterPasswordLineEdit, RetypePasswordLineEdit, RegisterButton))
 
+        BackButton.clicked.connect(lambda: self.LoginLayout())
         RegisterButton.clicked.connect(lambda: self.Register(FirstNameLineEdit.text(), LastNameLineEdit.text(), emailLineEdit.text(), BirthDateCalendar.text(), GenderGroupBox.currentText(), EnterPasswordLineEdit.text()))
 
     # Register Button Toggle
