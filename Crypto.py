@@ -95,11 +95,6 @@ class Window(QMainWindow):
 
         self.email = self.settings.value('email', '')
 
-        if self.email == '':
-            self.LoginLayout()
-        else:
-            self.MainWindow()
-
     # Login Layout
     def LoginLayout(self):
         if self.CentralWidget.layout() is not None:
@@ -1068,9 +1063,6 @@ class Window(QMainWindow):
             for row in rowList:
                 MessagesTable.insertRow(rowList.index(row))
 
-                if row[3] == 0:
-                    pass
-        
                 # Message ID
                 MessageIDItem = QTableWidgetItem()
                 MessageIDItem.setData(Qt.EditRole, QVariant(row[0]))
@@ -1104,6 +1096,13 @@ class Window(QMainWindow):
                 deleteButton = QPushButton("Delete")
                 deleteButton.clicked.connect(lambda: self.DeleteInboxMessages(MessagesTable))
                 MessagesTable.setCellWidget(rowList.index(row), 4, deleteButton)
+
+                if row[3] == 0:
+                    for j in range(5):
+                        try:
+                            MessagesTable.item(rowList.index(row), j).setBackground(QColor(247, 223, 156))
+                        except Exception as e:
+                            MessagesTable.cellWidget(rowList.index(row), j).setStyleSheet("background-color: #f7df9c")
 
             MessagesTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
             MessagesTable.resizeColumnsToContents()
@@ -1192,7 +1191,7 @@ class Window(QMainWindow):
             ViewButtonBox.accepted.connect(ViewDialogBox.accept)
             ViewButtonBox.rejected.connect(ViewDialogBox.reject)
 
-            ViewButtonBox.accepted.connect(lambda: self.DecryptMessage(Message_id, KeyLineEdit.text()))
+            ViewButtonBox.accepted.connect(lambda: self.DecryptMessage(Message_id, KeyLineEdit.text(), MessagesTable))
 
             ViewDialogBox.exec_()
 
@@ -1205,7 +1204,7 @@ class Window(QMainWindow):
             ViewButtonBox.button(QDialogButtonBox.Ok).setDisabled(False)
 
     # Decrypt Message
-    def DecryptMessage(self, Message_id, Key):
+    def DecryptMessage(self, Message_id, Key, MessagesTable):
         try:
             mycursor = mydb.cursor()
             mycursor.execute("SELECT img_byte_array FROM messages where msg_id = %s", (Message_id,))
@@ -1277,6 +1276,8 @@ class Window(QMainWindow):
                 DecryptMessageDailogLayout.addWidget(EncryptedImageShow)
 
                 DecryptMessageDialogBox.exec_()
+
+                self.Inbox(MessagesTable)
 
             else:
                 QMessageBox.critical(self, "Error", "Invalid Key", QMessageBox.Ok)
@@ -1563,12 +1564,16 @@ class Window(QMainWindow):
 if __name__ == "__main__":
     App = QApplication(sys.argv)
 
-    mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="crypto"
-    )
+    DBError = False
+    try:
+        mydb = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="",
+            database="STD"
+        )
+    except:
+        DBError = True
 
     STD = Window()
     STD.setStyleSheet(
@@ -2021,6 +2026,18 @@ if __name__ == "__main__":
             
         """
     )
-    STD.show()
+    if not DBError:
+        if STD.email == '':
+            STD.LoginLayout()
+        else:
+            STD.MainWindow()
+        STD.show()
+    else:
+        STD.show()
+        QMessageBox.critical(STD, 'Database Error',
+                            'Could Not connect to Database', QMessageBox.Ok)
+
+        QCloseEvent.accept(STD)
+
 
     sys.exit(App.exec())
