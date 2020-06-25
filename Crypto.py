@@ -650,14 +650,39 @@ class Window(QMainWindow):
 
         CategoryList.item(0).setSelected(True)
 
+        # Table
+        TableWidget = QWidget()
+        #TableWidget.setStyleSheet("border-width: 0.5px; border-color:  #005072; border-style: solid; border-radius: 10;")
+        TableWidgetLayout = QVBoxLayout(TableWidget)
+
+        # Search Widget
+        SearchWidget = QWidget()
+        SearchWidgetLayout = QHBoxLayout(SearchWidget)
+        SearchWidgetLayout.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
+        SearchWidgetLayout.setContentsMargins(SearchWidget.width()*0.5, 0, 0, 0)
+        SearchWidgetLayout.setSpacing(50)
+
+        # Search LineEdit
+        SearchLineEdit = QLineEdit()
+        SearchLineEdit.setAlignment(Qt.AlignLeft)
+        SearchLineEdit.setClearButtonEnabled(True)
+        SearchLineEdit.addAction(QIcon("Images/Search.png"), QLineEdit.LeadingPosition)
+        SearchLineEdit.setPlaceholderText("Search...")
+        SearchWidgetLayout.addWidget(SearchLineEdit)
+
+        TableWidgetLayout.addWidget(SearchWidget, 10)
+
         # Table Widget
         MessagesTable = QTableWidget()
         MessagesTable.verticalHeader().setVisible(False)
-        BottomWidgetLayout.addWidget(MessagesTable, 75)
+        TableWidgetLayout.addWidget(MessagesTable, 90)
+
+        BottomWidgetLayout.addWidget(TableWidget, 75)
 
         self.Inbox(MessagesTable)
 
         CategoryList.currentItemChanged.connect(lambda: self.CategoryListCurrentItemChanged(MessagesTable))
+        SearchLineEdit.textChanged.connect(lambda: self.SearchEmail(MessagesTable))
         CentralWidgetLayout.addWidget(BottomWidget, 90)
 
     # Compose Message
@@ -1032,6 +1057,22 @@ class Window(QMainWindow):
             self.Inbox(MessagesTable)
         elif CategoryList.currentItem().text() == "Sent":
             self.Sent(MessagesTable)
+
+    # Search Email
+    def SearchEmail(self, MessageTable):
+        SearchLineEdit = self.sender()
+
+        if len(SearchLineEdit.text()) == 0:
+            for i in range(MessageTable.rowCount()):
+                MessageTable.showRow(i)
+
+        else:
+            items = MessageTable.findItems(SearchLineEdit.text(), Qt.MatchContains)
+            for i in range(MessageTable.rowCount()):
+                MessageTable.hideRow(i)
+
+            for i in items:
+                MessageTable.showRow(i.row())
 
     # Inbox
     def Inbox(self, MessagesTable):
