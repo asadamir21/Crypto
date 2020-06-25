@@ -70,13 +70,13 @@ class Window(QMainWindow):
         self.setFixedWidth(self.width)
 
         self.CentralWidget = QWidget(self)
-        self.CentralWidget.setStyleSheet('background-color: #ffc937')
+        self.CentralWidget.setStyleSheet('background-color: #ffffff')
         self.setCentralWidget(self.CentralWidget)
 
         self.ButtonCSS = """
                             QPushButton{
                                 background-color: #005072;
-                                color: #ffc937;
+                                color: #ffffff;
                                 border-width: 1px;
                                 border-color: #1e1e1e;
                                 border-style: solid;
@@ -349,14 +349,13 @@ class Window(QMainWindow):
         BirthDateCalendar.setCalendarPopup(True)
         BirthDateCalendar.setStyleSheet(
             """
-                background-color: #ffc937;
+                background-color: #ffffff;
                 color: #005072;
                 border-width: 1px;
                 border-color: #005072;
                 border-style: solid;
                 border-radius: 10;                
             """
-
         )
         BirthDateCalendar.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
         BirthDateCalendar.setMaximumDate(datetime.datetime.now() - datetime.timedelta(days=5840))
@@ -548,7 +547,7 @@ class Window(QMainWindow):
             """
                 QPushButton{
                     background-color: #005072;
-                    color: #ffc937;
+                    color: #ffffff;
                     border-width: 1px;
                     border-color: #1e1e1e;
                     border-style: solid;
@@ -623,12 +622,12 @@ class Window(QMainWindow):
                 QListWidget::item 
                 {
                     color: #005072;
-                    background-color: #ffc937;                                                                  
+                    background-color: #ffffff;                                                                  
                 }
                 
                 QListWidget::item:selected 
                 {
-                    color: #ffc937;
+                    color: #ffffff;
                     background-color: #005072;                      
                 }
             """
@@ -670,7 +669,7 @@ class Window(QMainWindow):
         ComposeMessageDialogBox.setParent(self)
         ComposeMessageDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
         ComposeMessageDialogBox.setFixedWidth(self.width / 2)
-        ComposeMessageDialogBox.setStyleSheet('background-color: #ffc937')
+        ComposeMessageDialogBox.setStyleSheet('background-color: #ffffff')
 
         ComposeMessageDailogLayout = QVBoxLayout(ComposeMessageDialogBox)
         ComposeMessageDailogLayout.setContentsMargins(50, 50, 50, 50)
@@ -693,7 +692,7 @@ class Window(QMainWindow):
         ImageBrowseButton.setStyleSheet(
             """
                 background-color: #005072;
-                color: #ffc937;
+                color: #ffffff;
                 border-width: 1px;
                 border-color: #1e1e1e;
                 border-style: solid;
@@ -741,7 +740,7 @@ class Window(QMainWindow):
         ComposeButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
             """
                 background-color: #005072;
-                color: #ffc937;
+                color: #ffffff;
                 border-width: 1px;
                 border-color: #1e1e1e;
                 border-style: solid;
@@ -887,7 +886,7 @@ class Window(QMainWindow):
             AccountInfoDialogBox.setParent(self)
             AccountInfoDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
             AccountInfoDialogBox.setFixedWidth(self.width / 2)
-            AccountInfoDialogBox.setStyleSheet('background-color: #ffc937')
+            AccountInfoDialogBox.setStyleSheet('background-color: #ffffff')
 
             AccountInfoDailogLayout = QVBoxLayout(AccountInfoDialogBox)
             AccountInfoDailogLayout.setContentsMargins(50, 50, 50, 50)
@@ -1042,7 +1041,7 @@ class Window(QMainWindow):
         MessagesTable.setColumnCount(5)
         MessagesTable.setWindowFlags(MessagesTable.windowFlags() | Qt.MSWindowsFixedSizeDialogHint)
         MessagesTable.setHorizontalHeaderLabels(["Message ID", "From", "Timestamp", "View", "Delete"])
-        MessagesTable.horizontalHeader().setStyleSheet("::section {""background-color: #005072;  color: #ffc937;}")
+        MessagesTable.horizontalHeader().setStyleSheet("::section {""background-color: #005072;  color: #ffffff;}")
 
         for i in range(MessagesTable.columnCount()):
             MessagesTable.horizontalHeaderItem(i).setFont(QFont("Ariel Black", 11))
@@ -1110,9 +1109,9 @@ class Window(QMainWindow):
                 if row[3] == 0:
                     for j in range(5):
                         try:
-                            MessagesTable.item(rowList.index(row), j).setBackground(QColor(247, 223, 156))
+                            MessagesTable.item(rowList.index(row), j).setBackground(QColor(177, 221, 240))
                         except Exception as e:
-                            MessagesTable.cellWidget(rowList.index(row), j).setStyleSheet("background-color: #f7df9c")
+                            MessagesTable.cellWidget(rowList.index(row), j).setStyleSheet("background-color: #b1ddf0")
 
             MessagesTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
             MessagesTable.resizeColumnsToContents()
@@ -1156,7 +1155,7 @@ class Window(QMainWindow):
                 ViewDialogBox.setParent(self)
                 ViewDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
                 ViewDialogBox.setFixedWidth(self.width / 2)
-                ViewDialogBox.setStyleSheet('background-color: #ffc937')
+                ViewDialogBox.setStyleSheet('background-color: #ffffff')
 
                 ViewDailogLayout = QVBoxLayout(ViewDialogBox)
                 ViewDailogLayout.setContentsMargins(50, 50, 50, 50)
@@ -1224,7 +1223,7 @@ class Window(QMainWindow):
                 ViewButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
                     """
                         background-color: #005072;
-                        color: #ffc937;
+                        color: #ffffff;
                         border-width: 1px;
                         border-color: #1e1e1e;
                         border-style: solid;
@@ -1293,7 +1292,7 @@ class Window(QMainWindow):
         MessagesTable.setColumnCount(5)
         MessagesTable.setWindowFlags(MessagesTable.windowFlags() | Qt.MSWindowsFixedSizeDialogHint)
         MessagesTable.setHorizontalHeaderLabels(["Message ID", "To", "Timestamp", "View", "Delete"])
-        MessagesTable.horizontalHeader().setStyleSheet("::section {""background-color: #005072;  color: #ffc937;}")
+        MessagesTable.horizontalHeader().setStyleSheet("::section {""background-color: #005072;  color: #ffffff;}")
 
         for i in range(MessagesTable.columnCount()):
             MessagesTable.horizontalHeaderItem(i).setFont(QFont("Ariel Black", 11))
@@ -1397,7 +1396,7 @@ class Window(QMainWindow):
                 ViewDialogBox.setParent(self)
                 ViewDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
                 ViewDialogBox.setFixedWidth(self.width / 2)
-                ViewDialogBox.setStyleSheet('background-color: #ffc937')
+                ViewDialogBox.setStyleSheet('background-color: #ffffff')
 
                 ViewDailogLayout = QVBoxLayout(ViewDialogBox)
                 ViewDailogLayout.setContentsMargins(50, 50, 50, 50)
@@ -1466,7 +1465,7 @@ class Window(QMainWindow):
                 ViewButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
                     """
                         background-color: #005072;
-                        color: #ffc937;
+                        color: #ffffff;
                         border-width: 1px;
                         border-color: #1e1e1e;
                         border-style: solid;
@@ -1605,7 +1604,7 @@ if __name__ == "__main__":
             
             QMessageBox
             {
-                background-color: #ffc937;
+                background-color: #ffffff;
                 color: #005072;
             }
             
@@ -1702,7 +1701,7 @@ if __name__ == "__main__":
             
             QScrollBar:horizontal {
                  border: 1px solid #222222;
-                 background: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0.0 #ffc937, stop: 0.2 #ffc937, stop: 1 #ffc937);
+                 background: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0.0 #ffffff, stop: 0.2 #ffffff, stop: 1 #ffffff);
                  height: 7px;
                  margin: 0px 16px 0 16px;
             }
@@ -1747,7 +1746,7 @@ if __name__ == "__main__":
             
             QScrollBar:vertical
             {
-                  background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0, stop: 0.0 #ffc937, stop: 0.2 #ffc937, stop: 1 #ffc937);
+                  background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0, stop: 0.0 #ffffff, stop: 0.2 #ffffff, stop: 1 #ffffff);
                   width: 7px;
                   margin: 16px 0 16px 0;
                   border: 1px solid #222222;
@@ -1901,7 +1900,7 @@ if __name__ == "__main__":
             
             QRadioButton::indicator:checked, QRadioButton::indicator:unchecked{
                 color: #b1b1b1;
-                background-color: #ffc937;
+                background-color: #ffffff;
                 border: 1px solid #b1b1b1;
                 border-radius: 6px;
             }
@@ -1913,7 +1912,7 @@ if __name__ == "__main__":
                     fx: 0.5, fy: 0.5,
                     radius: 1.0,
                     stop: 0.25 #323232,
-                    stop: 0.3 #ffc937
+                    stop: 0.3 #ffffff
                 );
             }
             
