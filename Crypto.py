@@ -8,7 +8,7 @@ from Cryptodome.Cipher import AES
 from Cryptodome.Util.Padding import pad, unpad
 from stegano import lsb
 
-import os, sys, datetime, mysql.connector, re, hashlib, io, base64
+import os, sys, datetime, mysql.connector, re, hashlib, io, base64, random
 
 class CryptoSteganography(object):
     def __init__(self, key):
@@ -717,6 +717,10 @@ class Window(QMainWindow):
         ComposeMessageDailogLayout.addWidget(SendToLabel)
 
         SendToLineEdit = QLineEdit()
+        SendToCompleter = QCompleter()
+        SendToLineEdit.setCompleter(SendToCompleter)
+        SendToModel = QStringListModel()
+        SendToCompleter.setModel(SendToModel)
         ComposeMessageDailogLayout.addWidget(SendToLineEdit)
 
         # ****************** Text Message ********************
@@ -726,15 +730,6 @@ class Window(QMainWindow):
 
         MessageTextEdit = QTextEdit()
         ComposeMessageDailogLayout.addWidget(MessageTextEdit)
-
-        # ********************** Key *************************
-        KeyLabel = QLabel()
-        KeyLabel.setText("Key")
-        ComposeMessageDailogLayout.addWidget(KeyLabel)
-
-        KeyLineEdit = QLineEdit()
-        KeyLineEdit.setValidator(QIntValidator(0, 10000, self))
-        ComposeMessageDailogLayout.addWidget(KeyLineEdit)
 
         # ******************* Button Box *********************
         ComposeButtonBox = QDialogButtonBox()
@@ -760,10 +755,11 @@ class Window(QMainWindow):
             """
         )
 
-        ImageFilePathLineEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox))
-        SendToLineEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox))
-        MessageTextEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox))
-        KeyLineEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox))
+
+        ImageFilePathLineEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, ComposeButtonBox))
+        SendToLineEdit.textChanged.connect(lambda: self.EmailSuggestion(SendToModel, SendToLineEdit.text()))
+        SendToLineEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, ComposeButtonBox))
+        MessageTextEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, ComposeButtonBox))
 
         ComposeButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
         ComposeMessageDailogLayout.addWidget(ComposeButtonBox)
@@ -773,18 +769,32 @@ class Window(QMainWindow):
 
         ComposeButtonBox.accepted.connect(lambda: self.SendMessage(ImageFilePathLineEdit.text(),
                                                                    SendToLineEdit.text(),
-                                                                   MessageTextEdit.toPlainText(),
-                                                                   KeyLineEdit.text()))
+                                                                   MessageTextEdit.toPlainText()))
 
         ComposeMessageDialogBox.exec_()
 
+    # Email Suggestion
+    def EmailSuggestion(self, SendToModel, CurrentText):
+        mycursor = mydb.cursor()
+
+        sql_insert_query = """
+                                SELECT email FROM users where not email = %s                                     
+                           """
+
+        insert_tuple = (self.email,)
+        mycursor.execute(sql_insert_query, insert_tuple)
+        EmailList = mycursor.fetchall()
+        EmailList = [element for tupl in EmailList for element in tupl]
+
+        matching = [s for s in EmailList if CurrentText in s]
+        SendToModel.setStringList(matching)
+
     # Toggle Send Button
-    def ToggleSendButton(self, ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, KeyLineEdit, ComposeButtonBox):
-        if len(ImageFilePathLineEdit.text()) == 0 or len(SendToLineEdit.text()) == 0 or len(MessageTextEdit.toPlainText()) == 0 or len(KeyLineEdit.text()) == 0:
+    def ToggleSendButton(self, ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, ComposeButtonBox):
+        if len(ImageFilePathLineEdit.text()) == 0 or len(SendToLineEdit.text()) == 0 or len(MessageTextEdit.toPlainText()) == 0:
             ImageFilePathLineEdit.setStyleSheet("border: 1px solid black;")
             SendToLineEdit.setStyleSheet("border: 1px solid black;")
             MessageTextEdit.setStyleSheet("border: 1px solid black;")
-            KeyLineEdit.setStyleSheet("border: 1px solid black;")
             ComposeButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
 
         # Email
@@ -796,18 +806,16 @@ class Window(QMainWindow):
             ImageFilePathLineEdit.setStyleSheet("border: 1px solid black;")
             SendToLineEdit.setStyleSheet("border: 1px solid black;")
             MessageTextEdit.setStyleSheet("border: 1px solid black;")
-            KeyLineEdit.setStyleSheet("border: 1px solid black;")
             ComposeButtonBox.button(QDialogButtonBox.Ok).setDisabled(False)
 
     # Send Message
-    def SendMessage(self, ImageFilePath, To, Message, Key):
-
+    def SendMessage(self, ImageFilePath, To, Message):
         try :
             mycursor = mydb.cursor()
             mycursor.execute("SELECT * FROM users where email = %s", (To,))
 
             myresult = mycursor.fetchall()
-        
+
         except mysql.connector.Error as error:
             QMessageBox.critical(self, 'Database Error',
                                 'Connection to database failed', QMessageBox.Ok)
@@ -821,7 +829,10 @@ class Window(QMainWindow):
                                             (SELECT id FROM users where email = %s), 
                                             %s, %s, SYSDATE(), 0) 
                                 """
-        
+
+            # Random Key Generation
+            Key = str(random.randint(0, 1000))
+
             # key inserted here
             crypto_steganography = CryptoSteganography(Key)
 
@@ -837,7 +848,6 @@ class Window(QMainWindow):
             # Converting Encrypted Image to Byte Array
             imgByteArr = io.BytesIO()
             EncryptedImage.save(imgByteArr, format='PNG')
-
 
             insert_tuple = (self.email, To, Key, imgByteArr.getvalue())
             result = mycursor.execute(sql_insert_query, insert_tuple)
@@ -1120,143 +1130,98 @@ class Window(QMainWindow):
     # View Inbox Messages
     def ViewInboxMessages(self, MessagesTable):
         ViewButton = self.sender()
+
         if ViewButton:
             Message_id = MessagesTable.item(MessagesTable.indexAt(ViewButton.pos()).row(), 0).text()
 
-            # Edit Row Dialog
-            ViewDialogBox = QDialog()
-            ViewDialogBox.setModal(True)
-            ViewDialogBox.setWindowTitle("View Message")
-            ViewDialogBox.setParent(self)
-            ViewDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
-            ViewDialogBox.setFixedWidth(self.width / 2)
-            ViewDialogBox.setStyleSheet('background-color: #ffc937')
+            try:
+                mycursor = mydb.cursor()
 
-            ViewDailogLayout = QVBoxLayout(ViewDialogBox)
-            ViewDailogLayout.setContentsMargins(50, 50, 50, 50)
+                sql_insert_query = """
+                                        Select (SELECT email FROM users where id = sender_id), datetime, enc_key, img_byte_array 
+                                        from 
+                                        messages
+                                        where
+                                        msg_id = %s                                         
+                                   """
 
-            font = QFont()
-            font.setBold(True)
-            font.setPointSize(9)
-            font.setFamily('Ubuntu')
-
-            # ****************** Key ********************
-            KeyWidget = QWidget()
-            KeyWidgetLayout = QHBoxLayout(KeyWidget)
-
-            # Key Label
-            KeyLabel = QLabel()
-            KeyLabel.setText("Key:")
-            KeyLabel.setAlignment(Qt.AlignVCenter)
-            KeyLabel.setFont(font)
-            KeyLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
-            KeyWidgetLayout.addWidget(KeyLabel, 25)
-
-            # Key LineEdit
-            KeyLineEdit = QLineEdit()
-            KeyLineEdit.setAlignment(Qt.AlignVCenter)
-            KeyLineEdit.setValidator(QIntValidator(0, 10000, self))
-            KeyWidgetLayout.addWidget(KeyLineEdit, 75)
-
-            ViewDailogLayout.addWidget(KeyWidget)
-
-            # ******************* Button Box *********************
-            ViewButtonBox = QDialogButtonBox()
-            ViewButtonBox.setCenterButtons(True)
-            ViewButtonBox.setStandardButtons(QDialogButtonBox.Ok)
-            ViewButtonBox.button(QDialogButtonBox.Ok).setText('Decrypt')
-            ViewButtonBox.button(QDialogButtonBox.Ok).setIcon(QIcon("Images/Decrypt.png"))
-            ViewButtonBox.button(QDialogButtonBox.Ok).setLayoutDirection(Qt.RightToLeft)
-            ViewButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
-                """
-                    background-color: #005072;
-                    color: #ffc937;
-                    border-width: 1px;
-                    border-color: #1e1e1e;
-                    border-style: solid;
-                    border-radius: 10;
-                    padding: 3px;
-                    font-weight: 700;
-                    font-size: 12px;
-                    padding-left: 5px;
-                    padding-right: 5px;
-                    min-width: 40px;
-                """
-            )
-            ViewButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
-            ViewDailogLayout.addWidget(ViewButtonBox)
-
-            KeyLineEdit.textChanged.connect(lambda: self.ToggleDecryptButton(KeyLineEdit, ViewButtonBox))
-
-            ViewButtonBox.accepted.connect(ViewDialogBox.accept)
-            ViewButtonBox.rejected.connect(ViewDialogBox.reject)
-
-            ViewButtonBox.accepted.connect(lambda: self.DecryptMessage(Message_id, KeyLineEdit.text(), MessagesTable))
-
-            ViewDialogBox.exec_()
-
-    # Toggle Decrypt Button
-    def ToggleDecryptButton(self, KeyLineEdit, ViewButtonBox):
-        # Empty Fields
-        if len(KeyLineEdit.text()) == 0:
-            ViewButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
-        else:
-            ViewButtonBox.button(QDialogButtonBox.Ok).setDisabled(False)
-
-    # Decrypt Message
-    def DecryptMessage(self, Message_id, Key, MessagesTable):
-        try:
-            mycursor = mydb.cursor()
-            mycursor.execute("SELECT img_byte_array FROM messages where msg_id = %s", (Message_id,))
-
-            myresult = mycursor.fetchall()
-
-            crypto_steganography = CryptoSteganography(Key)
-            message = crypto_steganography.retrieve(Image.open(io.BytesIO(myresult[0][0])))
-
-            if message is not None:
-                mycursor.execute("Update messages set read_flag = 1 where msg_id = %s", (Message_id,))
-                mydb.commit()
-
-                QMessageBox.information(self, "Success", "Decryption Successful", QMessageBox.Ok)
+                insert_tuple = (Message_id,)
+                mycursor.execute(sql_insert_query, insert_tuple)
+                rowList = mycursor.fetchall()
 
                 # Edit Row Dialog
-                DecryptMessageDialogBox = QDialog()
-                DecryptMessageDialogBox.setModal(True)
-                DecryptMessageDialogBox.setWindowTitle("View Message")
-                DecryptMessageDialogBox.setParent(self)
-                DecryptMessageDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
-                DecryptMessageDialogBox.setFixedWidth(self.width / 2)
-                DecryptMessageDialogBox.setStyleSheet('background-color: #ffc937')
+                ViewDialogBox = QDialog()
+                ViewDialogBox.setModal(True)
+                ViewDialogBox.setWindowTitle("View Message")
+                ViewDialogBox.setParent(self)
+                ViewDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
+                ViewDialogBox.setFixedWidth(self.width / 2)
+                ViewDialogBox.setStyleSheet('background-color: #ffc937')
 
-                DecryptMessageDailogLayout = QVBoxLayout(DecryptMessageDialogBox)
-                DecryptMessageDailogLayout.setContentsMargins(50, 50, 50, 50)
+                ViewDailogLayout = QVBoxLayout(ViewDialogBox)
+                ViewDailogLayout.setContentsMargins(50, 50, 50, 50)
 
                 font = QFont()
                 font.setBold(True)
                 font.setPointSize(9)
                 font.setFamily('Ubuntu')
 
+                # ****************** To ********************
+                # From Label
+                FromLabel = QLabel()
+                FromLabel.setText("From:")
+                FromLabel.setAlignment(Qt.AlignVCenter)
+                FromLabel.setFont(font)
+                FromLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+                ViewDailogLayout.addWidget(FromLabel)
+
+                # To LineEdit
+                FromLineEdit = QLineEdit()
+                FromLineEdit.setAlignment(Qt.AlignVCenter)
+                FromLineEdit.setText(rowList[0][0])
+                FromLineEdit.setReadOnly(True)
+                ViewDailogLayout.addWidget(FromLineEdit)
+
+                # ****************** TimeStamp ********************
+                # TimeStamp Label
+                TimeStampLabel = QLabel()
+                TimeStampLabel.setText("TimeStamp:")
+                TimeStampLabel.setAlignment(Qt.AlignVCenter)
+                TimeStampLabel.setFont(font)
+                TimeStampLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+                ViewDailogLayout.addWidget(TimeStampLabel)
+
+                # TimeStamp LineEdit
+                TimeStampLineEdit = QLineEdit()
+                TimeStampLineEdit.setAlignment(Qt.AlignVCenter)
+                TimeStampLineEdit.setText(rowList[0][1].strftime("%a %b %d %Y %H:%M:%S"))
+                TimeStampLineEdit.setReadOnly(True)
+                ViewDailogLayout.addWidget(TimeStampLineEdit)
+
+                # ****************** Message ********************
                 # Message Label
                 MessageLabel = QLabel()
                 MessageLabel.setText("Message:")
                 MessageLabel.setAlignment(Qt.AlignVCenter)
                 MessageLabel.setFont(font)
                 MessageLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
-                DecryptMessageDailogLayout.addWidget(MessageLabel)
+                ViewDailogLayout.addWidget(MessageLabel)
 
-                # Message Text Edit
+                # Message LineEdit
                 MessageTextEdit = QTextEdit()
+                MessageTextEdit.setAlignment(Qt.AlignVCenter)
+                crypto_steganography = CryptoSteganography(rowList[0][2])
+                MessageTextEdit.setText(crypto_steganography.retrieve(Image.open(io.BytesIO(rowList[0][3]))))
                 MessageTextEdit.setReadOnly(True)
-                MessageTextEdit.setText(message)
-                DecryptMessageDailogLayout.addWidget(MessageTextEdit)
+                ViewDailogLayout.addWidget(MessageTextEdit)
 
                 # ******************* Button Box *********************
-                EncryptedImageShow = QPushButton()
-                EncryptedImageShow.setText('View Encrypted Image')
-                EncryptedImageShow.setIcon(QIcon("Images/Decrypt.png"))
-                EncryptedImageShow.setLayoutDirection(Qt.RightToLeft)
-                EncryptedImageShow.setStyleSheet(
+                ViewButtonBox = QDialogButtonBox()
+                ViewButtonBox.setCenterButtons(True)
+                ViewButtonBox.setStandardButtons(QDialogButtonBox.Ok)
+                ViewButtonBox.button(QDialogButtonBox.Ok).setText('View Encrypted Image')
+                ViewButtonBox.button(QDialogButtonBox.Ok).setLayoutDirection(Qt.RightToLeft)
+                ViewButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
                     """
                         background-color: #005072;
                         color: #ffc937;
@@ -1272,19 +1237,30 @@ class Window(QMainWindow):
                         min-width: 40px;
                     """
                 )
-                EncryptedImageShow.clicked.connect(lambda: Image.open(io.BytesIO(myresult[0][0])).show())
-                DecryptMessageDailogLayout.addWidget(EncryptedImageShow)
+                ViewDailogLayout.addWidget(ViewButtonBox)
 
-                DecryptMessageDialogBox.exec_()
+                ViewButtonBox.accepted.connect(ViewDialogBox.accept)
+                ViewButtonBox.rejected.connect(ViewDialogBox.reject)
+                ViewButtonBox.accepted.connect(lambda: Image.open(io.BytesIO(rowList[0][3])).show())
+
+                ViewDialogBox.exec_()
+
+                mycursor.execute("Update messages set read_flag = 1 where msg_id = %s", (Message_id,))
+                mydb.commit()
 
                 self.Inbox(MessagesTable)
 
-            else:
-                QMessageBox.critical(self, "Error", "Invalid Key", QMessageBox.Ok)
+            except mysql.connector.Error as error:
+                QMessageBox.critical(self, 'Database Error',
+                                     'Connection to database failed', QMessageBox.Ok)
 
-        except mysql.connector.Error as error:
-            QMessageBox.critical(self, 'Database Error',
-                        'Connection to database failed', QMessageBox.Ok)
+    # Toggle Decrypt Button
+    def ToggleDecryptButton(self, KeyLineEdit, ViewButtonBox):
+        # Empty Fields
+        if len(KeyLineEdit.text()) == 0:
+            ViewButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
+        else:
+            ViewButtonBox.button(QDialogButtonBox.Ok).setDisabled(False)
 
     # Delete Inbox Messages
     def DeleteInboxMessages(self, MessagesTable):
@@ -1463,22 +1439,6 @@ class Window(QMainWindow):
                 TimeStampLineEdit.setText(rowList[0][1].strftime("%a %b %d %Y %H:%M:%S"))
                 TimeStampLineEdit.setReadOnly(True)
                 ViewDailogLayout.addWidget(TimeStampLineEdit)
-
-                # ****************** Key ********************
-                # To Label
-                KeyLabel = QLabel()
-                KeyLabel.setText("Key:")
-                KeyLabel.setAlignment(Qt.AlignVCenter)
-                KeyLabel.setFont(font)
-                KeyLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
-                ViewDailogLayout.addWidget(KeyLabel)
-
-                # Key LineEdit
-                KeyLineEdit = QLineEdit()
-                KeyLineEdit.setAlignment(Qt.AlignVCenter)
-                KeyLineEdit.setText(rowList[0][2])
-                KeyLineEdit.setReadOnly(True)
-                ViewDailogLayout.addWidget(KeyLineEdit)
 
                 # ****************** Message ********************
                 # Message Label
@@ -1742,7 +1702,7 @@ if __name__ == "__main__":
             
             QScrollBar:horizontal {
                  border: 1px solid #222222;
-                 background: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0.0 #ffffff, stop: 0.2 #ffffff, stop: 1 #ffffff);
+                 background: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0.0 #ffc937, stop: 0.2 #ffc937, stop: 1 #ffc937);
                  height: 7px;
                  margin: 0px 16px 0 16px;
             }
@@ -1787,7 +1747,7 @@ if __name__ == "__main__":
             
             QScrollBar:vertical
             {
-                  background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0, stop: 0.0 #ffffff, stop: 0.2 #ffffff, stop: 1 #ffffff);
+                  background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0, stop: 0.0 #ffc937, stop: 0.2 #ffc937, stop: 1 #ffc937);
                   width: 7px;
                   margin: 16px 0 16px 0;
                   border: 1px solid #222222;
@@ -1941,7 +1901,7 @@ if __name__ == "__main__":
             
             QRadioButton::indicator:checked, QRadioButton::indicator:unchecked{
                 color: #b1b1b1;
-                background-color: #ffffff;
+                background-color: #ffc937;
                 border: 1px solid #b1b1b1;
                 border-radius: 6px;
             }
@@ -1953,7 +1913,7 @@ if __name__ == "__main__":
                     fx: 0.5, fy: 0.5,
                     radius: 1.0,
                     stop: 0.25 #323232,
-                    stop: 0.3 #ffffff
+                    stop: 0.3 #ffc937
                 );
             }
             
