@@ -66,8 +66,7 @@ class Window(QMainWindow):
     def initWindows(self):
         self.setWindowIcon(QIcon('Images/Logo.png'))
         self.setWindowTitle(self.title)
-        self.setFixedHeight(self.height)
-        self.setFixedWidth(self.width)
+        self.setGeometry(self.width/2, self.height*0.125, self.width, self.height)
 
         self.CentralWidget = QWidget(self)
         self.CentralWidget.setStyleSheet('background-color: #ffffff')
@@ -105,12 +104,13 @@ class Window(QMainWindow):
                 except:
                     CentralWidgetLayout.removeItem(CentralWidgetLayout.itemAt(0))
 
-            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.125, self.width * 0.25, self.height * 0.125)
+            CentralWidgetLayout.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.25, 0, self.width * 0.25, 0)
 
         else:
             CentralWidgetLayout = QVBoxLayout(self.CentralWidget)
             CentralWidgetLayout.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.125, self.width * 0.25,self.height * 0.125)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.25, 0, self.width * 0.25, 0)
 
         font = QFont()
         font.setBold(True)
@@ -118,7 +118,7 @@ class Window(QMainWindow):
 
         # Logo Pixmap
         LogoPixmap = QLabel()
-        LogoPixmap.setPixmap(QPixmap('Images/Logo.png').scaled(self.width/4, self.height, Qt.KeepAspectRatio))
+        LogoPixmap.setPixmap(QPixmap('Images/Logo.png').scaled(self.width * 0.125, self.height, Qt.KeepAspectRatio))
         LogoPixmap.setAlignment(Qt.AlignHCenter)
         CentralWidgetLayout.addWidget(LogoPixmap)
 
@@ -252,11 +252,11 @@ class Window(QMainWindow):
             CentralWidgetLayout = self.CentralWidget.layout()
             for i in reversed(range(CentralWidgetLayout.count())):
                 CentralWidgetLayout.itemAt(i).widget().setParent(None)
-            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.075, self.width * 0.25, self.height * 0.075)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.25, 0, self.width * 0.25, 0)
         else:
             CentralWidgetLayout = QVBoxLayout(self.CentralWidget)
             CentralWidgetLayout.setAlignment(Qt.AlignHCenter)
-            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.075, self.width * 0.25, self.height * 0.075)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.25, 0, self.width * 0.25, 0)
             CentralWidgetLayout.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
 
         # Font
@@ -266,7 +266,7 @@ class Window(QMainWindow):
 
         # Logo Pixmap
         LogoPixmap = QLabel()
-        LogoPixmap.setPixmap(QPixmap('Images/Logo.png').scaled(self.width / 4, self.height, Qt.KeepAspectRatio))
+        LogoPixmap.setPixmap(QPixmap('Images/Logo.png').scaled(self.width*0.125, self.height, Qt.KeepAspectRatio))
         LogoPixmap.setAlignment(Qt.AlignHCenter)
         CentralWidgetLayout.addWidget(LogoPixmap)
 
@@ -734,6 +734,13 @@ class Window(QMainWindow):
 
         ComposeMessageDailogLayout.addWidget(ImageFileWidget)
 
+        # ************** Max File Size Labels ***************
+        MaxFileSizeLabel = QLabel()
+        MaxFileSizeLabel.setText('Max Size: 100kb')
+        MaxFileSizeLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+        MaxFileSizeLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+        ComposeMessageDailogLayout.addWidget(MaxFileSizeLabel)
+
         # ********************** To *************************
         SendToLabel = QLabel()
         SendToLabel.setText("To")
@@ -808,19 +815,25 @@ class Window(QMainWindow):
 
     # Email Suggestion
     def EmailSuggestion(self, SendToModel, CurrentText):
-        mycursor = mydb.cursor()
+        try:
+            mycursor = mydb.cursor()
 
-        sql_insert_query = """
-                                SELECT email FROM users where not email = %s                                     
-                           """
+            sql_insert_query = """
+                                    SELECT email FROM users where not email = %s                                     
+                               """
 
-        insert_tuple = (self.email,)
-        mycursor.execute(sql_insert_query, insert_tuple)
-        EmailList = mycursor.fetchall()
-        EmailList = [element for tupl in EmailList for element in tupl]
+            insert_tuple = (self.email,)
+            mycursor.execute(sql_insert_query, insert_tuple)
+            EmailList = mycursor.fetchall()
+            EmailList = [element for tupl in EmailList for element in tupl]
 
-        matching = [s for s in EmailList if CurrentText in s]
-        SendToModel.setStringList(matching)
+            matching = [s for s in EmailList if CurrentText in s]
+            SendToModel.setStringList(matching)
+
+
+        except mysql.connector.Error as error:
+            QMessageBox.critical(self, 'Database Error',
+                                 'Connection to database failed', QMessageBox.Ok)
 
     # Character Limit
     def CharacterLimit(self, CharLabel):
@@ -852,67 +865,77 @@ class Window(QMainWindow):
 
     # Send Message
     def SendMessage(self, ImageFilePath, To, Message):
-        try :
-            mycursor = mydb.cursor()
-            mycursor.execute("SELECT * FROM users where email = %s", (To,))
+        try:
+            try :
+                mycursor = mydb.cursor()
+                mycursor.execute("SELECT * FROM users where email = %s", (To,))
 
-            myresult = mycursor.fetchall()
+                myresult = mycursor.fetchall()
 
-        except mysql.connector.Error as error:
-            QMessageBox.critical(self, 'Database Error',
-                                'Connection to database failed', QMessageBox.Ok)
+            except mysql.connector.Error as error:
+                QMessageBox.critical(self, 'Database Error',
+                                    'Connection to database failed', QMessageBox.Ok)
 
-        if len(myresult) > 0 and not To == self.email:
+            if len(myresult) > 0 and not To == self.email:
 
-            sql_insert_query = """ 
-                                        INSERT INTO messages (sender_id, receiver_id, enc_key, img_byte_array, datetime, read_flag)
-                                        VALUES(
-                                            (SELECT id FROM users where email = %s), 
-                                            (SELECT id FROM users where email = %s), 
-                                            %s, %s, SYSDATE(), 0) 
-                                """
+                sql_insert_query = """ 
+                                            INSERT INTO messages (sender_id, receiver_id, enc_key, img_byte_array, datetime, read_flag)
+                                            VALUES(
+                                                (SELECT id FROM users where email = %s), 
+                                                (SELECT id FROM users where email = %s), 
+                                                %s, %s, SYSDATE(), 0) 
+                                    """
 
-            # Random Key Generation
-            Key = str(random.randint(0, 1000))
+                # Random Key Generation
+                Key = str(random.randint(0, 1000))
 
-            # key inserted here
-            crypto_steganography = CryptoSteganography(Key)
+                # key inserted here
+                crypto_steganography = CryptoSteganography(Key)
 
-            # Image Loaded
-            SteganoImage = Image.open(ImageFilePath)
+                # Image Loaded
+                SteganoImage = Image.open(ImageFilePath)
 
-            if SteganoImage.mode == "RGB":
-                SteganoImage = SteganoImage.convert('RGB')
+                if SteganoImage.mode == "RGB":
+                    SteganoImage = SteganoImage.convert('RGB')
 
-            # Encrypt Data in Image
-            EncryptedImage = crypto_steganography.hide(SteganoImage, Message)
+                # Encrypt Data in Image
+                EncryptedImage = crypto_steganography.hide(SteganoImage, Message)
 
-            # Converting Encrypted Image to Byte Array
-            imgByteArr = io.BytesIO()
-            EncryptedImage.save(imgByteArr, format='PNG')
+                # Converting Encrypted Image to Byte Array
+                imgByteArr = io.BytesIO()
+                EncryptedImage.save(imgByteArr, format='PNG')
 
-            insert_tuple = (self.email, To, Key, imgByteArr.getvalue())
-            result = mycursor.execute(sql_insert_query, insert_tuple)
-            mydb.commit()
+                insert_tuple = (self.email, To, Key, imgByteArr.getvalue())
+                result = mycursor.execute(sql_insert_query, insert_tuple)
+                mydb.commit()
 
-            QMessageBox.information(self, "Message Send",
-                                    "Message Successfully Send to " + To,
-                                    QMessageBox.Ok)
+                QMessageBox.information(self, "Message Send",
+                                        "Message Successfully Send to " + To,
+                                        QMessageBox.Ok)
 
-        elif len(myresult) == 0:
-            QMessageBox.critical(self, 'Message Error',
-                                 'No Such Email Address Exist', QMessageBox.Ok)
+            elif len(myresult) == 0:
+                QMessageBox.critical(self, 'Message Error',
+                                     'No Such Email Address Exist', QMessageBox.Ok)
 
-        elif To == self.email:
-            QMessageBox.critical(self, 'Message Error',
-                                 'Cannot send a Message to yourself', QMessageBox.Ok)
+            elif To == self.email:
+                QMessageBox.critical(self, 'Message Error',
+                                     'Cannot send a Message to yourself', QMessageBox.Ok)
+
+        except Exception as e:
+            print(str(e))
 
     # Compose FIle Button
     def ComposeChooseButton(self, ImageFilePathLineEdit):
         path = QFileDialog.getOpenFileName(self, 'Open Image File', "", 'Image files (*.png *.bmp *.jpeg *.jpg *.webp *.tiff *.tif *.pfm *.jp2 *.hdr *.pic *.exr *.ras *.sr *.pbm *.pgm *.ppm *.pxm *.pnm)')
 
         if all(path):
-            ImageFilePathLineEdit.setText(path[0])
+            ImageFilePathLineEdit.clear()
+
+            if os.stat(path[0]).st_size < 102400:
+                ImageFilePathLineEdit.setText(path[0])
+            else:
+                QMessageBox.critical(self, "Image File Size",
+                                     "Please Select a File Size under 100kb", QMessageBox.Ok)
 
     # Account Information
     def AccountInfo(self):
