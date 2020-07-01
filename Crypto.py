@@ -105,12 +105,12 @@ class Window(QMainWindow):
                 except:
                     CentralWidgetLayout.removeItem(CentralWidgetLayout.itemAt(0))
 
-            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.25, self.width * 0.25, self.height * 0.25)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.125, self.width * 0.25, self.height * 0.125)
 
         else:
             CentralWidgetLayout = QVBoxLayout(self.CentralWidget)
-            CentralWidgetLayout.setAlignment(Qt.AlignHCenter)
-            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.25, self.width * 0.25,self.height * 0.25)
+            CentralWidgetLayout.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.125, self.width * 0.25,self.height * 0.125)
 
         font = QFont()
         font.setBold(True)
@@ -252,11 +252,11 @@ class Window(QMainWindow):
             CentralWidgetLayout = self.CentralWidget.layout()
             for i in reversed(range(CentralWidgetLayout.count())):
                 CentralWidgetLayout.itemAt(i).widget().setParent(None)
-            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.125, self.width * 0.25, self.height * 0.125)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.075, self.width * 0.25, self.height * 0.075)
         else:
             CentralWidgetLayout = QVBoxLayout(self.CentralWidget)
             CentralWidgetLayout.setAlignment(Qt.AlignHCenter)
-            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.125, self.width * 0.25, self.height * 0.125)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.25, self.height * 0.075, self.width * 0.25, self.height * 0.075)
             CentralWidgetLayout.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
 
         # Font
@@ -755,6 +755,13 @@ class Window(QMainWindow):
         MessageTextEdit = QTextEdit()
         ComposeMessageDailogLayout.addWidget(MessageTextEdit)
 
+        # *************** Characters Labels **********************
+        CharLabel = QLabel()
+        CharLabel.setText('1000 char left')
+        CharLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+        CharLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+        ComposeMessageDailogLayout.addWidget(CharLabel)
+
         # ******************* Button Box *********************
         ComposeButtonBox = QDialogButtonBox()
         ComposeButtonBox.setCenterButtons(True)
@@ -780,10 +787,12 @@ class Window(QMainWindow):
         )
 
 
+
         ImageFilePathLineEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, ComposeButtonBox))
         SendToLineEdit.textChanged.connect(lambda: self.EmailSuggestion(SendToModel, SendToLineEdit.text()))
         SendToLineEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, ComposeButtonBox))
         MessageTextEdit.textChanged.connect(lambda: self.ToggleSendButton(ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, ComposeButtonBox))
+        MessageTextEdit.textChanged.connect(lambda: self.CharacterLimit(CharLabel))
 
         ComposeButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
         ComposeMessageDailogLayout.addWidget(ComposeButtonBox)
@@ -812,6 +821,15 @@ class Window(QMainWindow):
 
         matching = [s for s in EmailList if CurrentText in s]
         SendToModel.setStringList(matching)
+
+    # Character Limit
+    def CharacterLimit(self, CharLabel):
+        MessageTextEdit = self.sender()
+
+        if len(MessageTextEdit.toPlainText()) > 1000:
+            MessageTextEdit.textCursor().deletePreviousChar()
+
+        CharLabel.setText(str(1000 - len(MessageTextEdit.toPlainText())) + " char left")
 
     # Toggle Send Button
     def ToggleSendButton(self, ImageFilePathLineEdit, SendToLineEdit, MessageTextEdit, ComposeButtonBox):
@@ -931,14 +949,15 @@ class Window(QMainWindow):
             EmailLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             EmailLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
             EmailLabel.setFont(font)
-            EmailWidgetLayout.addWidget(EmailLabel, 25)
+            EmailWidgetLayout.addWidget(EmailLabel, 50)
 
             # Email LineEdit
             EmailLineEdit = QLineEdit()
             EmailLineEdit.setReadOnly(True)
+            EmailLineEdit.setDisabled(True)
             EmailLineEdit.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             EmailLineEdit.setText(myresult[0][1])
-            EmailWidgetLayout.addWidget(EmailLineEdit, 75)
+            EmailWidgetLayout.addWidget(EmailLineEdit, 50)
 
             AccountInfoDailogLayout.addWidget(EmailWidget)
 
@@ -952,14 +971,13 @@ class Window(QMainWindow):
             NameLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             NameLabel.setFont(font)
             NameLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
-            NameWidgetLayout.addWidget(NameLabel, 25)
+            NameWidgetLayout.addWidget(NameLabel, 50)
 
             # Name LineEdit
             NameLineEdit = QLineEdit()
-            NameLineEdit.setReadOnly(True)
             NameLineEdit.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             NameLineEdit.setText(myresult[0][3] + " " + myresult[0][4])
-            NameWidgetLayout.addWidget(NameLineEdit, 75)
+            NameWidgetLayout.addWidget(NameLineEdit, 50)
 
             AccountInfoDailogLayout.addWidget(NameWidget)
 
@@ -973,14 +991,14 @@ class Window(QMainWindow):
             AgeLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             AgeLabel.setFont(font)
             AgeLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
-            AgeWidgetLayout.addWidget(AgeLabel, 25)
+            AgeWidgetLayout.addWidget(AgeLabel, 50)
 
             # Age LineEdit
             AgeLineEdit = QLineEdit()
             AgeLineEdit.setReadOnly(True)
             AgeLineEdit.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             AgeLineEdit.setText(str(datetime.date.today().year - myresult[0][5].year - ((datetime.date.today().month, datetime.date.today().day) < (myresult[0][5].month, myresult[0][5].day))))
-            AgeWidgetLayout.addWidget(AgeLineEdit, 75)
+            AgeWidgetLayout.addWidget(AgeLineEdit, 50)
 
             AccountInfoDailogLayout.addWidget(AgeWidget)
 
@@ -994,14 +1012,26 @@ class Window(QMainWindow):
             BirthDateLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             BirthDateLabel.setFont(font)
             BirthDateLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
-            BirthDateWidgetLayout.addWidget(BirthDateLabel, 25)
+            BirthDateWidgetLayout.addWidget(BirthDateLabel, 50)
 
-            # BirthDate LineEdit
-            BirthDateLineEdit = QLineEdit()
-            BirthDateLineEdit.setReadOnly(True)
-            BirthDateLineEdit.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
-            BirthDateLineEdit.setText(myresult[0][5].strftime("%a %b %d %Y"))
-            BirthDateWidgetLayout.addWidget(BirthDateLineEdit, 75)
+            #BirthDate DateEdit
+            BirthDateCalendar = QDateEdit()
+            BirthDateCalendar.setCalendarPopup(True)
+            BirthDateCalendar.setStyleSheet(
+                """
+                    background-color: #ffffff;
+                    color: #005072;
+                    border-width: 1px;
+                    border-color: #005072;
+                    border-style: solid;
+                    border-radius: 10;                
+                """
+            )
+            BirthDateCalendar.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+            BirthDateCalendar.setMaximumDate(datetime.datetime.now() - datetime.timedelta(days=5840))
+            BirthDateCalendar.setMinimumDate(QDate(1903, 2, 2))
+            BirthDateCalendar.setDate(myresult[0][5])
+            BirthDateWidgetLayout.addWidget(BirthDateCalendar, 50)
 
             AccountInfoDailogLayout.addWidget(BirthDateWidget)
 
@@ -1015,16 +1045,48 @@ class Window(QMainWindow):
             GenderLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             GenderLabel.setFont(font)
             GenderLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
-            GenderWidgetLayout.addWidget(GenderLabel, 25)
+            GenderWidgetLayout.addWidget(GenderLabel, 50)
 
             # Gender LineEdit
-            GenderLineEdit = QLineEdit()
-            GenderLineEdit.setReadOnly(True)
-            GenderLineEdit.setText(myresult[0][6])
-            GenderLineEdit.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
-            GenderWidgetLayout.addWidget(GenderLineEdit, 75)
-
+            GenderComboBox = QComboBox()
+            GenderComboBox.addItem("Male")
+            GenderComboBox.addItem("Female")
+            GenderComboBox.setCurrentText(myresult[0][6])
+            GenderWidgetLayout.addWidget(GenderComboBox, 50)
             AccountInfoDailogLayout.addWidget(GenderWidget)
+
+
+            # Account Update Button
+            UpdateButtonBox = QDialogButtonBox()
+            UpdateButtonBox.setCenterButtons(True)
+            UpdateButtonBox.setStandardButtons(QDialogButtonBox.Ok)
+            UpdateButtonBox.button(QDialogButtonBox.Ok).setText('Update')
+            UpdateButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
+            UpdateButtonBox.button(QDialogButtonBox.Ok).setLayoutDirection(Qt.RightToLeft)
+            UpdateButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
+                """
+                    background-color: #005072;
+                    color: #ffffff;
+                    border-width: 1px;
+                    border-color: #1e1e1e;
+                    border-style: solid;
+                    border-radius: 10;
+                    padding: 3px;
+                    font-weight: 700;
+                    font-size: 12px;
+                    padding-left: 5px;
+                    padding-right: 5px;
+                    min-width: 40px;
+                """
+            )
+            AccountInfoDailogLayout.addWidget(UpdateButtonBox)
+
+            NameLineEdit.textChanged.connect(lambda: self.UpdateButtonToggle(UpdateButtonBox))
+            BirthDateCalendar.dateChanged.connect(lambda: self.BirthDateChanged(AgeLineEdit))
+
+            UpdateButtonBox.accepted.connect(AccountInfoDialogBox.accept)
+            UpdateButtonBox.rejected.connect(AccountInfoDialogBox.reject)
+            UpdateButtonBox.accepted.connect(lambda: self.UpdateInfo(NameLineEdit, BirthDateCalendar, GenderComboBox))
 
             AccountInfoDialogBox.exec_()
 
@@ -1032,6 +1094,50 @@ class Window(QMainWindow):
             QMessageBox.critical(self, "Error",
                                  'Unable to connect to Server',
                                  QMessageBox.Ok)
+
+    # Toggle Update Button
+    def UpdateButtonToggle(self, UpdateButtonBox):
+        NameLineEdit = self.sender()
+        if len(NameLineEdit.text()) == 0:
+            UpdateButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
+        else:
+            UpdateButtonBox.button(QDialogButtonBox.Ok).setDisabled(False)
+
+    # Update Age
+    def BirthDateChanged(self, AgeLineEdit):
+        BirthDateCalendar = self.sender()
+        BirthDate = datetime.datetime.strptime(BirthDateCalendar.text(), '%m/%d/%Y').date()
+        AgeLineEdit.setText(str(datetime.date.today().year - BirthDate.year - ((datetime.date.today().month, datetime.date.today().day) < (BirthDate.month, BirthDate.day))))
+
+    # Update
+    def UpdateInfo(self, NameLineEdit, BirthDateCalendar, GenderComboBox):
+        try:
+            mycursor = mydb.cursor()
+
+            mycursor.execute(
+                """
+                Update users set
+                first_name = %s,
+                last_name = %s,
+                dob = %s,
+                gender = %s
+                where
+                email = %s
+                """,
+                (NameLineEdit.text().split(" ", 2)[0],
+                 NameLineEdit.text().split(" ", 2)[1],
+                 datetime.datetime.strptime(BirthDateCalendar.text(), '%m/%d/%Y').date(),
+                 GenderComboBox.currentText(),
+                 self.email,)
+            )
+            QMessageBox.information(self, "Account",
+                                    "Account Info Successfully Updated", QMessageBox.Ok)
+
+            mydb.commit()
+
+        except mysql.connector.Error as error:
+            QMessageBox.critical(self, 'Database Error',
+                                 'Connection to database failed', QMessageBox.Ok)
 
     # Logout Dialog
     def LogoutDialog(self):
@@ -1154,6 +1260,7 @@ class Window(QMainWindow):
                         except Exception as e:
                             MessagesTable.cellWidget(rowList.index(row), j).setStyleSheet("background-color: #b1ddf0")
 
+            MessagesTable.setColumnHidden(0, True)
             MessagesTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
             MessagesTable.resizeColumnsToContents()
             MessagesTable.resizeRowsToContents()
@@ -1396,6 +1503,7 @@ class Window(QMainWindow):
                 deleteButton.clicked.connect(lambda: self.DeleteSentMessages(MessagesTable))
                 MessagesTable.setCellWidget(rowList.index(row), 4, deleteButton)
 
+            MessagesTable.setColumnHidden(0, True)
             MessagesTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
             MessagesTable.resizeColumnsToContents()
             MessagesTable.resizeRowsToContents()
@@ -2037,7 +2145,6 @@ if __name__ == "__main__":
         QMessageBox.critical(STD, 'Database Error',
                             'Could Not connect to Database', QMessageBox.Ok)
 
-        QCloseEvent.accept(STD)
-
+        sys.exit(0)
 
     sys.exit(App.exec())
