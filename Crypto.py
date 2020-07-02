@@ -1105,6 +1105,9 @@ class Window(QMainWindow):
             AccountInfoDailogLayout.addWidget(UpdateButtonBox)
 
             NameLineEdit.textChanged.connect(lambda: self.UpdateButtonToggle(UpdateButtonBox))
+            BirthDateCalendar.dateChanged.connect(lambda: self.UpdateButtonToggle(UpdateButtonBox))
+            GenderComboBox.currentTextChanged.connect(lambda: self.UpdateButtonToggle(UpdateButtonBox))
+
             BirthDateCalendar.dateChanged.connect(lambda: self.BirthDateChanged(AgeLineEdit))
 
             UpdateButtonBox.accepted.connect(AccountInfoDialogBox.accept)
@@ -1120,10 +1123,18 @@ class Window(QMainWindow):
 
     # Toggle Update Button
     def UpdateButtonToggle(self, UpdateButtonBox):
-        NameLineEdit = self.sender()
-        if len(NameLineEdit.text()) == 0:
-            UpdateButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
-        else:
+        Widget = self.sender()
+
+        if isinstance(Widget, QLineEdit):
+            if len(Widget.text()) == 0:
+                UpdateButtonBox.button(QDialogButtonBox.Ok).setDisabled(True)
+            else:
+                UpdateButtonBox.button(QDialogButtonBox.Ok).setDisabled(False)
+
+        elif isinstance(Widget, QComboBox):
+            UpdateButtonBox.button(QDialogButtonBox.Ok).setDisabled(False)
+
+        elif isinstance(Widget, QDateEdit):
             UpdateButtonBox.button(QDialogButtonBox.Ok).setDisabled(False)
 
     # Update Age
@@ -1135,8 +1146,14 @@ class Window(QMainWindow):
     # Update
     def UpdateInfo(self, NameLineEdit, BirthDateCalendar, GenderComboBox):
         try:
-            mycursor = mydb.cursor()
+            if len(NameLineEdit.text().split(" ", 2)) == 2:
+                FirstName = NameLineEdit.text().split(" ", 2)[0]
+                LastName = NameLineEdit.text().split(" ", 2)[1]
+            else:
+                FirstName = NameLineEdit.text()
+                LastName = ''
 
+            mycursor = mydb.cursor()
             mycursor.execute(
                 """
                 Update users set
@@ -1147,8 +1164,8 @@ class Window(QMainWindow):
                 where
                 email = %s
                 """,
-                (NameLineEdit.text().split(" ", 2)[0],
-                 NameLineEdit.text().split(" ", 2)[1],
+                (FirstName,
+                 LastName,
                  datetime.datetime.strptime(BirthDateCalendar.text(), '%m/%d/%Y').date(),
                  GenderComboBox.currentText(),
                  self.email,)
@@ -2161,7 +2178,18 @@ if __name__ == "__main__":
         if STD.email == '':
             STD.LoginLayout()
         else:
-            STD.MainWindow()
+            mycursor = mydb.cursor()
+            mycursor.execute("SELECT * FROM users where email = %s",
+                             (STD.email,))
+
+            myresult = mycursor.fetchall()
+
+            if not len(myresult):
+                STD.settings.setValue('email', '')
+                STD.LoginLayout()
+            else:
+                STD.MainWindow()
+
         STD.show()
     else:
         STD.show()
