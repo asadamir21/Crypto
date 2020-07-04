@@ -66,7 +66,9 @@ class Window(QMainWindow):
     def initWindows(self):
         self.setWindowIcon(QIcon('Images/Logo.png'))
         self.setWindowTitle(self.title)
-        self.setGeometry(self.width/2, self.height*0.125, self.width, self.height)
+        #self.setGeometry(self.width/2, self.height*0.125, self.width, self.height)
+        self.setFixedWidth(self.width)
+        self.setFixedHeight(self.height)
 
         self.CentralWidget = QWidget(self)
         self.CentralWidget.setStyleSheet('background-color: #ffffff')
@@ -590,15 +592,36 @@ class Window(QMainWindow):
         menu = QMenu("Menu");
         menu.setLayoutDirection(Qt.RightToLeft)
 
+        # Account Button
         AccountButton = QAction('Account', self)
         AccountButton.setStatusTip('Account')
         AccountButton.triggered.connect(self.AccountInfo)
         menu.addAction(AccountButton)
 
+        # Logout Button
         LogoutButton = QAction('Logout', self)
         LogoutButton.setStatusTip('Logout')
         LogoutButton.triggered.connect(self.LogoutDialog)
         menu.addAction(LogoutButton)
+
+        # About STD Button
+        AboutButton = QAction('About STD', self)
+        AboutButton.setStatusTip('About STD')
+        AboutButton.triggered.connect(lambda: QMessageBox().about(self, 'About STD', '''
+                                                                                        <h2 style="text-align:center">STD For Windows</h2>
+                                                                                        <br>
+                                                                                        <p style="text-align:center;font-size:16px">Version 1.0.0 (32 Bit)</p>
+                                                                                        <br>
+                                                                                        <p style="text-align:center;font-size:12px">Edition: Community</p>
+                                                                                        <br>
+                                                                                        <p style="text-align:center;font-size:10px">Copyright @ 1999-2015 QRS International</p>
+                                                                                        <br>
+                                                                                        <p style="text-align:center;font-size:10px">Ptv Ltd. All rights reserved</p>
+                                                                                        <a href='https://www.google.com/'>STD</a>
+                                                                                    '''
+                                                                    )
+                                      )
+        menu.addAction(AboutButton)
 
         SettingButton.setMenu(menu)
 
@@ -963,6 +986,7 @@ class Window(QMainWindow):
             font.setFamily('Ubuntu')
 
             # ****************** Email ********************
+
             EmailWidget = QWidget()
             EmailWidgetLayout = QHBoxLayout(EmailWidget)
 
@@ -975,13 +999,12 @@ class Window(QMainWindow):
             EmailWidgetLayout.addWidget(EmailLabel, 50)
 
             # Email LineEdit
-            EmailLineEdit = QLineEdit()
-            EmailLineEdit.setReadOnly(True)
-            EmailLineEdit.setDisabled(True)
-            EmailLineEdit.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
-            EmailLineEdit.setText(myresult[0][1])
-            EmailWidgetLayout.addWidget(EmailLineEdit, 50)
-
+            Email = QLabel()
+            Email.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+            Email.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
+            Email.setText(myresult[0][1])
+            EmailWidgetLayout.addWidget(Email, 50)
+            #
             AccountInfoDailogLayout.addWidget(EmailWidget)
 
             # ****************** Name ********************
