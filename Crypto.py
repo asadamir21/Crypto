@@ -605,23 +605,23 @@ class Window(QMainWindow):
         menu.addAction(LogoutButton)
 
         # About STD Button
-        AboutButton = QAction('About STD', self)
-        AboutButton.setStatusTip('About STD')
-        AboutButton.triggered.connect(lambda: QMessageBox().about(self, 'About STD', '''
-                                                                                        <h2 style="text-align:center">STD For Windows</h2>
+        HelpButton = QAction('Help', self)
+        HelpButton.setStatusTip('Help')
+        HelpButton.triggered.connect(lambda: QMessageBox().about(self, 'About STD', '''
+                                                                                        <h2 style="text-align:center">Steps to send secure messages using STD:</h2>
                                                                                         <br>
-                                                                                        <p style="text-align:center;font-size:16px">Version 1.0.0 (32 Bit)</p>
-                                                                                        <br>
-                                                                                        <p style="text-align:center;font-size:12px">Edition: Community</p>
-                                                                                        <br>
-                                                                                        <p style="text-align:center;font-size:10px">Copyright @ 1999-2015 QRS International</p>
-                                                                                        <br>
-                                                                                        <p style="text-align:center;font-size:10px">Ptv Ltd. All rights reserved</p>
-                                                                                        <a href='https://www.google.com/'>STD</a>
+                                                                                        <ol>
+                                                                                            <li>Signin/Signup using a valid email address</li>
+                                                                                            <li>Click 'Compose' Button on the top left corner of homepage</li>
+                                                                                            <li>Upload an image (max size: 100kb) to secure message</li>
+                                                                                            <li>Enter recipients email address</li>
+                                                                                            <li>Enter the text message you intend to send (max characters: 1000)</li>                                                                                            
+                                                                                            <li>Click Send</li>                                                                                            
+                                                                                        </ol>
                                                                                     '''
                                                                     )
                                       )
-        menu.addAction(AboutButton)
+        menu.addAction(HelpButton)
 
         SettingButton.setMenu(menu)
 
