@@ -56,8 +56,8 @@ class Window(QMainWindow):
         super().__init__()
         self.title = "STD"
 
-        self.width = QDesktopWidget().screenGeometry(0).width()/2
-        self.height = QDesktopWidget().screenGeometry(0).height()*0.8
+        self.width = QDesktopWidget().screenGeometry(0).width()
+        self.height = QDesktopWidget().screenGeometry(0).height()
 
         self.settings = QSettings('STD', 'STD')
         self.initWindows()
@@ -66,11 +66,8 @@ class Window(QMainWindow):
     def initWindows(self):
         self.setWindowIcon(QIcon('Images/Logo.png'))
         self.setWindowTitle(self.title)
-        self.setGeometry(self.width/2, self.height*0.125, self.width, self.height)
-        #self.setFixedWidth(self.width)
-        #self.setFixedHeight(self.height)
-        self.setMinimumWidth(self.width)
-        self.setMinimumHeight(self.height)
+        self.setGeometry(0, 0, self.width, self.height)
+        self.showMaximized()
 
         self.CentralWidget = QWidget(self)
         self.CentralWidget.setStyleSheet('background-color: #ffffff')
@@ -974,7 +971,7 @@ class Window(QMainWindow):
             # Edit Row Dialog
             AccountInfoDialogBox = QDialog()
             AccountInfoDialogBox.setModal(True)
-            AccountInfoDialogBox.setWindowTitle("Account Information")
+            AccountInfoDialogBox.setWindowTitle(self.email)
             AccountInfoDialogBox.setParent(self)
             AccountInfoDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
             AccountInfoDialogBox.setFixedWidth(self.width / 2)
@@ -1008,7 +1005,7 @@ class Window(QMainWindow):
             Email.setText(myresult[0][1])
             EmailWidgetLayout.addWidget(Email, 50)
             #
-            AccountInfoDailogLayout.addWidget(EmailWidget)
+            #AccountInfoDailogLayout.addWidget(EmailWidget)
 
             # ****************** Name ********************
             NameWidget = QWidget()
