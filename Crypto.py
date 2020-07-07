@@ -985,28 +985,6 @@ class Window(QMainWindow):
             font.setPointSize(10)
             font.setFamily('Ubuntu')
 
-            # ****************** Email ********************
-
-            EmailWidget = QWidget()
-            EmailWidgetLayout = QHBoxLayout(EmailWidget)
-
-            # Email Label
-            EmailLabel = QLabel()
-            EmailLabel.setText(self.email)
-            EmailLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
-            EmailLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
-            EmailLabel.setFont(font)
-            #EmailWidgetLayout.addWidget(EmailLabel, 50)
-
-            # Email LineEdit
-            Email = QLabel()
-            Email.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
-            Email.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
-            Email.setText(myresult[0][1])
-            EmailWidgetLayout.addWidget(Email, 50)
-            #
-            AccountInfoDailogLayout.addWidget(EmailLabel)
-
             # ****************** Name ********************
             NameWidget = QWidget()
             NameWidgetLayout = QHBoxLayout(NameWidget)
@@ -1023,6 +1001,7 @@ class Window(QMainWindow):
             NameLineEdit = QLineEdit()
             NameLineEdit.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
             NameLineEdit.setText(myresult[0][3] + " " + myresult[0][4])
+            NameLineEdit.setCursorPosition(0)
             NameWidgetLayout.addWidget(NameLineEdit, 50)
 
             AccountInfoDailogLayout.addWidget(NameWidget)
