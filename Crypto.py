@@ -66,9 +66,11 @@ class Window(QMainWindow):
     def initWindows(self):
         self.setWindowIcon(QIcon('Images/Logo.png'))
         self.setWindowTitle(self.title)
-        #self.setGeometry(self.width/2, self.height*0.125, self.width, self.height)
-        self.setFixedWidth(self.width)
-        self.setFixedHeight(self.height)
+        self.setGeometry(self.width/2, self.height*0.125, self.width, self.height)
+        #self.setFixedWidth(self.width)
+        #self.setFixedHeight(self.height)
+        self.setMinimumWidth(self.width)
+        self.setMinimumHeight(self.height)
 
         self.CentralWidget = QWidget(self)
         self.CentralWidget.setStyleSheet('background-color: #ffffff')
@@ -675,15 +677,16 @@ class Window(QMainWindow):
 
         # Table
         TableWidget = QWidget()
-        #TableWidget.setStyleSheet("border-width: 0.5px; border-color:  #005072; border-style: solid; border-radius: 10;")
         TableWidgetLayout = QVBoxLayout(TableWidget)
 
         # Search Widget
         SearchWidget = QWidget()
         SearchWidgetLayout = QHBoxLayout(SearchWidget)
-        SearchWidgetLayout.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
+        SearchWidgetLayout.setAlignment(Qt.AlignVCenter)
         SearchWidgetLayout.setContentsMargins(SearchWidget.width()*0.5, 0, 0, 0)
         SearchWidgetLayout.setSpacing(50)
+
+        SearchWidgetLayout.addWidget(QWidget(), 50)
 
         # Search LineEdit
         SearchLineEdit = QLineEdit()
@@ -691,7 +694,7 @@ class Window(QMainWindow):
         SearchLineEdit.setClearButtonEnabled(True)
         SearchLineEdit.addAction(QIcon("Images/Search.png"), QLineEdit.LeadingPosition)
         SearchLineEdit.setPlaceholderText("Search...")
-        SearchWidgetLayout.addWidget(SearchLineEdit)
+        SearchWidgetLayout.addWidget(SearchLineEdit, 50)
 
         TableWidgetLayout.addWidget(SearchWidget, 10)
 
