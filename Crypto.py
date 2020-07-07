@@ -1021,7 +1021,7 @@ class Window(QMainWindow):
 
             # Name LineEdit
             NameLineEdit = QLineEdit()
-            NameLineEdit.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+            NameLineEdit.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
             NameLineEdit.setText(myresult[0][3] + " " + myresult[0][4])
             NameWidgetLayout.addWidget(NameLineEdit, 50)
 
@@ -1310,11 +1310,39 @@ class Window(QMainWindow):
                 viewButton = QPushButton("view")
                 viewButton.clicked.connect(lambda: self.ViewInboxMessages(MessagesTable))
                 MessagesTable.setCellWidget(rowList.index(row), 3, viewButton)
+                MessagesTable.cellWidget(rowList.index(row), 3).setStyleSheet(
+                    """
+                        QPushButton 
+                        {
+                            border-width: 0px;
+                            color: #005072;
+                            padding: 3px;
+                            font-size: 12px;
+                            padding-left: 5px;
+                            padding-right: 5px;
+                            min - width: 40px;                            
+                        }
+                    """
+                )
 
                 # delete Button
                 deleteButton = QPushButton("Delete")
                 deleteButton.clicked.connect(lambda: self.DeleteInboxMessages(MessagesTable))
                 MessagesTable.setCellWidget(rowList.index(row), 4, deleteButton)
+                MessagesTable.cellWidget(rowList.index(row), 4).setStyleSheet(
+                    """
+                        QPushButton 
+                        {
+                            border-width: 0px;
+                            color: #005072;
+                            padding: 3px;
+                            font-size: 12px;
+                            padding-left: 5px;
+                            padding-right: 5px;
+                            min - width: 40px;                            
+                        }
+                    """
+                )
 
                 if row[3] == 0:
                     for j in range(5):
@@ -1365,7 +1393,7 @@ class Window(QMainWindow):
                 ViewDialogBox.setWindowTitle("View Message")
                 ViewDialogBox.setParent(self)
                 ViewDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
-                ViewDialogBox.setFixedWidth(self.width / 2)
+                ViewDialogBox.setFixedWidth(self.width / 4)
                 ViewDialogBox.setStyleSheet('background-color: #ffffff')
 
                 ViewDailogLayout = QVBoxLayout(ViewDialogBox)
@@ -1560,11 +1588,39 @@ class Window(QMainWindow):
                 viewButton = QPushButton("view")
                 viewButton.clicked.connect(lambda: self.ViewSentMessages(MessagesTable))
                 MessagesTable.setCellWidget(rowList.index(row), 3, viewButton)
+                MessagesTable.cellWidget(rowList.index(row), 3).setStyleSheet(
+                    """
+                        QPushButton 
+                        {                            
+                            border-width: 0px;
+                            color: #005072;
+                            padding: 3px;
+                            font-size: 12px;
+                            padding-left: 5px;
+                            padding-right: 5px;
+                            min - width: 40px;                            
+                        }
+                    """
+                )
 
                 # delete Button
                 deleteButton = QPushButton("Delete")
                 deleteButton.clicked.connect(lambda: self.DeleteSentMessages(MessagesTable))
                 MessagesTable.setCellWidget(rowList.index(row), 4, deleteButton)
+                MessagesTable.cellWidget(rowList.index(row), 4).setStyleSheet(
+                    """
+                        QPushButton 
+                        {
+                            border-width: 0px;
+                            color: #005072;
+                            padding: 3px;
+                            font-size: 12px;
+                            padding-left: 5px;
+                            padding-right: 5px;
+                            min - width: 40px;                            
+                        }
+                    """
+                )
 
             MessagesTable.setColumnHidden(0, True)
             MessagesTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -1607,7 +1663,7 @@ class Window(QMainWindow):
                 ViewDialogBox.setWindowTitle("View Message")
                 ViewDialogBox.setParent(self)
                 ViewDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
-                ViewDialogBox.setFixedWidth(self.width / 2)
+                ViewDialogBox.setFixedWidth(self.width / 4)
                 ViewDialogBox.setStyleSheet('background-color: #ffffff')
 
                 ViewDailogLayout = QVBoxLayout(ViewDialogBox)
