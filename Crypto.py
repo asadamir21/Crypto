@@ -992,11 +992,11 @@ class Window(QMainWindow):
 
             # Email Label
             EmailLabel = QLabel()
-            EmailLabel.setText("Email:")
+            EmailLabel.setText(self.email)
             EmailLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
             EmailLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
             EmailLabel.setFont(font)
-            EmailWidgetLayout.addWidget(EmailLabel, 50)
+            #EmailWidgetLayout.addWidget(EmailLabel, 50)
 
             # Email LineEdit
             Email = QLabel()
@@ -1005,7 +1005,7 @@ class Window(QMainWindow):
             Email.setText(myresult[0][1])
             EmailWidgetLayout.addWidget(Email, 50)
             #
-            #AccountInfoDailogLayout.addWidget(EmailWidget)
+            AccountInfoDailogLayout.addWidget(EmailLabel)
 
             # ****************** Name ********************
             NameWidget = QWidget()
