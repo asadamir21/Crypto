@@ -106,12 +106,12 @@ class Window(QMainWindow):
                     CentralWidgetLayout.removeItem(CentralWidgetLayout.itemAt(0))
 
             CentralWidgetLayout.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            CentralWidgetLayout.setContentsMargins(self.width * 0.25, 0, self.width * 0.25, 0)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.375, 0, self.width * 0.375, 0)
 
         else:
             CentralWidgetLayout = QVBoxLayout(self.CentralWidget)
             CentralWidgetLayout.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            CentralWidgetLayout.setContentsMargins(self.width * 0.25, 0, self.width * 0.25, 0)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.375, 0, self.width * 0.375, 0)
 
         font = QFont()
         font.setBold(True)
@@ -253,11 +253,11 @@ class Window(QMainWindow):
             CentralWidgetLayout = self.CentralWidget.layout()
             for i in reversed(range(CentralWidgetLayout.count())):
                 CentralWidgetLayout.itemAt(i).widget().setParent(None)
-            CentralWidgetLayout.setContentsMargins(self.width * 0.25, 0, self.width * 0.25, 0)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.375, 0, self.width * 0.375, 0)
         else:
             CentralWidgetLayout = QVBoxLayout(self.CentralWidget)
             CentralWidgetLayout.setAlignment(Qt.AlignHCenter)
-            CentralWidgetLayout.setContentsMargins(self.width * 0.25, 0, self.width * 0.25, 0)
+            CentralWidgetLayout.setContentsMargins(self.width * 0.375, 0, self.width * 0.375, 0)
             CentralWidgetLayout.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
 
         # Font
@@ -716,7 +716,7 @@ class Window(QMainWindow):
         ComposeMessageDialogBox.setWindowTitle("Compose Message")
         ComposeMessageDialogBox.setParent(self)
         ComposeMessageDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
-        ComposeMessageDialogBox.setFixedWidth(self.width / 2)
+        ComposeMessageDialogBox.setFixedWidth(self.width / 4)
         ComposeMessageDialogBox.setStyleSheet('background-color: #ffffff')
 
         ComposeMessageDailogLayout = QVBoxLayout(ComposeMessageDialogBox)
@@ -974,7 +974,7 @@ class Window(QMainWindow):
             AccountInfoDialogBox.setWindowTitle(self.email)
             AccountInfoDialogBox.setParent(self)
             AccountInfoDialogBox.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.MSWindowsFixedSizeDialogHint)
-            AccountInfoDialogBox.setFixedWidth(self.width / 2)
+            AccountInfoDialogBox.setFixedWidth(self.width / 4)
             AccountInfoDialogBox.setStyleSheet('background-color: #ffffff')
 
             AccountInfoDailogLayout = QVBoxLayout(AccountInfoDialogBox)
