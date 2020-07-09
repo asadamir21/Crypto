@@ -1,3 +1,4 @@
+from PyQt5.QtCore import QHistoryState
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -622,12 +623,16 @@ class Window(QMainWindow):
                                       )
         menu.addAction(HelpButton)
 
-        SettingButton.setMenu(menu)
+        # Delete Account
+        DeleteButton = QAction('Delete Account', self)
+        DeleteButton.setStatusTip('Delete Account')
+        DeleteButton.triggered.connect(self.DeleteAccountDialog)
+        menu.addAction(DeleteButton)
 
+        SettingButton.setMenu(menu)
         SettingButtonWidgetLayout.addWidget(SettingButton)
 
         TopWidgetLayout.addWidget(SettingButtonWidget)
-
         CentralWidgetLayout.addWidget(TopWidget)
 
         # ************************************************************************************
@@ -1196,6 +1201,50 @@ class Window(QMainWindow):
     def Logout(self):
         self.settings.setValue('email', '')
         self.LoginLayout()
+
+    # Delete Account Dialog
+    def DeleteAccountDialog(self):
+        DeleteAccountQuestion = QMessageBox.question(self, 'Delete Account',
+                                              'Are you sure you want to Delete this Account?',
+                                              QMessageBox.Yes | QMessageBox.No)
+
+        if DeleteAccountQuestion == QMessageBox.Yes:
+            self.DeleteAccount()
+        else:
+            pass
+
+    # Delete Account
+    def DeleteAccount(self):
+        try:
+            mycursor = mydb.cursor()
+            mycursor.execute(
+                """
+                    DELETE FROM messages
+                    WHERE
+                    sender_id = (Select id from users where email = %s)
+                    or
+                    receiver_id = (Select id from users where email = %s);
+                """,
+                (self.email,
+                 self.email,)
+            )
+            mydb.commit()
+
+            mycursor.execute(
+                """
+                    DELETE FROM users WHERE email = %s
+                """,
+                (self.email,)
+            )
+            mydb.commit()
+
+            QMessageBox.information(self, "Account",
+                                    "Account Successfully Deleted", QMessageBox.Ok)
+            self.Logout()
+
+        except mysql.connector.Error as error:
+            QMessageBox.critical(self, 'Database Error',
+                                 'Connection to database failed', QMessageBox.Ok)
 
     # Category List Changed
     def CategoryListCurrentItemChanged(self, MessagesTable):
