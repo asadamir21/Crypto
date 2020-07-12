@@ -1205,7 +1205,7 @@ class Window(QMainWindow):
     # Delete Account Dialog
     def DeleteAccountDialog(self):
         DeleteAccountQuestion = QMessageBox.question(self, 'Delete Account',
-                                              'Are you sure you want to Delete this Account?',
+                                              'Are you sure you want to Delete this Account? All messages related to this account will also be deleted',
                                               QMessageBox.Yes | QMessageBox.No)
 
         if DeleteAccountQuestion == QMessageBox.Yes:
@@ -1485,7 +1485,7 @@ class Window(QMainWindow):
                 ViewButtonBox = QDialogButtonBox()
                 ViewButtonBox.setCenterButtons(True)
                 ViewButtonBox.setStandardButtons(QDialogButtonBox.Ok)
-                ViewButtonBox.button(QDialogButtonBox.Ok).setText('View Encrypted Image')
+                ViewButtonBox.button(QDialogButtonBox.Ok).setText('Download Image')
                 ViewButtonBox.button(QDialogButtonBox.Ok).setLayoutDirection(Qt.RightToLeft)
                 ViewButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
                     """
@@ -1507,7 +1507,7 @@ class Window(QMainWindow):
 
                 ViewButtonBox.accepted.connect(ViewDialogBox.accept)
                 ViewButtonBox.rejected.connect(ViewDialogBox.reject)
-                ViewButtonBox.accepted.connect(lambda: Image.open(io.BytesIO(rowList[0][3])).show())
+                ViewButtonBox.accepted.connect(lambda: self.SaveImage(Image.open(io.BytesIO(rowList[0][3]))))
 
                 ViewDialogBox.exec_()
 
@@ -1756,7 +1756,7 @@ class Window(QMainWindow):
                 ViewButtonBox = QDialogButtonBox()
                 ViewButtonBox.setCenterButtons(True)
                 ViewButtonBox.setStandardButtons(QDialogButtonBox.Ok)
-                ViewButtonBox.button(QDialogButtonBox.Ok).setText('View Encrypted Image')
+                ViewButtonBox.button(QDialogButtonBox.Ok).setText('Download Image')
                 ViewButtonBox.button(QDialogButtonBox.Ok).setLayoutDirection(Qt.RightToLeft)
                 ViewButtonBox.button(QDialogButtonBox.Ok).setStyleSheet(
                     """
@@ -1778,13 +1778,25 @@ class Window(QMainWindow):
 
                 ViewButtonBox.accepted.connect(ViewDialogBox.accept)
                 ViewButtonBox.rejected.connect(ViewDialogBox.reject)
-                ViewButtonBox.accepted.connect(lambda: Image.open(io.BytesIO(rowList[0][3])).show())
-
+                ViewButtonBox.accepted.connect(lambda: self.SaveImage(Image.open(io.BytesIO(rowList[0][3]))))
                 ViewDialogBox.exec_()
 
             except mysql.connector.Error as error:
                 QMessageBox.critical(self, 'Database Error',
                                     'Connection to database failed', QMessageBox.Ok)
+
+    # Save Image
+    def SaveImage(self, Image):
+        path = QFileDialog.getSaveFileName(self, 'Save File', '', 'PNG(*.png)')
+        if all(path):
+            Image.save(path[0])
+
+            SaveSuccessBox = QMessageBox(self)
+            SaveSuccessBox.setIcon(QMessageBox.Information)
+            SaveSuccessBox.setText('Image Successfully Saved')
+            SaveSuccessBox.setStandardButtons(QMessageBox.Open | QMessageBox.Ok)
+            SaveSuccessBox.button(QMessageBox.Open).clicked.connect(lambda: os.startfile(path[0]))
+            SaveSuccessBox.show()
 
     # Delete Send Messages
     def DeleteSentMessages(self, MessagesTable):
