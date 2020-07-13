@@ -55,12 +55,12 @@ class CryptoSteganography(object):
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.title = "STD"
+        self.title = "Crypto"
 
         self.width = QDesktopWidget().screenGeometry(0).width()
         self.height = QDesktopWidget().screenGeometry(0).height()
 
-        self.settings = QSettings('STD', 'STD')
+        self.settings = QSettings('Crypto', 'Crypto')
         self.initWindows()
 
     # Initiate Windows
@@ -126,7 +126,7 @@ class Window(QMainWindow):
 
         # Application Title
         ApplicationTitleLabel = QLabel()
-        ApplicationTitleLabel.setText("STD")
+        ApplicationTitleLabel.setText("Crypto")
         ApplicationTitleLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
         ApplicationTitleLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         font.setPointSize(20)
@@ -274,7 +274,7 @@ class Window(QMainWindow):
 
         # Application Title
         ApplicationTitleLabel = QLabel()
-        ApplicationTitleLabel.setText("STD")
+        ApplicationTitleLabel.setText("Crypto")
         ApplicationTitleLabel.setAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
         ApplicationTitleLabel.setStyleSheet("background-color: rgba(0,0,0,0%);color: #005072;")
         font.setPointSize(20)
@@ -604,11 +604,11 @@ class Window(QMainWindow):
         LogoutButton.triggered.connect(self.LogoutDialog)
         menu.addAction(LogoutButton)
 
-        # About STD Button
+        # About Crypto Button
         HelpButton = QAction('Help', self)
         HelpButton.setStatusTip('Help')
-        HelpButton.triggered.connect(lambda: QMessageBox().about(self, 'About STD', '''
-                                                                                        <h2 style="text-align:center">Steps to send secure messages using STD:</h2>
+        HelpButton.triggered.connect(lambda: QMessageBox().about(self, 'About Crypto', '''
+                                                                                        <h2 style="text-align:center">Steps to send secure messages using Crypto:</h2>
                                                                                         <br>
                                                                                         <ol>
                                                                                             <li>Signin/Signup using a valid email address</li>
@@ -1837,13 +1837,13 @@ if __name__ == "__main__":
             host="localhost",
             user="root",
             password="",
-            database="STD"
+            database="crypto"
         )
     except:
         DBError = True
 
-    STD = Window()
-    STD.setStyleSheet(
+    Crypto = Window()
+    Crypto.setStyleSheet(
         """
             QPushButton::menu-indicator 
             {
@@ -2294,25 +2294,25 @@ if __name__ == "__main__":
         """
     )
     if not DBError:
-        if STD.email == '':
-            STD.LoginLayout()
+        if Crypto.email == '':
+            Crypto.LoginLayout()
         else:
             mycursor = mydb.cursor()
             mycursor.execute("SELECT * FROM users where email = %s",
-                             (STD.email,))
+                             (Crypto.email,))
 
             myresult = mycursor.fetchall()
 
             if not len(myresult):
-                STD.settings.setValue('email', '')
-                STD.LoginLayout()
+                Crypto.settings.setValue('email', '')
+                Crypto.LoginLayout()
             else:
-                STD.MainWindow()
+                Crypto.MainWindow()
 
-        STD.show()
+        Crypto.show()
     else:
-        STD.show()
-        QMessageBox.critical(STD, 'Database Error',
+        Crypto.show()
+        QMessageBox.critical(Crypto, 'Database Error',
                             'Could Not connect to Database', QMessageBox.Ok)
 
         sys.exit(0)
